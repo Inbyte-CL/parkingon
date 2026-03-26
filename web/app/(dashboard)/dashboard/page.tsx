@@ -276,7 +276,7 @@ export default function DashboardPage() {
                         onClick={() => setShowCalendar(true)}
                         className="px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 transition-colors"
                       >
-                        {dateRange.from && dateRange.to
+                        {dateRange?.from && dateRange?.to
                           ? `${dateRange.from.toLocaleDateString('es-CL')} – ${dateRange.to.toLocaleDateString('es-CL')}`
                           : 'Seleccionar fechas'}
                       </button>
