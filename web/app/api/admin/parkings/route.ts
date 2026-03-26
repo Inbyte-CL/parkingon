@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     const now = new Date().toISOString()
 
     // Una sola consulta de tarifas vigentes por orgs (evita N+1 y cuelgues)
-    const orgIds = [...new Set(parkingsList.map((p: any) => p.org_id))]
+    const orgIds = Array.from(new Set(parkingsList.map((p: any) => p.org_id)))
     const { data: tariffsRows } = await supabase
       .from('tariffs')
       .select('id, org_id, parking_id, price_per_minute, valid_from, valid_until')
