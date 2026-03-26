@@ -53,7 +53,7 @@ export default function DashboardPage() {
         dateTo = new Date(now); dateTo.setHours(23, 59, 59, 999)
         break
       case 'range':
-        if (dateRange.from && dateRange.to) {
+        if (dateRange?.from && dateRange?.to) {
           dateFrom = new Date(dateRange.from); dateFrom.setHours(0, 0, 0, 0)
           dateTo = new Date(dateRange.to); dateTo.setHours(23, 59, 59, 999)
           if (dateFrom.getTime() > dateTo.getTime()) [dateFrom, dateTo] = [dateTo, dateFrom]
