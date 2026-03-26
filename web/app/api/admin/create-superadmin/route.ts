@@ -44,15 +44,27 @@ export async function POST(request: Request) {
       // Si el usuario ya existe, actualizarlo
       if (authError?.message?.includes('already registered')) {
         // Obtener el usuario existente
-        const { data: existingUser } = await supabase.auth.admin.getUserByEmail(email)
-        
-        if (existingUser?.user) {
+        const { data: usersData, error: listUsersError } = await supabase.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000
+        })
+
+        if (listUsersError) {
+          return NextResponse.json(
+            { error: `Error al buscar usuario existente: ${listUsersError.message}` },
+            { status: 500 }
+          )
+        }
+
+        const existingUser = usersData.users.find((user) => user.email === email)
+
+        if (existingUser) {
           // Actualizar metadata para marcarlo como superadmin
           const { error: updateError } = await supabase.auth.admin.updateUserById(
-            existingUser.user.id,
+            existingUser.id,
             {
               user_metadata: {
-                ...existingUser.user.user_metadata,
+                ...existingUser.user_metadata,
                 is_superadmin: true
               }
             }
@@ -69,8 +81,8 @@ export async function POST(request: Request) {
             success: true,
             message: 'Usuario existente actualizado como superadmin',
             user: {
-              id: existingUser.user.id,
-              email: existingUser.user.email
+              id: existingUser.id,
+              email: existingUser.email
             }
           })
         }
