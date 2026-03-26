@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { DayPicker } from 'react-day-picker'
+import type { DateRange } from 'react-day-picker'
 import { es } from 'react-day-picker/locale'
 import { useUser } from '@/lib/hooks/useUser'
 import { useDashboardMetrics } from '@/lib/hooks/useDashboardMetrics'
@@ -12,13 +13,11 @@ import { formatCLP } from '@/lib/utils/currency'
 
 type RevenuePeriod = 'today' | '7d' | '1m' | 'range'
 
-type DateRange = { from?: Date; to?: Date }
-
 export default function DashboardPage() {
   const { userInfo } = useUser()
   const [selectedParkingId, setSelectedParkingId] = useState<string>('')
   const [revenuePeriod, setRevenuePeriod] = useState<RevenuePeriod>('1m')
-  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined })
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [showCalendar, setShowCalendar] = useState(false)
   const calendarRef = useRef<HTMLDivElement>(null)
 
@@ -69,7 +68,7 @@ export default function DashboardPage() {
       dateTo = new Date(now.getFullYear(), now.getMonth() + 1, 0); dateTo.setHours(23, 59, 59, 999)
     }
     return { dateFrom, dateTo }
-  }, [revenuePeriod, dateRange.from, dateRange.to])
+  }, [revenuePeriod, dateRange?.from, dateRange?.to])
 
   const { breakdown, loading: breakdownLoading } = usePaymentBreakdown(
     userInfo?.orgId || undefined,
@@ -286,8 +285,8 @@ export default function DashboardPage() {
                         <DayPicker
                           mode="range"
                           selected={dateRange}
-                          onSelect={(range) => setDateRange(range ?? { from: undefined, to: undefined })}
-                          defaultMonth={dateRange.from ?? dateRange.to ?? new Date()}
+                          onSelect={setDateRange}
+                          defaultMonth={dateRange?.from ?? dateRange?.to ?? new Date()}
                           numberOfMonths={1}
                           locale={es}
                           classNames={{
