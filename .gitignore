@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Local screenshots and ad hoc files
 Screenshot_*.png
+AGENTS.md
+
+.vercel

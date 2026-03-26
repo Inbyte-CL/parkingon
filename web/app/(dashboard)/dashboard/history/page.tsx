@@ -160,6 +160,9 @@ export default function HistoryPage() {
         // Debug: Verificar estructura de datos del join
         if (sessionsData && sessionsData.length > 0) {
           const firstSession = sessionsData[0]
+          const firstParking = Array.isArray(firstSession.parkings)
+            ? firstSession.parkings[0]
+            : firstSession.parkings
           console.log('🔍 Ejemplo de sesión (primera):', {
             id: firstSession.id,
             plate: firstSession.plate,
@@ -167,7 +170,7 @@ export default function HistoryPage() {
             parkings: firstSession.parkings,
             parkingsType: typeof firstSession.parkings,
             parkingsIsArray: Array.isArray(firstSession.parkings),
-            parkingsName: firstSession.parkings?.name || (Array.isArray(firstSession.parkings) && firstSession.parkings[0]?.name) || 'NO ENCONTRADO'
+            parkingsName: firstParking?.name || 'NO ENCONTRADO'
           })
           
           // Si parkings es un array, tomar el primero
@@ -177,11 +180,14 @@ export default function HistoryPage() {
         }
         
         if (sessionsData && sessionsData.length > 0) {
+          const firstParking = Array.isArray(sessionsData[0].parkings)
+            ? sessionsData[0].parkings[0]
+            : sessionsData[0].parkings
           console.log('   Primera sesión:', {
             id: sessionsData[0].id,
             entry_time: sessionsData[0].entry_time,
-            parking_name: sessionsData[0].parkings?.name,
-            org_id: sessionsData[0].parkings?.org_id
+            parking_name: firstParking?.name,
+            org_id: firstParking?.org_id
           })
         }
 

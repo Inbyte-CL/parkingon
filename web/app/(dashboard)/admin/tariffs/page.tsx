@@ -6,6 +6,7 @@ import { useOrganizations } from '@/lib/hooks/useOrganizations'
 import { useParkings } from '@/lib/hooks/useParkings'
 import CreateTariffModal from '@/components/CreateTariffModal'
 import EditTariffModal from '@/components/EditTariffModal'
+import { formatCLP } from '@/lib/utils/currency'
 
 interface Tariff {
   id: string
