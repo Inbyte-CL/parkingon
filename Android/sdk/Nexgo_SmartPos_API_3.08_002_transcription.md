@@ -1,0 +1,17970 @@
+# Nexgo SmartPOS API 3.08_002 - Full Transcription
+
+Source: Nexgo_SmartPos_API_3.08_002.pdf
+
+Notes: This is a page-by-page transcription extracted from the PDF text layer. Page boundaries preserved.
+
+---
+
+## Page 1
+
+```text
+API Interface Specification
+
+Programmer's Reference Manual (Android)
+V- 3.08.001
+2024-03-25
+
+Shenzhen Xinguodu Technology Co., Ltd Published
+
+www.xinguodu.com
+
+Copyright @ 2016-2026 Shenzhen New State Technology Co., Ltd.
+
+China print and publish
+
+This  document  may  adjust  the  technical  errors  that  may  be  included  without  notice. Modifications  to
+this document will be released in the next release. This document prohibits any form of reproduction or
+propagation without permission.
+```
+
+## Page 2
+
+```text
+Version
+
+Date
+
+2016-08-12
+
+2016-9-12
+
+Editor
+
+Liu Ting
+
+Liu Ting
+
+2016-10-12
+
+Zhou Xiaoxin
+
+V0.1
+
+V0.2
+
+V0.3
+
+V 0.4
+
+2016-10-31
+
+Zhou Xiaoxin
+
+V 0.5
+V 0.6
+
+2016-11-11
+2016-11-25
+
+Zhou Xiao Xin
+Zhou Xin
+
+V 0.7
+
+2016-12-05
+
+Zhou Xin
+
+V0.8
+V1.0. 4
+
+  V2.0.1
+V2.0.6
+
+V2.0.7
+V2.0.9
+
+2016-12-08
+2017-01-13
+
+Zhou Xiaoxin
+Wang Hongyang
+
+2017-05-04
+2018-01-04
+
+2018-05-28
+2018-10-29
+
+QiangFang
+Hassan
+
+Hassan
+Hassan
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+Startprint () function to modify the number of
+Parameters
+Add the appendix Return Value that is refined
+into the class Description, as well as some
+function changes
+Modify the buzzer interface
+Modify EMV card module power up and down
+from the application layer control
+Modify PIN pad work Cadogan a key type
+Increase silent uninstall Interface
+EMV interface modification, the amount of
+correction, whether the use of electronic cash
+callback
+Print Increment Print One-dimensional code
+Two-dimensional code interface
+
+Increase the camera scan interface
+According to the reference document,
+organize the structure of the document
+Increase DUKTP
+Add onSetAfterFinalSelectedAppResponse,
+and onAfterFinalSelectedApp method.
+Sync new methods
+1.  OnEmvProcessListener add callback:
+
+onPrompt, onRemoveCard
+2.  EmvHandler add method:
+
+onSetRemoveCardResponse,
+onSetPromptResponse
+3.  Remove armeabi(include
+
+libnexgo_emvjni.so, libnexgo_gencode.so,
+libnexgo_sdkemvjni.so).
+
+4.  Change SDK package format: jar-→aar
+5.  CardReader add Felica method:
+
+setSupportFelica: if support Felica card
+setFelicaRequestCode,
+
+Confidential
+
+2
+```
+
+## Page 3
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+setFelicaSystemCode
+
+6.  CardReader add Read Mag Stripe original
+
+Track data method:
+setMagReaderRawData
+
+7.  Delete method loadKeyByCom and
+
+cancelLoadKey
+8.  Change others
+1.  Fixed mag-stripe reader issue
+2.  Fixed emv onRequestAmount method
+3.  Other fix
+Add Desfire card API
+
+1. EMV add new funcion for Pure kernel
+2. add new API for set pure kernel Aid and
+CapkEntity
+3. add new API for set pure enable aid select
+first
+4. fix custom layout pinpad issue
+5. paypass add RRP function
+6. add new API for get sigature statue .
+7. add new API for security
+1.  Add scanner 2 for customized UI scan
+
+1.  Add Mifare Ultralight API
+2.  Add DRL for paywave and amex
+1.  Optimize MAC algorithm
+2.  Fix paypass RRP issue
+3.  Optimize emv flow
+4.  other issue fixed
+1.  add emvHandler2 API
+2.  Fix Pure card terminal capability issue.
+3.  Remove the install and uninstall API
+1.  Emv add new MB kernel
+2.  Compatible with N86
+3.  Remove the HSM APIs
+4.  other issue fixed
+1.  add arm64 library.
+2.  Add PB contactless for Italy
+3.  Add platform object, includes Install,
+
+Uninstall, Reboot, UpdateFirmware ..etc
+4.  Emvhandler2 ,EMV contactless add read
+
+application data mode
+
+V2.1.1
+
+2019-01-24
+
+Hassan
+
+V2.1.1
+
+V2.2.1
+
+2019-03-18
+
+2019-06-20
+
+ShaoPu
+
+Hassan
+
+V2.2.1
+
+V2.3.1
+
+2019-09-20
+
+Randall
+
+2019-12-20
+
+Hassan
+
+V2.3.3
+
+2020-05-11
+
+Hassan
+
+V3.0.1
+
+2020-06-11
+
+Hassan
+
+V3.0.2
+
+2020-10-21
+
+Hassan
+
+V3.0.3
+
+2021-04-12
+
+Hassan
+
+Confidential
+
+3
+```
+
+## Page 4
+
+```text
+V3.0.4
+
+2021-08-09
+
+Hassan
+
+V3.0.5
+
+2022-07-22
+
+Hassan
+
+ SmartPos API Reference Manual:  25/03/24
+
+5.  Emvhandler1 add onAfterFinalSelectedApp
+
+callback for MIR,RUPAY
+
+6.  Add API dukptCipherKeyInject, inject the
+
+cipher BDK/IPEK key
+
+7.  Other issue fixed
+1.  Add new API UsbSerial
+2.  Fix the Paypass 9F7B tag process issue for
+
+emvHandler
+
+3.  Optimize the process with card power on
+
+and power off
+
+4.  Platform adds shutDownDevice ,
+enableUsbCdc, disableUsbCdc,
+getUsbCdcStatus, executeGeneralMethod
+
+5.  Update the EMV L1, L2 version code in
+
+emvKernelVersionInfo
+
+6.  Fix get device model for N5 with
+
+getDeviceInfo method
+
+7.  Add get firmWareFullVersion
+8.
+Integrate NexgoSystemSdk
+9.  Other issue fixed
+1.  Add new API NTAGCardHandler to process
+
+the NTAG card
+
+2.  Support extended APDU(Expand to 2K) for
+
+CPU card
+
+3.  Fix type 9C issue of RUPAY card
+4.  Add EMV error code:
+
+Emv_CTLS_EndApplication
+Emv_CTLS_Torn
+
+5.  Compatible with UN20
+6.  Pinpad add inputPinExternal to support
+
+External Pinpad to enter the PIN
+7.  Add MDB MdbSerialPortDriver and
+
+MdbLEDDriver
+
+8.  Fix TVR(online pin set) for DPAS
+9.  Add support type B cards :CTS512 and
+
+SRT512
+
+10. Add PSAM4 for UN20
+11. Compatible with External Pinpad K110
+12. Add setRupayForceOnline for Rupay
+13. BeepVolumeModeEnum add
+
+BEEP_MODE_SYSTEM_VOLUME. Beep
+
+Confidential
+
+4
+```
+
+## Page 5
+
+```text
+V3.0.6
+
+2022.10.24
+
+Hassan
+
+ SmartPos API Reference Manual:  25/03/24
+
+sound following system volume
+14. Optimize the printing of Qr-code and
+
+Bar-code
+
+15. Platform add showNavigationBar and
+
+hideNavigationBar API
+
+16. Other issue fixed
+1.  Add switchMobileDataNetwork
+
+setNetworkStatusListener for mobile data
+in Platform
+
+2.  Fix MIR card issue
+3.  Add Capce Kernel
+4.  Paypass support 9F0A
+5.  Paywave and Pure contctless refund kernel
+return Online Approve instead of Offline
+Approve if terminal request AAC
+
+6.  Optimize print function
+7.  JCB contactless support PIN bypass
+8.  Fix EMV cancel issue
+9.  Aid Maximum number change from 50 to
+
+100 compatible
+
+V3.07.001
+
+2023.06.12
+
+Hassan
+
+1.  Fix compatible with MasterCard tag BF0C
+
+during final application selection
+
+2.  Add setNetworkStatusListener in Platform
+3.  Compatible with N96, N82, N6 android 10
+4.  Fix the issue of Null applabel in the multi
+application selection list(onSelApp)
+5.  Fix the issue of EMV country code and
+
+currency code
+
+6.  Add Paypass new aid in old API EmvHandler
+7.  UN20 Add GPIO API
+8.  Add rfu Member variable in
+
+CandidateAppInfoEntity, it is used for
+returning extro EMV tags such as 42, 5F55
+during the multi application selection
+list(onSelApp) for EMV contact. Application
+can select specify application by these tags.
+
+9.  Fix Scanner1 init failed issue
+10. Scanner1 add “hideFrame”(set in Bundle)
+to hide the Preview box during scan
+11. Scanner1 add List<SymbolEnum> in
+
+ScannerCfgEntity to support the specify
+
+Confidential
+
+5
+```
+
+## Page 6
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Codes
+
+12. N96 add DECORATIVE_LIGHT
+13. Optimize EMV contactless refund flow
+14. Emvhandler2 add initReader to support
+exteral reader to read contactless card
+15. Add ExtPinpad class to support use external
+pinpad inject key, encryption, pin enter or
+calculate PinBlock
+
+16. Optimize CBC mode iv issue with new
+
+model
+
+17. Optimize pure kernel CDCVM
+18. Fix CDA issue of DPAS
+19. Paywave add API skip Process Restrict
+20. UN20 MdbSerialPortDriver support Master
+mode and Slave mode read and write at
+same time
+
+21. DeviceInfo add secure chip Core version
+
+and Boot version
+
+10 and 11 points need latest firmware to
+support.
+1.  DPAS support read 9F6E tag
+2.  MADA support read 9F19,9F24,9F25,9F52
+
+and DF4B tags
+
+1.  DUKPT support AES algorithm
+2.  Optimize EMV random number processing
+3.  EMV second GAC add paramater
+
+"EmvTerminalDecisionForSecondGAC" ,to
+force TC regardless of host response code
+4.  Add API contactlessConfigKernelId to assign
+EMV contactless flow if card return kernel
+ID
+
+5.  Optimize K110 display text and image API
+6.  DPAS add setDpasVersion to support DPAS
+
+2.0 if needed
+
+7.  Pinpad add injectKBPK, injectTr31Key to
+
+support TR31 key injection
+
+V3.07.002
+
+2023.11.12
+
+Hassan
+
+V3.08.001
+
+2024.03.25
+
+Hassan
+
+V3.08.002
+
+2024.04.07
+
+Hassan
+
+1.  Optimize DPAS MSD
+
+Confidential
+
+6
+```
+
+## Page 7
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Confidential
+
+7
+```
+
+## Page 8
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SOFTWARE LICENSE AGREEMENT
+
+IMPORTANT: YOU SHOULD CAREFULLY READ ALL THE TERMS, CONDITIONS AND RESTRICTIONS OF THIS
+LICENSE AGREEMENT BEFORE INSTALLING THE SOFTWARE PACKAGE. YOUR INSTALLATION OF THE
+SOFTWARE PACKAGE PRESUMES YOUR ACCEPTANCE OF THE TERMS, CONDITIONS, AND RESTRICTIONS
+CONTAINED IN THIS AGREEMENT. IF YOU DO NOT AGREE WITH THESE TERMS, CONDITIONS, AND
+RESTRICTIONS, PROMPTLY RETURN THE SOFTWARE PACKAGE AND ASSOCIATED DOCUMENTATION TO
+THE ADDRESS ON THE FRONT PAGE OF THIS DOCUMENT, ATTENTION: CUSTOMER SUPPORT.
+
+TERMS, CONDITIONS, AND RESTRICTIONS
+
+Shenzhen Xinguodu Technology Co., Ltd (the "Licensor") owns and has the right to distribute the
+described software and documentation, collectively referred to as the "Software”.
+LICENSE: Licensor grants you (the "Licensee") the right to use the Software in conjunction with
+Xinguodu products. LICENSEE MAY NOT COPY, MODIFY, OR TRANSFER THE SOFTWARE IN WHOLE OR IN
+PART EXCEPT AS EXPRESSLY PROVIDED IN THIS AGREEMENT. Licensee may not decompile, disassemble,
+or in any other manner attempt reverse reverse engineer the Software.
+Licensee shall not tamper with, bypass, or alter any security features of the software or attempt to do so.
+TRANSFER: Licensee may not transfer the Software or license to the Software to another party without
+the prior written authorization of the Licensor. If Licensee transfers the Software without authorization,
+all rights granted under this Agreement are automatically terminated.
+COPYRIGHT: The Software is copyrighted. Licensee may not copy the Software except for archival
+purposes or to load for business operations. All other copies of the Software are in violation of this
+Agreement.
+TERM: This Agreement is in effect as long as Licensee continues the use of the Software. The Licensor
+also reserves the right to terminate this Agreement if Licensee fails to comply with any of the terms,
+conditions, or restrictions contained herein. Should Licensor terminate this Agreement due to Licensee's
+failure to comply, Licensee agrees to return the Software to Licensor. Receipt of returned Software by
+the Licensor shall mark the termination.
+LIMITED WARRANTY: Licensor warrants to the Licensee that the disk(s) or other media on which the
+Software is recorded are free from defects in material or workmanship under normal use.
+THE SOFTWARE IS PROVIDED AS IS. LICENSOR MAKES NO OTHER WARRANTY OF ANY KIND, EITHER
+EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+Because of the diversity of conditions and PC hardware under which the Software may be used, Licensor
+does not warrant that the software will meet Licensee specifications or that the operation of the
+Software will be uninterrupted or free of errors.
+IN NO EVENT WILL LICENSOR BE LIABLE FOR ANY DAMAGES, INCLUDING ANY LOST PROFITS, LOST
+SAVINGS, OR OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE, OR
+INABILITY TO USE, THE SOFTWARE. Licensee's sole remedy in the event of a defect in material or
+workmanship is expressly limited to replacement of the Software disk(s), if applicable.
+GOVERNING LAW: If any provision of this Agreement is found to be unlawful, void, or unenforceable,
+that provision shall be removed from consideration under this Agreement and will not affect the
+enforceability of any of the remaining provisions. This Agreement shall be governed by the Laws of the
+
+Confidential
+
+8
+```
+
+## Page 9
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+State of California and shall inure to the benefit of Shenzhen Xinguodu Technology Co., Ltd, its
+successors or assigns.
+ACKNOWLEDGMENT: LICENSEE ACKNOWLEDGES THAT HE HAS READ THIS AGREEMENT, UNDERSTANDS
+ALL OF ITS TERMS, CONDITIONS, AND RESTRICTIONS, AND AGREES TO BE BOUND BY THEM. LICENSEE
+ALSO AGREES THAT THIS AGREEMENT SUPERSEDES ANY AND ALL VERBAL AND WRITTEN
+COMMUNICATIONS BETWEEN LICENSOR AND LICENSEE OR THEIR ASSIGNS RELATING TO THE SUBJECT
+MATTER OF THIS AGREEMENT.
+QUESTIONS REGARDING THIS AGREEMENT SHOULD BE ADDRESSED IN WRITING TO Shenzhen Xinguodu
+Technology Co., Ltd, ATTENTION: CUSTOMER SUPPORT, AT THE ADDRESS LISTED IN THIS DOCUMENT OR
+E-MAILED TO SUPPORT@XINGUODU.COM.
+
+Confidential
+
+9
+```
+
+## Page 10
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Table of Content
+
+1
+
+Introduction ........................................................................................................................................ 26
+
+1.1
+
+Demo Description ....................................................................................................................... 26
+
+1.2
+
+The Term ..................................................................................................................................... 26
+
+1.3
+
+SDK Content ................................................................................................................................ 26
+
+1.4
+
+System Requirements ................................................................................................................. 26
+
+2
+
+3
+
+How to Create a Project ...................................................................................................................... 26
+
+Class methods ..................................................................................................................................... 28
+
+3.1
+
+LED class ...................................................................................................................................... 28
+
+3.1.1  SetLed ...................................................................................................................................... 29
+
+3.2
+
+Printer class ................................................................................................................................. 29
+
+3.2.1
+
+initPrinter ................................................................................................................................ 31
+
+3.2.2  getStatus ................................................................................................................................. 32
+
+3.2.3  appendImage .......................................................................................................................... 32
+
+3.2.4  appendPrnStr .......................................................................................................................... 33
+
+3.2.5  appendPrnStr .......................................................................................................................... 33
+
+3.2.6  appendPrnStr .......................................................................................................................... 34
+
+3.2.7  appendPrnStr .......................................................................................................................... 35
+
+3.2.8  appendBarcode ....................................................................................................................... 35
+
+3.2.9  appendQRCode ....................................................................................................................... 37
+
+3.2.10
+
+appendQRcode.................................................................................................................... 37
+
+3.2.11
+
+feedPaper ............................................................................................................................ 38
+
+3.2.12
+
+cutPaper .............................................................................................................................. 38
+
+3.2.13
+
+startPrint ............................................................................................................................. 39
+
+3.2.14
+
+setLetterSpacing.................................................................................................................. 39
+
+Confidential
+
+10
+```
+
+## Page 11
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.2.15
+
+setGray ................................................................................................................................ 39
+
+3.2.16
+
+setTypeface ......................................................................................................................... 40
+
+3.3
+
+Pinpad Class ................................................................................................................................ 40
+
+3.3.1
+
+initPinPad ................................................................................................................................ 41
+
+3.3.2  setAlgorithmMode .................................................................................................................. 42
+
+3.3.3  setCipherMode ....................................................................................................................... 42
+
+3.3.4  setCipherInitializationVector .................................................................................................. 42
+
+3.3.5  setPinKeyboardMode.............................................................................................................. 42
+
+3.3.6  writeMKey ............................................................................................................................... 43
+
+3.3.7  writeMKey ............................................................................................................................... 43
+
+3.3.8
+
+isKeyExist ................................................................................................................................. 44
+
+3.3.9  calcWKeyKCV .......................................................................................................................... 44
+
+3.3.10  writeWKey ........................................................................................................................... 45
+
+3.3.11
+
+isKeyExist ............................................................................................................................. 46
+
+3.3.12
+
+calcByWkey ......................................................................................................................... 46
+
+3.3.13
+
+desByWKey.......................................................................................................................... 47
+
+3.3.14
+
+encryptTrackData ................................................................................................................ 48
+
+3.3.15
+
+calcMac ............................................................................................................................... 48
+
+3.3.16
+
+calcMac ............................................................................................................................... 49
+
+3.3.17
+
+calcMac(DUKPT) .................................................................................................................. 50
+
+3.3.18
+
+encryptByMKey ................................................................................................................... 50
+
+3.3.19
+
+setPinpadLayout .................................................................................................................. 51
+
+3.3.20
+
+inputOnlinePin .................................................................................................................... 52
+
+3.3.21
+
+inputPinExternal .................................................................................................................. 52
+
+3.3.22
+
+inputOfflinePin .................................................................................................................... 53
+
+Confidential
+
+11
+```
+
+## Page 12
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.3.23
+
+isInputting ........................................................................................................................... 54
+
+3.3.24
+
+cancelInput .......................................................................................................................... 54
+
+3.3.25
+
+format ................................................................................................................................. 54
+
+3.3.26
+
+deleteMKey ......................................................................................................................... 54
+
+3.3.27
+
+dukptKeyInject .................................................................................................................... 55
+
+3.3.28
+
+dukptCipherKeyInject .......................................................................................................... 55
+
+3.3.29
+
+dukptKsnIncrease ................................................................................................................ 57
+
+3.3.30
+
+dukptCurrentKsn ................................................................................................................. 57
+
+3.3.31
+
+dukptEncrypt ....................................................................................................................... 57
+
+3.3.32
+
+dukptEncrypt ....................................................................................................................... 58
+
+3.4
+
+Scaner#1(default UI) ................................................................................................................... 60
+
+3.4.1
+
+initScanner .............................................................................................................................. 61
+
+3.4.2  startScan ................................................................................................................................. 63
+
+3.4.3  stopScan .................................................................................................................................. 63
+
+3.4.4  decode ..................................................................................................................................... 63
+
+3.5
+
+Scanner#2(customizable  UI) ...................................................................................................... 64
+
+3.5.1
+
+initScanner .............................................................................................................................. 64
+
+3.5.2  getBestPreviewSize ................................................................................................................. 65
+
+3.5.3  setSurface................................................................................................................................ 66
+
+3.5.4  start ......................................................................................................................................... 66
+
+3.5.5  stop ......................................................................................................................................... 66
+
+3.5.6  switchCamera .......................................................................................................................... 66
+
+3.5.7
+
+flashTrigger ............................................................................................................................. 67
+
+3.5.8
+
+focusTrigger ............................................................................................................................ 67
+
+3.5.9  setZoom .................................................................................................................................. 67
+
+Confidential
+
+12
+```
+
+## Page 13
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.6
+
+Card Reader Class ........................................................................................................................ 67
+
+3.6.1  searchCard .............................................................................................................................. 69
+
+3.6.2  stopSearch............................................................................................................................... 70
+
+3.6.3
+
+isCardExist ............................................................................................................................... 70
+
+3.6.4  open ........................................................................................................................................ 71
+
+3.6.5  close ........................................................................................................................................ 72
+
+3.6.6  getRfCardType ......................................................................................................................... 72
+
+3.6.7  setETU ..................................................................................................................................... 73
+
+3.6.8  setSupportFelica ..................................................................................................................... 74
+
+3.6.9  setFelicaSystemCode .............................................................................................................. 74
+
+3.6.10
+
+setFelicaRequestCode ......................................................................................................... 74
+
+3.7
+
+CPU Cards .................................................................................................................................... 75
+
+3.7.1
+
+readUid .................................................................................................................................... 75
+
+3.7.2  powerOn ................................................................................................................................. 76
+
+3.7.3  active ....................................................................................................................................... 76
+
+3.7.4  exchangeAPDUCmd ................................................................................................................ 76
+
+3.7.5  exchangeAPDUCmd ................................................................................................................ 77
+
+3.7.6  powerOff ................................................................................................................................. 77
+
+3.7.7
+
+remove .................................................................................................................................... 78
+
+3.8
+
+EMV class (Emvhandler2) ............................................................................................................ 78
+
+3.8.1  delAllAid .................................................................................................................................. 78
+
+3.8.2  delOneAid ............................................................................................................................... 79
+
+3.8.3  delAllCapk ............................................................................................................................... 79
+
+3.8.4  delOneCapk ............................................................................................................................. 79
+
+3.8.5  setAidParaList .......................................................................................................................... 79
+
+Confidential
+
+13
+```
+
+## Page 14
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.8.6  setAidParaList .......................................................................................................................... 81
+
+3.8.7  setAidParaList .......................................................................................................................... 81
+
+3.8.8  setCAPKList .............................................................................................................................. 82
+
+3.8.9  setCAPKList .............................................................................................................................. 82
+
+3.8.10
+
+setCAPKList .......................................................................................................................... 83
+
+3.8.11
+
+getAidListNum ..................................................................................................................... 84
+
+3.8.12
+
+getAidList............................................................................................................................. 84
+
+3.8.13
+
+getCapkListNum .................................................................................................................. 85
+
+3.8.14
+
+getCapkList .......................................................................................................................... 85
+
+3.8.15
+
+emvDebugLog ..................................................................................................................... 86
+
+3.8.16
+
+setDynamicReaderLimitListForPaywave ............................................................................. 86
+
+3.8.17
+
+setDynamicReaderLimitListForExpressPay ......................................................................... 87
+
+3.8.18
+
+getTlv ................................................................................................................................... 87
+
+3.8.19
+
+getTlvByTags ....................................................................................................................... 88
+
+3.8.20
+
+setTlv ................................................................................................................................... 88
+
+3.8.21
+
+initTermConfig .................................................................................................................... 89
+
+3.8.22
+
+emvProcess ......................................................................................................................... 89
+
+3.8.23
+
+onSetSelAppResponse ........................................................................................................ 92
+
+3.8.24
+
+onSetTransInitBeforeGPOResponse ................................................................................... 92
+
+3.8.25
+
+onSetConfirmCardNoResponse .......................................................................................... 93
+
+3.8.26
+
+onSetPinInputResponse ...................................................................................................... 93
+
+3.8.27
+
+onSetContactlessTapCardResponse .................................................................................... 93
+
+3.8.28
+
+onSetOnlineProcResponse .................................................................................................. 94
+
+3.8.29
+
+onSetPromptResponse ....................................................................................................... 95
+
+3.8.30
+
+onSetRemoveCardResponse ............................................................................................... 95
+
+Confidential
+
+14
+```
+
+## Page 15
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.8.31
+
+EMVProcessCancel .............................................................................................................. 96
+
+3.8.32
+
+EMVProcessAbort ............................................................................................................... 96
+
+3.8.33
+
+getEmvContactlessMode .................................................................................................... 96
+
+3.8.34
+
+contactlessSetAidFirstSelect ............................................................................................... 96
+
+3.8.35
+
+setPureKernelCapab ............................................................................................................ 97
+
+3.8.36
+
+setJcbContactlessTIP ........................................................................................................... 97
+
+3.8.37
+
+setRupayTransType ............................................................................................................. 98
+
+3.8.38
+
+getJcbContactlessTIP ........................................................................................................... 98
+
+3.8.39
+
+getSignNeed ........................................................................................................................ 99
+
+3.8.40
+
+getEmvCvmResult ............................................................................................................... 99
+
+3.8.41
+
+getEmvCardDataInfo ......................................................................................................... 100
+
+3.8.42
+
+getEmvContactlessKernelId .............................................................................................. 101
+
+3.8.43
+
+contactlessAppendAidIntoKernel ..................................................................................... 101
+
+3.8.44
+
+getPayWaveResult ............................................................................................................ 102
+
+3.8.45
+
+initReader .......................................................................................................................... 102
+
+3.9
+
+EMV class(Emvhandler) Deprecated ......................................................................................... 104
+
+3.9.1  delAllAid ................................................................................................................................ 106
+
+3.9.2  delOneAid ............................................................................................................................. 106
+
+3.9.3  delAllCapk ............................................................................................................................. 106
+
+3.9.4  delOneCapk ........................................................................................................................... 106
+
+3.9.5  setAidParaList ........................................................................................................................ 107
+
+3.9.6  setAidParaList ........................................................................................................................ 108
+
+3.9.7  setAidParaList ........................................................................................................................ 108
+
+3.9.8  setCAPKList ............................................................................................................................ 109
+
+3.9.9  setCAPKList ............................................................................................................................ 109
+
+Confidential
+
+15
+```
+
+## Page 16
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.10
+
+setCAPKList ........................................................................................................................ 110
+
+3.9.11
+
+setDynamicReaderLimitList ............................................................................................... 111
+
+3.9.12
+
+setDynamicReaderLimitListForExpressPay ....................................................................... 112
+
+3.9.13
+
+initTermConfig .................................................................................................................. 112
+
+3.9.14
+
+emvProcess ....................................................................................................................... 113
+
+3.9.15
+
+onSetSelAppResponse ...................................................................................................... 115
+
+3.9.16
+
+onSetAfterFinalSelectedAppResponse ............................................................................. 115
+
+3.9.17
+
+onSetRequestAmountResponse ....................................................................................... 115
+
+3.9.18
+
+onSetConfirmEcSwitchResponse ...................................................................................... 116
+
+3.9.19
+
+onSetConfirmCardNoResponse ........................................................................................ 116
+
+3.9.20
+
+onSetPinInputResponse .................................................................................................... 116
+
+3.9.21
+
+onsetCertVerifyResponse.................................................................................................. 117
+
+3.9.22
+
+onSetReadCardAgainResponse ......................................................................................... 117
+
+3.9.23
+
+onSetOnlineProcResponse ................................................................................................ 117
+
+3.9.24
+
+onSetPromptResponse ..................................................................................................... 118
+
+3.9.25
+
+onSetRemoveCardResponse ............................................................................................. 118
+
+3.9.26
+
+getTlv ................................................................................................................................. 119
+
+3.9.27
+
+getTlvByTags ..................................................................................................................... 119
+
+3.9.28
+
+setTlv ................................................................................................................................. 119
+
+3.9.29
+
+getEMVCardLog................................................................................................................. 120
+
+3.9.30
+
+Clear the Log ..................................................................................................................... 120
+
+3.9.31
+
+EMVGetEcBalance ............................................................................................................. 121
+
+3.9.32
+
+EMVProcessCancel ............................................................................................................ 121
+
+3.9.33
+
+emvDebugLog ................................................................................................................... 121
+
+3.9.34
+
+getEmvContactlessMode .................................................................................................. 122
+
+Confidential
+
+16
+```
+
+## Page 17
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.35
+
+getAidListNum ................................................................................................................... 122
+
+3.9.36
+
+getAidList........................................................................................................................... 122
+
+3.9.37
+
+getCapkListNum ................................................................................................................ 123
+
+3.9.38
+
+getCapkList ........................................................................................................................ 123
+
+3.9.39
+
+newDelAllAid ..................................................................................................................... 124
+
+3.9.40
+
+newDelOneAid .................................................................................................................. 124
+
+3.9.41
+
+newDelAllCapk .................................................................................................................. 125
+
+3.9.42
+
+newDelOneCapk ................................................................................................................ 125
+
+3.9.43
+
+newSetAidParaList ............................................................................................................ 125
+
+3.9.44
+
+newSetAidParaList ............................................................................................................ 126
+
+3.9.45
+
+newSetAidParaList ............................................................................................................ 126
+
+3.9.46
+
+newSetCAPKList ................................................................................................................ 127
+
+3.9.47
+
+newSetCAPKList ................................................................................................................ 128
+
+3.9.48
+
+newSetCAPKList ................................................................................................................ 129
+
+3.9.49
+
+newGetAidListNum ........................................................................................................... 129
+
+3.9.50
+
+newGetAidList ................................................................................................................... 129
+
+3.9.51
+
+newGetCapkListNum ........................................................................................................ 130
+
+3.9.52
+
+newGetCapkList ................................................................................................................ 131
+
+3.9.53
+
+selectAidFirst ..................................................................................................................... 131
+
+3.9.54
+
+getSignNeed ...................................................................................................................... 132
+
+3.9.55
+
+setPureKernelCapab .......................................................................................................... 132
+
+3.10
+
+setSystemClock ......................................................................................................................... 132
+
+3.11
+
+getDeviceInfo ............................................................................................................................ 133
+
+3.12
+
+Serial class ................................................................................................................................. 134
+
+3.12.1
+
+disconnect ......................................................................................................................... 136
+
+Confidential
+
+17
+```
+
+## Page 18
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.12.2
+
+connect.............................................................................................................................. 136
+
+3.12.3
+
+clrBuffer ............................................................................................................................ 136
+
+3.12.4
+
+send ................................................................................................................................... 137
+
+3.12.5
+
+recv .................................................................................................................................... 137
+
+3.13  Buzzer class ............................................................................................................................... 138
+
+3.13.1
+
+beep .................................................................................................................................. 138
+
+3.14  M1 Cards ................................................................................................................................... 139
+
+3.14.1
+
+authority ............................................................................................................................ 139
+
+3.14.2
+
+readBlock .......................................................................................................................... 140
+
+3.14.3
+
+readBlockValue ................................................................................................................. 141
+
+3.14.4  writeBlock ......................................................................................................................... 142
+
+3.14.5  writeBlockValue ................................................................................................................ 142
+
+3.14.6
+
+operateBlock ..................................................................................................................... 143
+
+3.15  MemoryCard ............................................................................................................................. 144
+
+3.15.1
+
+reset .................................................................................................................................. 145
+
+3.15.2
+
+read ................................................................................................................................... 146
+
+3.15.3  write .................................................................................................................................. 147
+
+3.15.4
+
+erase .................................................................................................................................. 148
+
+3.15.5
+
+verify ................................................................................................................................. 149
+
+3.15.6
+
+readEC ............................................................................................................................... 150
+
+3.15.7
+
+updateEC ........................................................................................................................... 151
+
+3.15.8
+
+powerOff ........................................................................................................................... 153
+
+3.16  Desfire Cards ............................................................................................................................. 153
+
+3.16.1
+
+Authenticate ..................................................................................................................... 155
+
+3.16.2
+
+AuthenticateIso ................................................................................................................. 155
+
+Confidential
+
+18
+```
+
+## Page 19
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.3
+
+AuthenticateAes ................................................................................................................ 156
+
+3.16.4
+
+changeKeySettings ............................................................................................................ 156
+
+3.16.5
+
+getKeySettings................................................................................................................... 158
+
+3.16.6
+
+changePiccMasterkey ....................................................................................................... 158
+
+3.16.7
+
+changeAppKey................................................................................................................... 159
+
+3.16.8
+
+getKeyVersion ................................................................................................................... 160
+
+3.16.9
+
+createApplication .............................................................................................................. 160
+
+3.16.10
+
+deleteApplication .......................................................................................................... 161
+
+3.16.11
+
+getAids .......................................................................................................................... 162
+
+3.16.12
+
+getDfNames .................................................................................................................. 162
+
+3.16.13
+
+selectApplication ........................................................................................................... 163
+
+3.16.14
+
+formatPicc ..................................................................................................................... 163
+
+3.16.15
+
+getVersion ..................................................................................................................... 164
+
+3.16.16
+
+getFreeMemory ............................................................................................................ 165
+
+3.16.17
+
+setConfiguration ........................................................................................................... 165
+
+3.16.18
+
+getCardUid .................................................................................................................... 166
+
+3.16.19
+
+getFids ........................................................................................................................... 167
+
+3.16.20
+
+getIsoFids ...................................................................................................................... 167
+
+3.16.21
+
+getFileSettings ............................................................................................................... 168
+
+3.16.22
+
+changeFileSettings ........................................................................................................ 169
+
+3.16.23
+
+createStdDataFile .......................................................................................................... 170
+
+3.16.24
+
+createBackupDatafile .................................................................................................... 171
+
+3.16.25
+
+createValueFile ............................................................................................................. 172
+
+3.16.26
+
+createLinearRecordFile ................................................................................................. 174
+
+3.16.27
+
+createCyclicRecordFile .................................................................................................. 175
+
+Confidential
+
+19
+```
+
+## Page 20
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.28
+
+deleteFile ....................................................................................................................... 176
+
+3.16.29
+
+readData........................................................................................................................ 177
+
+3.16.30
+
+writeData ...................................................................................................................... 178
+
+3.16.31
+
+getValue ........................................................................................................................ 178
+
+3.16.32
+
+credit ............................................................................................................................. 179
+
+3.16.33
+
+debit .............................................................................................................................. 180
+
+3.16.34
+
+limitedCredit ................................................................................................................. 181
+
+3.16.35
+
+writeRecord ................................................................................................................... 182
+
+3.16.36
+
+readRecords .................................................................................................................. 183
+
+3.16.37
+
+clearRecordFile .............................................................................................................. 184
+
+3.16.38
+
+commitTransaction ....................................................................................................... 184
+
+3.16.39
+
+abortTransaction ........................................................................................................... 185
+
+3.17  Mifare Ultralight card................................................................................................................ 186
+
+3.17.1
+
+authority ............................................................................................................................ 186
+
+3.17.2
+
+readBlock .......................................................................................................................... 186
+
+3.17.3  writeBlock ......................................................................................................................... 186
+
+3.17.4
+
+exchangeCmd .................................................................................................................... 187
+
+3.18  NTAG card ................................................................................................................................. 187
+
+3.18.1
+
+authority ............................................................................................................................ 187
+
+3.18.2
+
+getCardVersion.................................................................................................................. 188
+
+3.18.3
+
+read ................................................................................................................................... 188
+
+3.18.4
+
+fastRead ............................................................................................................................ 188
+
+3.18.5  write .................................................................................................................................. 189
+
+3.18.6
+
+readCNT............................................................................................................................. 189
+
+3.18.7
+
+exchangeCmd .................................................................................................................... 190
+
+Confidential
+
+20
+```
+
+## Page 21
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.19  Platform .................................................................................................................................... 190
+
+3.19.1
+
+installApp .......................................................................................................................... 190
+
+3.19.2
+
+unInstallApp ...................................................................................................................... 191
+
+3.19.3
+
+updateFirmware ................................................................................................................ 191
+
+3.19.4
+
+reboot................................................................................................................................ 192
+
+3.19.5
+
+shutDownDevice ............................................................................................................... 192
+
+3.19.6
+
+enableHomeButton ........................................................................................................... 192
+
+3.19.7
+
+disableHomeButton .......................................................................................................... 193
+
+3.19.8
+
+enableTaskButton ............................................................................................................. 193
+
+3.19.9
+
+disableTaskButton ............................................................................................................. 193
+
+3.19.10
+
+enableControlBar .......................................................................................................... 194
+
+3.19.11
+
+disableControlBar.......................................................................................................... 194
+
+3.19.12
+
+enablePowerButton ...................................................................................................... 194
+
+3.19.13
+
+disablePowerButton...................................................................................................... 194
+
+3.19.14
+
+setBeepMode ................................................................................................................ 195
+
+3.19.15
+
+enableUsbCdc ............................................................................................................... 195
+
+3.19.16
+
+disableUsbCdc ............................................................................................................... 196
+
+3.19.17
+
+getUsbCdcStatus ........................................................................................................... 196
+
+3.19.18
+
+showNavigationBar ....................................................................................................... 196
+
+3.19.19
+
+hideNavigationBar......................................................................................................... 197
+
+3.19.20
+
+switchMobileDataNetwork ........................................................................................... 197
+
+3.19.21
+
+setNetworkStatusListener ............................................................................................. 197
+
+3.19.22
+
+stopNetworkStatusListener .......................................................................................... 198
+
+3.19.23
+
+executeGeneralMethod ................................................................................................ 198
+
+3.20  Usb Serial class .......................................................................................................................... 198
+
+Confidential
+
+21
+```
+
+## Page 22
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.20.1
+
+open .................................................................................................................................. 199
+
+3.20.2
+
+ close ................................................................................................................................. 199
+
+3.20.3
+
+clrBuffer ............................................................................................................................ 200
+
+3.20.4  write .................................................................................................................................. 200
+
+3.20.5
+
+read ................................................................................................................................... 200
+
+3.21  MDB LED class ........................................................................................................................... 201
+
+3.21.1
+
+SetLed ................................................................................................................................ 201
+
+3.22  MDB Serial class ........................................................................................................................ 202
+
+3.22.1  mdbOpen .......................................................................................................................... 202
+
+3.22.2  mdbWrite .......................................................................................................................... 203
+
+3.22.3  mdbMergerWrite .............................................................................................................. 203
+
+3.22.4  mdbRead ........................................................................................................................... 203
+
+3.22.5  mdbClose .......................................................................................................................... 204
+
+3.23  GPIO Drive class ........................................................................................................................ 207
+
+3.23.1
+
+setOutPutGpio .................................................................................................................. 208
+
+3.23.2
+
+getInPutGpio ..................................................................................................................... 209
+
+3.24
+
+ExtPinpad Class ......................................................................................................................... 210
+
+3.24.1
+
+initExtPinPad ..................................................................................................................... 210
+
+3.24.2  writeMasterKey ................................................................................................................. 211
+
+3.24.3  writeMasterKey ................................................................................................................. 211
+
+3.24.4  writeWorkKey ................................................................................................................... 212
+
+3.24.5
+
+calcByWorkKey .................................................................................................................. 213
+
+3.24.6
+
+calcMac ............................................................................................................................. 214
+
+3.24.7
+
+calcByMasterKey ............................................................................................................... 214
+
+3.24.8
+
+inputPin ............................................................................................................................. 215
+
+Confidential
+
+22
+```
+
+## Page 23
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.24.9
+
+inputOfflinePin .................................................................................................................. 216
+
+3.24.10
+
+dukptKeyInject .............................................................................................................. 216
+
+3.24.11
+
+dukptKsnIncrease .......................................................................................................... 218
+
+3.24.12
+
+dukptCurrentKsn ........................................................................................................... 218
+
+3.24.13
+
+dukptEncrypt ................................................................................................................. 218
+
+3.24.14
+
+dukptCalcMac ............................................................................................................... 219
+
+3.24.15
+
+dukptInputPin ............................................................................................................... 220
+
+3.24.16
+
+getExtPinPadInfo ........................................................................................................... 221
+
+3.24.17
+
+extPinPadGetSn ............................................................................................................. 221
+
+3.24.18
+
+setLedLight .................................................................................................................... 221
+
+3.24.19
+
+beep .............................................................................................................................. 222
+
+4
+
+Callback information ......................................................................................................................... 226
+
+4.1
+
+OnPrintListener ......................................................................................................................... 226
+
+4.1.1  onPrintResult ........................................................................................................................ 226
+
+4.2
+
+OnPinPadInputListener ............................................................................................................. 227
+
+4.2.1  onInputResult ........................................................................................................................ 227
+
+4.2.2  onSendKey ............................................................................................................................ 227
+
+4.3
+
+OnScanner Listener ................................................................................................................... 228
+
+4.3.1  onInitResult ........................................................................................................................... 228
+
+4.3.2  onScannerResult ................................................................................................................... 229
+
+4.4
+
+OnCardInfoListener ................................................................................................................... 229
+
+4.4.1  onCardInfo ............................................................................................................................ 229
+
+4.4.2  onSwipeIncorrect .................................................................................................................. 231
+
+4.4.3  onMultipleCards .................................................................................................................... 231
+
+4.5
+
+OnEMVProcessListener2 ........................................................................................................... 231
+
+Confidential
+
+23
+```
+
+## Page 24
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+4.5.1  onSelApp ............................................................................................................................... 231
+
+4.5.2  onTransInitBeforeGPO .......................................................................................................... 232
+
+4.5.3  onConfirmCardNo ................................................................................................................. 232
+
+4.5.4  onCardHolderInputPin .......................................................................................................... 233
+
+4.5.5  onContactlessTapCardAgain ................................................................................................. 233
+
+4.5.6  onOnlineProc ........................................................................................................................ 233
+
+4.5.7  onPrompt .............................................................................................................................. 233
+
+4.5.8  onRemoveCard ...................................................................................................................... 234
+
+4.5.9  onFinish ................................................................................................................................. 234
+
+4.6
+
+OnEMVProcessListener  Deprecated ........................................................................................ 236
+
+4.6.1  onSelApp ............................................................................................................................... 236
+
+4.6.2  onAfterFinalSelectedApp ...................................................................................................... 236
+
+4.6.3  onRequestAmount ................................................................................................................ 237
+
+4.6.4  onConfirmEcSwitch ............................................................................................................... 237
+
+4.6.5  onConfirmCardNo ................................................................................................................. 237
+
+4.6.6  onCardHolderInputPin .......................................................................................................... 237
+
+4.6.7  onCertVerify .......................................................................................................................... 238
+
+4.6.8  onReadCardAgain .................................................................................................................. 238
+
+4.6.9  onOnlineProc ........................................................................................................................ 238
+
+4.6.10
+
+onPrompt .......................................................................................................................... 239
+
+4.6.11
+
+onRemoveCard .................................................................................................................. 239
+
+4.6.12
+
+onFinish ............................................................................................................................. 240
+
+4.7
+
+OnAppOperatListener ............................................................................................................... 241
+
+4.7.1  onOperatResult ..................................................................................................................... 241
+
+4.8
+
+OnUsbSerialReadListener.......................................................................................................... 241
+
+Confidential
+
+24
+```
+
+## Page 25
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+4.8.1  onReadResult ........................................................................................................................ 241
+
+4.9
+
+onMobileDataNetworkListener ................................................................................................ 242
+
+4.9.1  onStatusChanged .................................................................................................................. 242
+
+4.9.2  onStrengthChanged .............................................................................................................. 242
+
+4.9.3  onServiceStatusChanged ...................................................................................................... 243
+
+4.10  OnGpioOutPutListener .............................................................................................................. 243
+
+4.10.1
+
+onGetHighLevel ................................................................................................................. 243
+
+4.10.2
+
+onLowLevel ....................................................................................................................... 243
+
+4.11  OnExtPinPadInputPinListener ................................................................................................... 244
+
+4.11.1
+
+onInputPinResult ............................................................................................................... 244
+
+Appendix ................................................................................................................................................... 246
+
+Confidential
+
+25
+```
+
+## Page 26
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+1
+
+Introduction
+
+This document helps developers develop third-party applications on N5 devices. The company provides
+API interface in the form of jar package, based on the API interface, the developer can conveniently and
+efficiently develop third-party applications to meet the personalized needs of developers.
+
+1.1  Demo Description
+
+The demo program demonstrates how to use the aar package to call API's various interfaces to meet the
+needs of the developer.
+
+1.2  The Term
+
+SdkResult returns the value class. The fields in the class define all the Return Values in the document. All
+fields are described in the Appendix.
+
+1.3  SDK Content
+
+File
+
+Description
+
+nexgo-smart-sdk-vx.x.x.aar
+
+aar package API interface
+
+1.4  System Requirements
+
+Development environment: Android Studio 2.0 or later
+
+N5 Operating System Version: 5.1.1
+
+2  How to Create a Project
+
+To add the jar package to the developer project, follow these steps:
+
+1)  With Android studio to create or open the customer's project.
+
+Confidential
+
+26
+```
+
+## Page 27
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+2)  Copy  nexgo-smart-sdk-vx.x.x.aar  to  libs  /  directory,  configure  project  build.gradle  to  load  aar
+
+package.
+
+repositories{
+
+flatDir{
+
+dirs 'libs'
+
+}
+
+}
+
+ dependencies{
+
+complie(name: 'nexgo-smartpos-sdk-vx.x.x', ext: 'aar')
+
+}
+
+Confidential
+
+27
+```
+
+## Page 28
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3)  Get the global object of the device operation.
+
+DeviceEngine deviceEngine = APIProxy getDeviceEngine (this) ;
+
+4)  Get the object of the device sub-module, and operate the interface
+
+For example: get buzzer operation object, ring 500 milliseconds.
+
+final Beeper beeper = deviceEngine getBeeper () .;
+
+beeper.beep (500);
+
+3  Class methods
+
+The following is divided into 10 categories, 5 global methods. First, get the object of each class, then call
+the member method in the class.
+
+3.1  LED class
+
+LED class is responsible for managing POS LED lights.
+
+Get the object of the LED class:
+
+LEDDriver ledDriver = deviceEngine.getLEDDriver ();
+
+This module operates using the basic flow chart:
+
+Confidential
+
+28
+```
+
+## Page 29
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.1.1   SetLed
+
+Drive POS red, green, yellow, blue light switch.
+
+Public void setLed (LightModeEnum light, boolean isOn);
+
+Parameters:
+
+Parameter
+
+light
+
+isOn
+
+LightModeEnum
+
+Enumerated type red, green, yellow, blue LED lights
+
+  True: on, false: off
+
+Description
+
+Enumeration Name
+
+Description
+
+RED
+
+GREEN
+
+YELLOW
+
+BLUE
+
+DECORATIVE_LIGHT
+
+Return Value: None
+
+3.2  Printer class
+
+Red light
+
+Green light
+
+Yellow light
+
+Blue light
+
+Decorative light for N96 only
+
+Confidential
+
+29
+
+StartObtain contextObtain LED objectCall settled method
+```
+
+## Page 30
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+The printer class is responsible for managing POS printers.
+
+Get the object of the printer class:
+
+Printer printer = deviceEngine getPrinter (). ;
+
+The following table shows the Return Values supported by the method of the printer class:
+
+Constant Name
+
+Constant Value
+
+Description
+
+Printer_Base_Error
+Printer_Print_Fail
+Printer_AddPrnStr_Fail
+Printer_AddImg_Fail
+Printer_Busy
+Printer_PaperLack
+Printer_Wrong_Package
+Printer_Fault
+Printer_TooHot
+Printer_UnFinished
+Printer_NoFontLib
+
+Printer_OutOfMemory
+Printer_Other_Error
+
+-1000
+Printer_Base_Error – 1
+Printer_Base_Error – 2
+Printer_Base_Error – 3
+Printer_Base_Error – 4
+Printer_Base_Error – 5
+Printer_Base_Error – 6
+Printer_Base_Error – 7
+Printer_Base_Error – 8
+Printer_Base_Error – 9
+Printer_Base_Error – 10
+
+Printer_Base_Error – 11
+Printer_Base_Error-999
+
+This module operates using the basic flow chart:
+
+Print failed
+Setting string buffer failed
+Setting image buffer failed
+The printer is busy
+The printer is out of paper
+Print packet is wrong
+Printer failure
+The printer is overheating
+The print is not complete
+The printer does not have a font
+
+The packet is too long
+Other exception error
+
+Confidential
+
+30
+```
+
+## Page 31
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.2.1   initPrinter
+
+Confidential
+
+31
+
+Start Get contextGet printer objectCall initprinter to initialize printerCall getstatus to check if paper is loadedIf not, call setletterspacing to set gray typeface, spacing, and font; or use defaultUse appendimage to append image, use appendprntstr to append string, use appendQRcode to append QRcodeCall feedpaper to feed paper or call cutpaper to cut the paperCall startprint to start printing
+```
+
+## Page 32
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Initialize the printer.
+
+public int initPrinter ();
+
+Parameters: None
+
+Return Value:
+
+SdkResult.Success success
+
+3.2.2   getStatus
+
+Get the printer status.
+
+Public int getStatus ();
+
+Parameters: None
+
+Return Value:
+
+SdkResult.Success
+
+print successful
+
+SdkResult. Printer_UnFinished
+
+print is not complete
+
+SdkResult. Printer_PaperLack
+
+printer is out of paper
+
+SdkResult. Printer_Too_Hot
+
+printer is overheating
+
+SdkResult. Printer_Fail
+
+SdkResult.Fail
+
+print failed
+
+other errors
+
+3.2.3   appendImage
+
+Append bitmap.
+
+Public int appendImage (Bitmap bitmap, AlignEnum align);
+
+Description
+
+Bitmap data
+Enumerated type of alignment
+
+Enumeration Name
+
+Description
+
+Left alignment
+
+Parameters:
+
+Parameter
+
+bitmap
+align
+
+AlignEnum
+
+LEFT
+
+Confidential
+
+32
+```
+
+## Page 33
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+RIGHT
+CENTER
+
+Return Value:
+
+Right alignment
+Centered
+
+SdkResult.Success success
+
+SdkResult.Printer_AddImg_Fail additional picture failure
+
+3.2.4   appendPrnStr
+
+Add text.
+
+Public int appendPrnStr (String text, int fontsize, AlignEnum align,
+
+Boolean isBoldFont);
+
+Parameters:
+
+Parameter
+
+text
+fontSize
+align
+isBoldFont
+
+AlignEnum
+
+Description
+
+The string data to be added
+Font Size small: 16; normal: 20; large: 24; x-large: 32
+Enumerated type of alignment
+Whether bold, true: yes, false: no
+
+Enumeration Name
+
+Description
+
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+Left alignment
+Right alignment
+Centered
+
+SdkResult.Success success
+
+SdkResult.Printer_Wrong_Package print packet format error
+
+SdkResult.Printer_AddPrnStr_Fail string buffer is set to fail
+
+3.2.5   appendPrnStr
+
+Add text.
+
+public int appendPrnStr(String text,int fontsize,AlignEnum align, LineOptionEntity ops);
+
+Confidential
+
+33
+```
+
+## Page 34
+
+```text
+Parameters:
+
+Parameter
+text
+fontSize
+
+align
+ops
+AlignEnum
+Enumeration Name
+LEFT
+RIGHT
+CENTER
+LineOptionEntity
+
+attribute
+boolean isUnderline
+
+int marginLeft
+
+Return Value:
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+The string data to be added
+Font Size small: 16; normal: 20; large: 24; x-large:
+32
+Enumerated type of alignment
+LineOptionEntity :additional option
+
+Description
+Left alignment
+Right alignment
+Centered
+
+Description
+Print  underline:  true: yes; false:no
+
+Left margin size
+
+SdkResult.Success success
+
+SdkResult.Printer_Wrong_Package print packet format error
+
+SdkResult.Printer_AddPrnStr_Fail string buffer is set to fail
+
+3.2.6   appendPrnStr
+
+Append string both sides at the same time.
+
+Public int appendPrnStr (String leftText, String rightText, int fontsize, Boolean isBoldFont);
+
+Parameters:
+
+Parameter
+
+leftText
+rightText
+fontsize
+isBoldFont
+
+AlignEnum
+
+Description
+
+Left alignment data
+Right alignment data
+Font Size small: 16; normal: 20; large: 24; x-large: 32
+Whether bold, true: yes, false: no
+
+Enumeration Name
+
+Description
+
+Confidential
+
+34
+```
+
+## Page 35
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+Left alignment
+Right alignment
+Centered
+
+SdkResult.Success success
+
+SdkResult.Printer_Wrong_Package print packet format error
+
+SdkResult.Printer_AddPrnStr_Fail string buffer is set to fail
+
+3.2.7   appendPrnStr
+
+Append string both sides at the same time.
+
+public int appendPrnStr(String leftText,String rightText,int fontsize,LineOptionEntity ops);
+Parameters：
+
+Parameter
+leftText
+rightText
+fontsize
+
+ops
+LineOptionEntity
+
+attribute
+boolean isUnderline
+
+int marginLeft
+
+Return Value:
+
+Description
+Left alignment data
+Right alignment data
+Font Size small: 16; normal: 20; large: 24; x-large:
+32
+LineOptionEntity :additional option
+
+Description
+Print  underline:  true: yes; false:no
+
+Left margin size
+
+SdkResult.Success success
+
+SdkResult.Printer_Wrong_Package print packet format error
+
+SdkResult.Printer_AddPrnStr_Fail string buffer is set to fail
+
+3.2.8   appendBarcode
+
+Append barcode.
+
+Confidential
+
+35
+```
+
+## Page 36
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public int appendBarcode(String content, int height, int margin, int scale, BarcodeFormatEnum
+barcodeFormat, AlignEnum align);
+
+Parameters:
+
+Parameter
+
+Description
+
+content
+height
+
+Generates Barcode data
+Generates Barcode height for printing;  ranges greater than 0. Suggest 50
+
+margin
+
+Margin, suggest 0
+
+scale
+
+Scale, >= 1, suggest 2
+
+barcodeFormat  Refer to BarcodeFormatEnum
+
+align
+
+Alignment
+
+BarcodeFormatEnum
+
+Format Name
+
+Description
+
+AZTEC
+CODABAR
+CODE_39
+CODE_93
+CODE_128
+DATA_MATRIX
+
+EAN_8
+EAN_13
+ITF
+MAXICODE
+PDF_417
+QR_CODE
+RSS_14
+RSS_EXPANDED
+UPC_A
+UPC_E
+UPC_EAN_EXTENSION
+
+AlignEnum
+
+Confidential
+
+36
+```
+
+## Page 37
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Enumeration Name
+
+Description
+
+Left alignment
+
+Right alignment
+Centered
+
+LEFT
+
+RIGHT
+CENTER
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Printer_AddImg_Fail failure
+
+3.2.9   appendQRCode
+
+Append QR code.
+
+public int appendQRcode (String content, int height, AlignEnum align);
+
+Parameters:
+
+Parameter
+
+content
+height
+align
+
+AlignEnum
+
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+Description
+
+Generates QR  code data
+Generates QR code height for printing; ranges greater than 0
+Alignment
+
+Enumeration Name
+
+Description
+
+Left alignment
+Right alignment
+Centered
+
+SdkResult.Success success
+
+SdkResult.Printer_AddImg_Fail failure
+
+3.2.10  appendQRcode
+
+Append QR code.
+
+public int appendQRcode(String content,int height, int version,
+int level, AlignEnum align);
+
+Parameters：
+
+Confidential
+
+37
+```
+
+## Page 38
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+Generates QR code data
+Generates QR code height for printing; ranges
+greater than 0
+QR code version is 1-40
+Error correction level, from low to high, 0-3
+Alignment
+
+Description
+Left alignment
+Right alignment
+Centered
+
+Parameter
+
+content
+height
+
+version
+level
+align
+AlignEnum
+
+Enumeration Name
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Printer_AddImg_Fail failure
+
+3.2.11  feedPaper
+
+Feed paper.
+
+Public void feedPaper (int value);
+
+Parameters:
+
+Parameter
+
+value
+
+Description
+Paper length is in pixels; range of greater than or equal to 0; if the user has not set,
+the default value equals 0
+
+Return Value: None
+
+3.2.12  cutPaper
+
+Feed paper, the default is to feed to the end of print section.
+
+Public void cutPaper ();
+
+Parameters: None
+
+Return Value: None
+
+Confidential
+
+38
+```
+
+## Page 39
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.2.13  startPrint
+
+Start printing.
+
+public int startPrint (boolean rollPaperEnd, OnPrintListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+rollPaperEnd
+
+Advance to the end of the paper automatically; true: yes, false: no
+
+listener
+
+The callback interface after printing is complete
+
+Return Value:
+
+SdkResult.Success operation is successful; listener can successfully callback
+
+SdkResult.Printer_Busy printer is busy
+
+SdkResult.Printer_Print_Fail print data is empty
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+3.2.14  setLetterSpacing
+
+Set the spacing between the print order lines.
+
+public void setLetterSpacing (int value);
+
+Parameters:
+
+Parameter
+
+Description
+
+value
+
+Line spacing is in pixels; the default value equals 4
+
+Return Value: None
+
+3.2.15  setGray
+
+Set the grayscale.
+
+public void setGray (GrayLevelEnum level);
+
+Parameters:
+
+Parameter
+
+Confidential
+
+Description
+
+39
+```
+
+## Page 40
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+level
+
+Establish gray value; if the user has not set, the default value is LEVEL_0. The higher
+the grayscale, the darker the print font, the slower the print speed.
+
+GrayLevelEnum
+
+Enumeration Name
+
+Description
+
+Printer gray level 0
+Printer gray level 1
+Printer gray level 2
+Printer gray level 3
+Printer gray level 4
+
+LEVEL_0
+LEVEL_1
+LEVEL_2
+LEVEL_3
+LEVEL_4
+
+Return Value: None
+
+3.2.16  setTypeface
+
+Set the font type.
+
+public void setTypeface (Typeface typeface);
+
+Parameters:
+
+Parameter
+
+typeface
+
+Description
+Android SDK Typeface font type; user can use the default value:Typeface.
+DEFAULT
+
+Return Value: None
+
+3.3  Pinpad Class
+
+The password keyboard class is responsible for managing the POS password keyboard.
+
+Get the object of the password keyboard class:
+
+. PinPad pinpad = deviceEngine getPinPad () ;
+
+This module operates using the basic flow chart:
+
+Confidential
+
+40
+```
+
+## Page 41
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.3.1   initPinPad
+
+Initialize the password keyboard.
+
+Public int initPinPad (PinPadTypeEnum ppType);
+
+Parameters:
+
+Parameter
+
+ppType
+
+PinPadTypeEnum
+
+PinPadTypeEnum Enum type Password keyboard type; currently only
+supports built-in password keyboard
+
+Description
+
+Enumeration Name
+
+INTERNAL
+
+EXTERNAL
+
+Description
+Built-in password keyboard, default value is
+INTERNAL
+External password keyboard， such as G101,
+K110
+Deprecated, Not Recommended. Please use
+ExtPinPad
+
+Confidential
+
+41
+
+StartObtain contextGet keyboard objectCall initpinpadCall inputonlinepin or inputofflinepinInput password
+```
+
+## Page 42
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail fail
+
+3.3.2   setAlgorithmMode
+
+Set PinPad work in DUKPT model or classical model. Default is DES model.
+
+Public void setAlgorithmMode(AlgorithmModeEnum algMode);
+
+AlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+DES
+SM4
+DUKPT
+
+DES mode(Includes DES/TDES)
+PBOC use it(China market)
+DUKPT mode
+
+3.3.3   setCipherMode
+
+Set PinPad Cipher mode, default is ECB mode.
+
+Public void setCipherMode (CipherModeEnum cipherMode);
+
+CipherModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+CBC
+
+3.3.4   setCipherInitializationVector
+
+Set PinPad Cipher iv, it is used for CBC Cipher mode.
+
+Public void setCipherInitializationVector (byte[] iv);
+
+3.3.5   setPinKeyboardMode
+
+Confidential
+
+42
+```
+
+## Page 43
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Set password keyboard mode, default mode is random password keyboard.
+
+public void setPinKeyboardMode(PinKeyboardModeEnum keyboardMode);
+Parameters:
+
+Parameter
+keyboardMode
+PinKeyboardModeEnum
+
+Enumeration Name
+RANDOM
+FIXED
+
+Return Value:
+
+None
+
+Description
+Mode, default value  RANDOM
+
+Description
+Random key board
+Fixed key board
+
+3.3.6   writeMKey
+
+Inject the master key(plaintext key)
+
+Public int writeMKey (int mKeyIdx, byte [] keyData, int keyDataLen);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+keyData
+keyDataLen
+
+Return Value:
+
+Description
+
+Master Key Index 0-199
+Plaintext master key data
+The length of the plain key range: 8,16,24
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index
+
+SdkResult.PinPad_Key_Len_Error wrong key length
+
+SdkResult.Fail other errors
+
+3.3.7   writeMKey
+
+Inject the master key(ciper key)
+
+Confidential
+
+43
+```
+
+## Page 44
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Public int writeMKey (int mKeyIdx, byte [] keyData, int keyDataLen, int decMKeyIdx);
+
+Parameters:
+
+Parameter
+
+mKeyId
+keyData
+keyDataLen
+
+decMKeyIdx
+
+Return Value:
+
+Description
+
+Master Key Index 0-199
+Ciphertext master key data
+Ciphertext master key length should be not less than 8, and must be
+a multiple of 8 bytes
+Decrypt the master key index 0-199
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index
+
+SdkResult.PinPad_Key_Len_Error wrong key length
+
+SdkResult.PinPad_No_Key_Error key does not exist
+
+SdkResult.Fail other errors
+
+3.3.8   isKeyExist
+
+Whether the master key exists. It is only suitable for TMK/session key, do not suitable for DUKPT.
+
+Public boolean isKeyExist (int mKeyIdx);
+Parameters:
+
+Parameter
+
+Description
+
+mKeyId
+
+Master Key Index 0-199
+
+Return Value:
+
+True success, key exist
+
+False failure, key not exist or error.
+
+3.3.9   calcWKeyKCV
+
+Calculate the work key KCV (check value).
+
+Public byte [] calcWKeyKCV (int mKeyIdx, WorkKeyTypeEnum wKeyType);
+
+Confidential
+
+44
+```
+
+## Page 45
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+wKeyType
+
+Description
+
+Master Key Index 0-199
+Working key type
+
+WorkKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+Return Value:
+
+Success, return an array of check values
+
+Failure, returning null
+
+3.3.10  writeWKey
+
+Inject work key.
+
+Public int writeWKey (int mKeyIdx, WorkKeyTypeEnum wKeyType, byte [] keyData, int keyDataLen);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+wKeyType
+keyData
+keyDataLen
+
+Description
+
+Master key index number 0-199
+Working key type
+Working key cipher text data
+Working key cipher text length
+
+WorkKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+Confidential
+
+45
+```
+
+## Page 46
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is invalid
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index object; not within the scope
+
+SdkResult.PinPad_Key_Len_Error wrong key length
+
+SdkResult.Fail other errors
+
+3.3.11  isKeyExist
+
+Whether the work key exists. It is only suitable for TMK/session key, do not suitable for DUKPT.
+
+Public boolean isKeyExist (int mKeyIdx, WorkKeyTypeEnum wKeyType);
+Parameters:
+
+Parameter
+
+mKeyId
+wKeyType
+
+Master Key Index 0-199
+Working key type
+
+WorkKeyTypeEnum
+
+Description
+
+Enumeration Name
+
+Description
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+Return Value:
+
+True success ,work key exist
+
+False failure, work key not exist, or error
+
+3.3.12  calcByWkey
+
+public byte[] calcByWKey(int mKeyIdx, WorkKeyTypeEnum wKeyType, byte[] data, int dataLen,
+CalcModeEnum calcMode);
+Parameters:
+
+Parameter
+
+Description
+
+mKeyIdx
+
+Master Key Index 0-199
+
+Confidential
+
+46
+```
+
+## Page 47
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+wKeyType
+data
+dataLen
+calcMode
+CalcModeEnum
+
+Working key type
+Input data
+Data length
+encryption or decryption
+
+Enumeration Name
+
+Description
+
+ENCRYPT
+DECRYPT
+
+ENCRYPT mode
+  DECRYPT mode
+
+3.3.13  desByWKey
+
+Work key encryption and decryption.
+
+Public byte [] desByWKey (int mKeyIdx, WorkKeyTypeEnum wKeyType, byte [] data, int dataLen,
+
+DesKeyModeEnum keyMode, CalcModeEnum calcMode );
+
+Description
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+wKeyType
+data
+dataLen
+keyMode
+calcMode
+
+Master Key Index 0-199
+Working key type
+Input data
+Data length
+Key Mode
+Calc Mode
+
+WorkKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+DesKeyModeEnum
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+Enumeration Name
+
+Description
+
+Specify the type of algorithm, key  double
+length is used to
+
+KEY_ALL
+KEY_FIRST
+
+Confidential
+
+47
+```
+
+## Page 48
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+KEY_LAST
+
+CalcModeEnum
+
+do the first 8 bytes DES operation
+Specify the type of algorithm, key  double
+length is used to
+do the last 8 bytes DES operation
+
+Enumeration Name
+
+Description
+
+ENCRYPT
+DECRYPT
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returns null
+
+Encrypt
+Decrypt
+
+3.3.14  encryptTrackData
+
+Use TDK work key to Encrypt track data.
+
+public byte[] encryptTrackData(int mKeyId, byte[] trackData, int trackDataLen);
+Parameters:
+Parameter
+mKeyId
+trackData
+trackDataLen
+
+Description
+Master key index 0-199
+Track data
+Len of track data
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returns null
+
+3.3.15  calcMac
+
+Use TAK work key to Calculate MAC.
+
+Public byte [] calcMac (int mKeyIdx, MacAlgorithmModeEnum macAlgMode, byte [] data);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+
+Master Key Index 0-199
+
+Description
+
+Confidential
+
+48
+```
+
+## Page 49
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+macAlgMode  MAC algorithm approach
+Input data
+data
+
+MacAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+X99
+X919
+
+ECB Algorithm
+ANSI X9.9 Encryption Algorithm
+ANSI X9.19 Encryption Algorithm
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.3.16  calcMac
+
+Calculate MAC.
+
+Public byte [] calcMac (int mKeyIdx, MacAlgorithmModeEnum macAlgMode, DesKeyModeEnum
+
+keyMode , byte [] data);
+
+Parameters:
+
+Parameter
+
+Description
+
+Master Key Index 0-199
+
+mKeyIdx
+macAlgMode  MAC algorithm approach
+desAlgMode
+data
+
+Algorithm type
+Input data
+
+MacAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+X99
+X919
+DesKeyModeEnum
+
+Enumeration Name
+
+Confidential
+
+ECB Algorithm
+ANSI X9.9 Encryption Algorithm
+ANSI X9.19 Encryption Algorithm
+
+Description
+
+49
+```
+
+## Page 50
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Do des with the first 8 bytes of the key
+Do des with the last 8 bytes of the key
+
+KEY_ALL
+KEY_FIRST
+KEY_LAST
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.3.17  calcMac(DUKPT)
+
+byte[] calcMac(int mKeyIdx, MacAlgorithmModeEnum macAlgMode, DukptKeyModeEnum keyMode,
+byte[] data);
+
+Parameters:
+
+Parameter
+
+Description
+
+ Key Index 0-19(DUKPT only support 0-19 key index)
+
+mKeyId
+macAlgMode  Mac Alg mode
+keyMode
+data
+
+Key mode
+Data, lack of an integer multiple of 8, after the meeting 0x00 or …the fill
+data is decided by application
+
+MacAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+CBC
+X919
+MAC9606
+
+DukptKeyModeEnum
+
+Enumeration Name
+
+Description
+
+REQUEST
+RESPONSE
+
+Request mode
+Response mode
+
+3.3.18  encryptByMKey
+
+Confidential
+
+50
+```
+
+## Page 51
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Master key encryption.
+
+Public byte [] encryptByMKey (int mKeyId, byte [] data, int dataLen);
+Parameters:
+
+Parameter
+
+mKeyId
+data
+dataLen
+desAlgMode
+
+Description
+
+Master Key Index 0-199
+Data, lack of an integer multiple of 8, after the meeting 0x00
+Length, maximum 1024 bytes
+DES algorithm type
+
+DesAlgorithmModeEnum
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.3.19  setPinpadLayout
+
+Set the password keyboard layout. After  this method is called, when inputOnlinePin or
+
+inputOfflinePin is called , the layout of the password keyboard will be  drawned by
+the app layer itself, without using the system default password keyboard interface.
+
+public byte[] setPinpadLayout(PinpadLayoutEntity pinpadLayout);
+Parameters:
+Parameter
+pinpadLayout
+
+Description
+Coordinates of 10 digital keys and 3 function
+keys
+
+PinpadLayoutEntity
+
+attribute
+Rect key1
+
+Rect key2
+Rect key3
+Rect key4
+Rect key5
+Rect key6
+Rect key7
+Rect key8
+Rect key9
+
+Confidential
+
+Description
+The coordinate of the number key "1"
+
+The coordinate of the number key "2"
+The coordinate of the number key "3"
+The coordinate of the number key "4"
+The coordinate of the number key "5"
+The coordinate of the number key "6"
+The coordinate of the number key "7"
+The coordinate of the number key "8"
+The coordinate of the number key "9"
+
+51
+```
+
+## Page 52
+
+```text
+Rect key10
+Rect keyCancel
+Rect keyConfirm
+Rect keyClear
+
+Return Value:
+
+ SmartPos API Reference Manual:  25/03/24
+
+The coordinate of the number key "0"
+The coordinate of the key "cancel"
+The coordinate of the key "confirm"
+The coordinate of the key "clear"
+
+Byte[]                        Returns 0-9 digits for 10 key successfully
+
+null                            Failed
+
+3.3.20  inputOnlinePin
+
+Enter the online PIN.
+
+Public int inputOnlinePin (int [] pinLen, int timeout, byte [] panBlock, int mKeyId,
+PinAlgorithmModeEnum pinAlgMode, OnPinPadInputListener listener);
+
+Parameters:
+
+Parameter
+
+pinLen
+
+timeout
+panBlock
+mKeyId
+pinAlgMode
+listener
+
+Description
+
+The length of the support, such
+as{0x00,0x04,0x05,0x06,0x07,0x08,0x09,0x0a, 0x0b, 0x0c}
+Enter a timeout in seconds; recommended value 60
+Card number, asc coding
+Master Key Index 0-199(if DUKPT, is 0-19)
+PIN encryption algorithm mode
+Monitor callback interface
+
+PinAlgorithmModeEnum
+
+Enumeration Name
+
+ISO9564FMT1
+ISO9564FMT2
+ISO9564FMT3
+
+Return Value:
+
+Description
+Format 0, Currently only supports Format 0
+Format 0, Currently only supports Format 0
+Format 0, Currently only supports Format 0
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.3.21 inputPinExternal
+
+Confidential
+
+52
+```
+
+## Page 53
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Enter the PIN with the external Pinpad, such as G101,K110. Need to set Pinpad type to External.
+
+pinpad.initPinPad (PinPadTypeEnum. EXTERNAL);
+
+Public int inputPinExternal (final int mKeyIdx, final int minLen, final int maxLen, final String pan, final int
+
+timeout, final OnPinPadInputListener listener);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+minLen
+maxLen
+pan
+timeout
+listener
+
+Return Value:
+
+Description
+
+Master Key Index 0-19(does not support DUKPT)
+Min length of the PIN
+Max length of the PIN
+Card number
+Input PIN timeout, suggest use 60s
+Monitor callback interface
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+Note: inputPinExternal support online PIN and Offline PIN. But it does not support DUKPT mode.
+
+3.3.22  inputOfflinePin
+
+Enter the offline PIN(offline plaintext pin, or offline cipher pin).
+
+Public int inputOfflinePin (int [] pinLen, int timeout, OnPinPadInputListener listener);
+Parameters:
+
+Parameter
+
+pinLen
+
+timeout
+listener
+
+Return Value:
+
+Description
+
+The length of the support, such
+as{0x00,0x04,0x05,0x06,0x07,0x08,0x09,0x0a, 0x0b, 0x0c}
+Enter a timeout in seconds; recommended value 60
+Monitor callback interface
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+Confidential
+
+53
+```
+
+## Page 54
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Fail other errors
+
+3.3.23  isInputting
+
+Whether the keyboard is typing.
+
+Public boolean isInputting ();
+Parameters: None
+
+Return Value:
+
+True success
+
+False failure
+
+3.3.24  cancelInput
+
+Cancel the keyboard input.
+
+Public void cancelInput ();
+Parameters: None
+
+Return Value: None
+
+3.3.25  format
+
+Format the key area.
+
+Public boolean format ();
+Parameters: None
+
+Return Value:
+
+True success
+
+False failure
+
+3.3.26  deleteMKey
+
+Clear the master key.
+
+Public boolean deleteMKey (int mKeyId);
+
+Confidential
+
+54
+```
+
+## Page 55
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+mKeyId
+
+Master Key Index 0-199
+
+Description
+
+Return Value:
+
+True success
+
+False failure
+
+3.3.27  dukptKeyInject
+
+Inject BDK(or IPEK) and KSN for DUKPT.
+
+Public int dukptKeyInject(int mKeyIdx, DukptKeyTypeEnum keyType, byte[] keyData, int keyDataLen,
+byte[] ksn);
+Parameters:
+
+Description
+
+Parameter
+
+mKeyIdx
+
+keyType
+
+keyData
+
+Key Index 0-19
+
+Key type
+
+BDK
+
+keyDataLen
+
+BDK length
+
+ksn
+
+KSN
+
+DukptKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+BDK
+IPEK
+
+BDK
+IPEK
+
+Return value:
+
+SdkResult.Success,
+
+SdkResult.Fail,
+
+SdkResult.PinPad_KeyIdx_Error,
+
+SdkResult.Param_In_Invalid
+
+3.3.28  dukptCipherKeyInject
+
+Confidential
+
+55
+```
+
+## Page 56
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Inject cipher BDK(or IPEK) and KSN for DUKPT.
+
+Public int dukptCipherKeyInject(int dukptKeyIdx, int decKeyIdx, WorkKeyTypeEnum workKeyTypeEnum,
+DukptKeyTypeEnum keyType, CalcModeEnum calcModeEnum, byte[] keyCipherData, byte[] ksn);
+Parameters:
+
+Parameter
+
+Description
+
+dukptKeyIdx
+
+Key Index 0-19
+
+decKeyIdx
+
+workKeyTypeEnum
+
+keyType
+
+Decrypt Key index 0-199(use MK/SK key to decrypt the cipher
+BDK/IPEK and inject)
+If workKeyTypeEnum != null, use work key to decrypt and inject cipher
+BDK/IPEK ;
+If workKeyTypeEnum == null, use master key to decrypt and inject
+cipher BDK/IPEK ;
+BDK/IPEK
+
+calcModeEnum
+
+Encryption or decryption
+
+keyCipherData
+
+Cipher BDK/IPEK
+
+ksn
+
+KSN
+
+WorkKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+DukptKeyTypeEnum
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+Enumeration Name
+
+Description
+
+BDK
+IPEK
+
+CalcModeEnum
+
+BDK
+IPEK
+
+Enumeration Name
+
+Description
+
+ENCRYPT mode
+  DECRYPT mode
+
+ENCRYPT
+DECRYPT
+
+Confidential
+
+56
+```
+
+## Page 57
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return value:
+
+SdkResult.Success,
+
+SdkResult.Fail,
+
+SdkResult.PinPad_KeyIdx_Error,
+
+SdkResult.Param_In_Invalid
+
+3.3.29  dukptKsnIncrease
+
+Use it to increase ksn, otherwise the ksn will not change.
+
+Public void dukptKsnIncrease(int mKeyIdx);
+Parameters:
+
+Parameter
+
+mKeyIdx
+
+Key Index 0-19
+
+Description
+
+3.3.30  dukptCurrentKsn
+
+Get current Ksn value.
+
+Public byte[] dukptCurrentKsn(int mKeyIdx);
+Parameters:
+
+Parameter
+
+mKeyIdx
+
+Key Index 0-19
+
+Description
+
+If key exist, it will return the KSN
+Otherwise, it will return null.
+This API can be used to check if the DUKPT key exists or not.
+
+3.3.31  dukptEncrypt
+
+Encrypt data in dukpt model.
+
+Public byte[] dukptEncrypt(int mKeyIdx, DukptKeyModeEnum keyMode, byte[] data, int dataLen);
+Parameters:
+
+Parameter
+
+Description
+
+Confidential
+
+57
+```
+
+## Page 58
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+mKeyIdx
+
+keyMode
+
+data
+
+Key Index 0-19
+
+Encrypt model
+
+Encrypt data
+
+dataLen
+
+Encrypt data’s length
+
+DukptKeyModeEnum
+
+Enumeration Name
+
+Description
+
+REQUEST
+RESPONSE
+
+Return value:
+
+Bytes Array,
+
+Null
+
+3.3.32  dukptEncrypt
+
+Encrypt data in dukpt model.
+
+Public byte[] dukptEncrypt(int mKeyIdx, DukptKeyModeEnum keyMode, byte[] data, int dataLen,
+DesAlgorithmModeEnum desMode, byte[] iv);
+Parameters:
+
+Description
+
+Parameter
+
+mKeyIdx
+
+keyMode
+
+data
+
+Key Index 0-19
+
+Encrypt model
+
+Encrypt data
+
+dataLen
+
+Encrypt data’s length
+
+desMode
+
+Use ECB or CBC
+
+iv
+DukptKeyModeEnum
+
+Iv for CBC mode
+
+Enumeration Name
+
+Description
+
+REQUEST
+RESPONSE
+DesAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+CBC
+
+Confidential
+
+58
+```
+
+## Page 59
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return value:
+
+Bytes Array,
+
+Null
+
+3.3.33  injectKBPK
+
+Inject KBPK, this API should work together with injectTr31Key
+
+int injectKBPK(int kbpkIndex, byte[] keyData, int keyDataLen);
+
+Parameters:
+
+Parameter
+
+kbpkIndex
+keyData
+keyDataLen
+
+Return Value:
+
+Description
+
+KBPK Key Index 0-9
+Plaintext KBPK
+The length of the KBPK
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+PinPad_Open_Or_Close_Error Pinpad open or close failed
+
+SdkResult.Fail other errors
+
+3.3.34  injectTr31Key
+
+Inject TR31 key block, must call API injectKBPK to inject KBPK first
+
+int injectTr31Key(int kbpkIndex, int mKeyIdx, byte[] tr31Block, byte[] kcv);
+
+Description
+
+KBPK Key Index 0-9
+Key index(0-99 for MK/SK, 0-19 for IPEK)
+Standard TR31 block data
+Injected key check value
+
+Parameters:
+
+Parameter
+
+kbpkIndex
+mKeyIdx
+tr31Block
+byte[] kcv
+
+Confidential
+
+59
+```
+
+## Page 60
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+PinPad_Open_Or_Close_Error Pinpad open or close failed
+
+SdkResult.Fail other errors
+
+3.4  Scaner#1(default UI)
+
+Camera scan code class is responsible for managing POS camera; must be initialized before use.
+
+Get the object of the camera scan class:
+Scanner scanner = deviceEngine getScanner();
+
+The following table shows the Return Values supported by the method of the camera sweep class:
+
+Constant Name
+
+Constant Value
+
+Description
+
+Scanner_Base_Error
+Scanner_Customer_Exit
+Scanner_Other_Error
+
+-2000
+Scanner_Base_Error - 1
+Scanner_Base_Error - 2
+
+Active user exit
+Scan code fails
+
+This module operates using the basic flow chart:
+
+Confidential
+
+60
+```
+
+## Page 61
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.4.1   initScanner
+
+Initialize the scan configuration.
+
+Public int initScanner (ScannerCfgEntity cfgEntity, OnScannerListener listener);
+
+Parameters:
+
+Confidential
+
+61
+
+StartGet contextGet scanner objectUse initscannerStart scanStop scanSuccessEndYN
+```
+
+## Page 62
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+Description
+
+cfgEntity
+listener
+
+Initialize the configuration
+Callback interface
+
+ScannerCfgEntity
+
+Attributes
+
+boolean isUsedFrontCcd
+
+boolean isBulkMode
+
+int interval
+
+boolean isAutoFocus
+boolean isNeedPreview
+List<SymbolEnum> symbolEnumList
+
+Bundle mBundle
+
+Key
+
+boolean showBar
+
+boolean showBack
+
+boolean showTitle
+
+boolean showSwitch
+
+Description
+
+Whether to use the front camera, if only
+back camera, then open the back camera by
+default
+Whether continuous scan mode, open the
+scan after the success of the scan does not
+exit the interface
+Continuous scan code interval, in
+milliseconds; default 1000
+Whether it is auto focus
+Whether it is need pre-view
+List support symbol code, default will
+support all codes;Need latest firmware
+support
+Use bundle to transfer parameter to
+customized the Scanner UI
+
+Description
+
+If show Bar
+
+Whether show the back button
+
+Whether show the Title text
+
+Whether show the button for switching
+front and back camera
+
+boolean showMenu
+
+Whether show the Menu
+
+String Title
+
+int TitleSize
+
+string ScanTip
+
+Confidential
+
+Customized the title text
+
+The size of the Title text
+
+Customized the Scan tip text
+
+62
+```
+
+## Page 63
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+int TipSize
+
+boolean hideFram
+
+Return Value:
+
+The size of the tip text
+
+Hide the preview box, need latest firmware
+support
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.4.2   startScan
+
+start scan
+
+Public int startScan (int timeout, OnScannerListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+timeout
+listener
+
+Scan code timeout in seconds; recommended value 60
+Callback interface
+
+Return Value:
+
+SdkResult.Sucess success
+
+SdkResult.Fail failure
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+3.4.3   stopScan
+
+Stop scanning.
+
+Public void stopScan();
+
+Parameters: None
+
+Return Value: None
+
+3.4.4   decode
+
+Confidential
+
+63
+```
+
+## Page 64
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+decode the image
+
+public String decode(byte[] imageData, int imageWidth, int imageHeight);
+Parameters：
+
+Parameter
+imageData
+imageWidth
+imageHeight
+
+Return Value:
+
+Failed : None
+
+           Success: decode result
+
+Description
+Image, date type is YUV420SP
+Image width
+Image height
+
+3.5  Scanner#2(customizable  UI)
+
+The scanning UI can be customized. For details, see demo
+
+Get the object of camera code scanning class:
+
+Scanner  scanner = deviceEngine.getScanner2() ;
+
+3.5.1   initScanner
+
+Initialize scan configuration
+
+public void initScanner(ScannerCfgEntity cfgEntity, Set<SymbolEnum> enableSymbols);
+
+Parameters:
+
+Parameters:
+
+cfgEntity
+enableSymbols
+ScannerCfgEntity
+
+Description
+
+Initialize the configuration
+Set supported code type
+
+Attributes
+boolean isUsedFrontCcd  Whether to use the front camera or not. If only the back camera is used, the
+
+Description
+
+back camera will be turned on by default
+
+boolean isBulkMode
+
+Continuous code scanning mode. If it is enabled, the code scanning interface will
+not exit after the code scanning succeeds
+
+Confidential
+
+64
+```
+
+## Page 65
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+int interval
+
+Continuous code scanning interval, unit: Ms default value: 1000
+
+boolean isAutoFocus
+
+Auto focus or not
+
+boolean isNeedPreview
+
+Preview required, default required
+
+Bundle mBundle
+
+User defined interface display settings, you can set the following table key
+values through bundle.
+
+        Show menu or not
+
+        Show title bar or not
+
+                    Title bar background color
+        Show back button or not
+        Display title text or not
+        is front/back camera switch button
+
+                  Type               description
+
+Key
+showBar
+    boolean
+BarColor
+    int
+showBack
+    boolean
+    boolean
+showTitle
+showSwitch           boolean
+displayed
+showMenu            boolean
+Title                        String         Custom title text
+TitleSize                 int
+TitleColor               int
+MaskColor             int
+AngleColor            int
+FrameColor           int
+SlideColor              int
+ScanTip                  int
+TipColor
+   int
+TipSize                   int
+Pendant
+
+   String         Image mount path
+
+                    Title Text Size
+                    Title Text Color
+                    Preview mask color
+                    Color of four corners of code box
+                    Frame color
+                    Scanline color
+                    Custom prompt text
+                    Prompt text color
+                    Prompt text size
+
+return value : none
+
+3.5.2   getBestPreviewSize
+
+Get the best preview resolution
+
+public Size getBestPreviewSize();
+
+parameter：none
+
+Confidential
+
+65
+```
+
+## Page 66
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+return value：Size
+
+3.5.3   setSurface
+
+Set the preview surface. If not, there will be no preview scanning. Generally, this method is
+used to call getbestpreviewsize() to return the resolution supported by the camera, and then
+set it
+
+public void setSurface(Surface surface, int width, int height);
+parameter：
+
+parameter
+surface
+width
+height
+return value : none
+
+3.5.4   start
+
+Start camera scanning
+
+public void start(OnScannerListener listener);
+parameter：
+parameter
+listener
+return value : none
+
+3.5.5   stop
+
+Description
+
+width
+height
+
+Description
+Decode listener
+
+Stop scanning code and call when user initiatively exits.
+
+public void stop();
+parameter：none
+
+return value : none
+
+3.5.6   switchCamera
+
+Before and after the switch, the camera is called after start. If you want to set up which
+camera to use from the beginning, please send it in initScanner configuration.
+
+Confidential
+
+66
+```
+
+## Page 67
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public void switchCamera(boolean usedFrontCcd);
+parameter：
+
+parameter
+usedFrontCcd
+return value : none
+
+3.5.7   flashTrigger
+
+Turn on the flash and call after start.
+
+public void flashTrigger(boolean on);
+parameter：
+
+parameter
+on
+return value : none
+
+3.5.8   focusTrigger
+
+Open autofocus and call after start.
+
+public void focusTrigger(boolean auto);
+parameter：
+parameter
+auto
+return value : none
+
+3.5.9   setZoom
+
+Description
+Front camera or not
+
+Description
+Turn on flash or not
+
+Description
+Turn on auto connect focus
+
+Set up an enlarged preview and call it after start.
+
+public void setZoom(float scale);
+Parameter term：
+Parameter
+scale
+return value : none
+
+3.6  Card Reader Class
+
+Description
+0f~1.0f, restore default when 0
+
+Confidential
+
+67
+```
+
+## Page 68
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Card reader is responsible for managing the POS card reader (Note: 1, the user can take the initiative to
+stop the card operation; 2, find card operation automatically stop after the card is found).
+
+Get the object of the reader class:
+
+CardReader reader = deviceEngine getCardReader (). ;
+
+This module operates using the basic flow chart:
+
+Confidential
+
+68
+```
+
+## Page 69
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.6.1   searchCard
+
+Confidential
+
+69
+
+EndStartObtain contextGet cardreader objectCall searchcard to detect cardUse stopSearch to stop searchafter cardreader returned, use iscardexist to detect if card was removedCheck cardHas cardTimeout User canceled
+```
+
+## Page 70
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Open the corresponding card reader, check the corresponding card slot has a card.
+
+public int searchCard(HashSet<CardSlotTypeEnum> slotTypes,int timeout, OnCardInfoListener listener);
+Parameters:
+
+Parameter
+
+slotTypes
+
+timeout
+listener
+
+Description
+
+Slot enumerated type CardSlotTypeEnum; supports a variety of
+combinations of slots
+Timeout in seconds; recommended value 60
+Callback interface OnCardInfoListener
+
+CardSlotTypeEnum
+
+Enumeration Name
+
+Description
+
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+Return Value:
+
+Default IC card slot (Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable (only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Fail other errors
+
+3.6.2   stopSearch
+
+Turn off the corresponding card reader and stop detecting if there is a card in the card slot.
+
+Public void stopSearch();
+
+Parameters: None
+
+Return Value: None
+
+3.6.3   isCardExist
+
+Confidential
+
+70
+```
+
+## Page 71
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+When the card reader operation is finished, call the card to check whether the contact IC card is pulled
+out or if there is a non-card access card in the slot.
+
+Public boolean isCardExist ( CardSlotTypeEnum slotTypes);
+
+Parameters:
+
+Parameter
+
+Description
+
+slotTypes
+
+Slot enumerated type CardSlotTypeEnum
+
+CardSlotTypeEnum
+
+Enumeration Name
+
+Description
+
+Default IC card slot (Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable (only available for UN20)
+Unavailable (only available for UN20)
+Contactless card slot
+Magnetic stripe card slot
+
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+Return Value:
+
+True exists
+
+False does not exist
+
+3.6.4   open
+
+Open the specified slot, and if you have already called searchCard to find the card, you do not need to
+call open again
+
+public void open(CardSlotTypeEnum cardSlotType);
+
+Parameters:
+
+Parameter
+cardSlotType
+CardSlotTypeEnum
+Enumeration Name
+ICC1
+ICC2
+
+Confidential
+
+Description
+  CardSlotTypeEnum
+
+Description
+Default IC card slot(Contact card solt)
+Unavailable
+
+71
+```
+
+## Page 72
+
+```text
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+Return Value: None
+
+3.6.5   close
+
+Close the specified slot.
+public void close(CardSlotTypeEnum cardSlotType);
+
+Parameters:
+
+Parameter
+cardSlotType
+CardSlotTypeEnum
+
+Enumeration Name
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+Return Value: None
+
+ SmartPos API Reference Manual:  25/03/24
+
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable(only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+Description
+  CardSlotTypeEnum
+
+Description
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable(only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+3.6.6   getRfCardType
+
+Get contactless card type
+
+public RfCardTypeEnum getRfCardType(CardSlotTypeEnum cardSlotType);
+
+Parameters:
+
+Confidential
+
+72
+```
+
+## Page 73
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+  CardSlotTypeEnum
+
+Description
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable(only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+Description
+
+Parameter
+cardSlotType
+CardSlotTypeEnum
+
+Enumeration Name
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+RfCardTypeEnum
+Enumeration Name
+TYPE_A_CPU
+TYPE_B_CPU
+S50
+FELICA
+S70
+ULTRALIGHT
+MEMORY_OTHER
+S50_PRO
+S70_PRO
+
+Return Value:
+
+Success   return RfCardTypeEnum
+
+Fail   null
+
+3.6.7   setETU
+
+reset ETU。
+
+public void setETU(CardSlotTypeEnum cardSlotType, int val);
+
+Parameters:
+
+Parameter
+cardSlotType
+
+Confidential
+
+Description
+ CardSlotTypeEnum
+
+73
+```
+
+## Page 74
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Value 0:372(standard card, default support
+
+adaptive 4-fold)
+
+Description
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable (only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+val
+
+CardSlotTypeEnum
+
+Enumeration Name
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+Return Value:
+
+None
+
+3.6.8   setSupportFelica
+
+set if support Felica Card .
+
+public void setSupportFelica(boolean var1);
+
+Return Value:
+
+None
+
+3.6.9   setFelicaSystemCode
+
+set Felica Card system code
+
+void setFelicaSystemCode(byte[] code);
+
+Return Value:
+
+None
+
+3.6.10  setFelicaRequestCode
+
+Confidential
+
+74
+```
+
+## Page 75
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+set Felica Request Code.
+
+void setFelicaRequestCode(byte code);
+
+Return Value:
+
+None
+
+3.7  CPU Cards
+
+The CPU card class is responsible for managing the CPU card.
+
+Get the object of the CPU card class:
+
+CPUCardHandler cpucard = deviceEngine getCPUCardHandler (CardSlotTypeEnum slotType ).;
+
+Parameters:
+
+Parameter
+
+slotType
+
+Card slot type
+
+CardSlotTypeEnum
+
+Description
+
+Enumeration Name
+
+Description
+
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable (only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+
+This module operates using the basic flow chart:
+
+3.7.1   readUid
+
+Read Uid of the card
+
+Public String readUid ();
+
+Parameters: None
+
+Return Value:
+
+Confidential
+
+75
+```
+
+## Page 76
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Success Uid
+
+Note : if the card is Felica , the UID = IDm + PMm
+
+Failure   Null
+
+3.7.2   powerOn
+
+Power-on reset, only for ICC1, PSAM1, PSAM2.
+
+Public boolean powerOn (byte [] atr);
+
+Power returns atr, the first length byte
+hexadecimal representation, followed by the standard atr data
+
+Description
+
+Parameters:
+
+Parameter
+
+atr
+
+Return Value:
+
+True success
+
+False failure
+
+3.7.3   active
+
+Activated, only for contactless card(RF).
+
+Public boolean active ();
+
+Parameters: None
+
+Return Value:
+
+True success
+
+False failure
+
+3.7.4   exchangeAPDUCmd
+
+Interactive APDU command.
+
+Public int exchangeAPDUCmd (APDUEntity cmd);
+
+Parameters:
+
+Parameter
+
+cmd
+
+APDUEntity Command data
+
+Description
+
+Confidential
+
+76
+```
+
+## Page 77
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+APDUEntity
+
+byte p1
+byte p2
+int lc
+int le
+
+byte ins
+byte cla
+byte swa
+byte swb
+int dataOutLen
+byte [] dataIn
+byte [] dataOut
+
+Return Value:
+
+Attributes
+
+Description
+
+Instruction to attach a specific Parameter
+Instruction to attach a specific Parameter
+The number of bytes to transfer data
+Expect the maximum number of bytes to
+return
+Instruction code
+Command category
+Back swa
+Back swb
+Returns the length of the data
+Sent data
+Return data
+
+SdkResult.Success success
+
+SdkResult.Fail failure
+
+3.7.5  exchangeAPDUCmd
+
+Interactive APDU command.
+
+public byte[] exchangeAPDUCmd(byte[] cmd);
+
+Parameters:
+
+Parameter
+cmd
+
+Return Value:
+
+Success    return response data
+
+Fail
+
+null
+
+3.7.6   powerOff
+
+Power down.
+
+Public void powerOff();
+
+Confidential
+
+Description
+Apdu command data
+
+77
+```
+
+## Page 78
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters: None
+
+Return Value: None
+
+3.7.7   remove
+
+remove contactless card
+
+public boolean remove();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail failure
+
+3.8  EMV class (Emvhandler2)
+
+The EMV class is responsible for managing the EMV operation of the POS.
+
+Get the object of the EMV class:
+
+EmvHandler2 EmvHandler = deviceEngine getEmvHandler2 (String appId );
+
+Parameters:
+
+Parameter
+
+appId
+
+Description
+
+Application ID is mainly used to distinguish between aid and capk storage
+paths
+
+Please note: the maximum number for EMV AID and CAPK are 100.
+
+3.8.1    delAllAid
+
+Remove all AIDs.
+
+Public void delAllAid ();
+
+Parameters: None
+
+Return Value: None
+
+Confidential
+
+78
+```
+
+## Page 79
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+3.8.2    delOneAid
+
+Delete an AID.
+
+Public boolean delOneAid (byte [] aid);
+
+Parameters:
+
+Parameter
+
+aid
+
+Enter aid
+
+Return Value:
+
+True success
+
+False failure
+
+3.8.3    delAllCapk
+
+Remove all CAPK.
+
+Public void delAllCapk ();
+
+Parameters: None
+
+Return Value: None
+
+3.8.4    delOneCapk
+
+Delete a CAPK.
+
+Public boolean delOneCapk (byte [] rid, int capkIdx);
+
+Description
+
+Parameters:
+
+Parameter
+
+rid
+capkIdx
+
+Enter rid
+capk Index
+
+Return Value:
+
+True success
+
+False failure
+
+3.8.5    setAidParaList
+
+Set the AID.
+
+public int setAidParaList(List<AidEntity> aidParaTlvList);
+
+Confidential
+
+79
+```
+
+## Page 80
+
+```text
+Parameters:
+
+Parameter
+aidParaTlvList
+AidEntity
+attribute
+String aid
+int asi
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String ddol
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+String transType
+
+AidEntryModeEnum aidEntryModeEnum
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+Aid list
+
+Description
+Application ID
+Application selection indicator
+
+0-  needn't  match  exactly(partial  match  up  to  the
+
+length);
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+Terminal online Pin capability
+Contact floor limit
+Electronic cash limit(union pay used in china market)
+Contactless cvm limit
+Contactless transaction limit
+Contactless floor limit
+Transaction type, EMV tag 9c, “00”-sale, “20”-
+refund..
+Default value is “FF”,it means adapt to all transaction
+type
+AID_ENTRY_CONTACT_CONTACTLESS: default value,
+means this aid can used for both contact and
+contactless
+AID_ENTRY_CONTACT:
+This aid is only used for contact
+AID_ENTRY_CONTACTLESS:
+This aid is only used for contactless
+
+So, the same aid can config 2 aid with
+
+Confidential
+
+80
+```
+
+## Page 81
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+aidEntryModeEnum different, one is only for contact,
+and one is only for contactless
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.6    setAidParaList
+
+Set the AID.
+
+Public int setAidParaList (List <byte []> aidParaTlvList);
+
+Parameters:
+
+Parameter
+
+aidParaTlvList
+
+Description
+
+Enter the number of aid data list, such as:
+aidParaTlvList.add(ByteUtils.hexString2ByteArray("9F0607A0000000043060DF010
+1009F08020002DF1105FC5058A000DF1205F85058F800DF130504000000009F1B0
+400000000DF150400000000DF160199DF170199DF14039F3704DF180101DF20060
+00999999999"));
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.7    setAidParaList
+
+Set the AID.
+
+public int setAidParaList(List<String> aidParaTlvList);
+
+Parameters:
+
+Parameter
+
+Confidential
+
+Description
+
+81
+```
+
+## Page 82
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+aidParaTlvList
+
+Enter the number of aid data list, such as:
+
+aidParaTlvList.add("9F0607A0000000043060DF01
+01009F08020002DF1105FC5058A000DF1205F850
+58F800DF130504000000009F1B0400000000DF15
+0400000000DF160199DF170199DF14039F3704DF
+180101DF2006000999999999");
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.8    setCAPKList
+
+Set CAPK.
+
+public int setCAPKList(List<CapkEntity> capkTlvList);
+Pamameter：
+
+Parameter
+capkTlvList
+CapkEntity
+
+attribute
+String rid
+int capkIdx
+int hashInd
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.9    setCAPKList
+
+Confidential
+
+Description
+Capk list
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(YYYYMMDD)
+
+82
+```
+
+## Page 83
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Set CAPK.
+
+Public int setCAPKList (List <byte []> capkTlvList);
+
+Parameters:
+
+Parameter
+
+capkTlvList
+
+Description
+
+Enter multiple capk data list, such as:
+capkTlvList.add (ByteUtils.hexString2ByteArray
+("9F0605A0000000659F220109DF05083230303931323331DF060101DF070101DF02
+8180B72A8FEF5B27F2B550398FDCC256F714BAD497FF56094B7408328CB626AA6F0
+E6A9DF8388EB9887BC930170BCC1213E90FC070D52C8DCD0FF9E10FAD36801FE93F
+C998A721705091F18BC7C98241CADC15A2B9DA7FB963142C0AB640D5D0135E77EB
+AE95AF1B4FEFADCF9C012366BDDA0455C1564A68810D7127676D493890BDDF0401
+03DF03144410C6D51C2F83ADFD92528FA6E38A32DF048D0A"));
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.10   setCAPKList
+
+Set CAPK.
+
+public int setCAPKList(List<String> capkTlvList);
+
+Parameters:
+
+Parameter
+capkTlvList
+
+Return Value:
+
+Confidential
+
+Description
+Enter multiple capk data list, such as:
+capkTlvList.add("9F0605A0000000659F220109DF050
+83230303931323331DF060101DF070101DF028180B
+72A8FEF5B27F2B550398FDCC256F714BAD497FF560
+94B7408328CB626AA6F0E6A9DF8388EB9887BC9301
+70BCC1213E90FC070D52C8DCD0FF9E10FAD36801FE
+93FC998A721705091F18BC7C98241CADC15A2B9DA
+7FB963142C0AB640D5D0135E77EBAE95AF1B4FEFA
+DCF9C012366BDDA0455C1564A68810D7127676D49
+3890BDDF040103DF03144410C6D51C2F83ADFD925
+28FA6E38A32DF048D0A");
+
+83
+```
+
+## Page 84
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.11   getAidListNum
+
+get aid list number
+
+public int getAidListNum();
+
+Return Value:
+
+Number of aid list
+
+3.8.12   getAidList
+
+get aid list
+
+public List<AidEntity> getAidList();
+
+AidEntity
+
+Attributes
+String aid
+int asi
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String DDOL
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+Description
+Application ID
+Application selection indicator
+
+0-  needn't  match  exactly(partial  match  up  to  the
+
+length);
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+
+Confidential
+
+84
+```
+
+## Page 85
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Terminal online Pin capability
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(MMYY)
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+Return Value:
+
+Success
+
+return aid list
+
+Fail
+
+ return null
+
+3.8.13   getCapkListNum
+
+get capk list number
+
+public int getCapkListNum();
+
+Return Value:
+
+Number of capk list
+
+3.8.14   getCapkList
+
+get capk list
+
+public List<CapkEntity> getCapkList();
+
+CapkEntity
+
+Attributes
+String rid
+int capkIdx
+int hashInd
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+Return Value:
+
+Success
+
+return capk list
+
+Fail
+
+ return null
+
+Confidential
+
+85
+```
+
+## Page 86
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.8.15   emvDebugLog
+
+enable EMV log for checking emv issues, default false
+
+public void emvDebugLog(boolean isEnable);
+
+Parameters:
+
+Parameter
+isEnable
+
+Return Value: None
+
+Description
+
+True ，false
+
+3.8.16   setDynamicReaderLimitListForPaywave
+
+Set DRL for paywave
+
+public int setDynamicReaderLimitListForPaywave(List<DynamicReaderLimitEntity> drlEntityList)
+
+Description
+DRL list
+
+Description
+
+Parameters:
+
+Parameter
+drlEntityList
+DynamicReaderLimitEntity
+
+attribute
+byte[] appProgID
+boolean statusCheck
+boolean authOfZeroCheck
+byte authOfZeroCheckOption;
+boolean readerContactlessTransLimitCheck;
+boolean readerCVMReqLimitCheck;
+boolean readerContactlessFloorLimitCheck;
+private boolean drlSupport;
+byte[] readerContactlessTransLimit;
+byte[] readerCVMReqLimit;
+byte[] readerContactlessFloorLimit;
+
+Return Value:
+
+SdkResult.Success success
+
+Confidential
+
+86
+```
+
+## Page 87
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.17   setDynamicReaderLimitListForExpressPay
+
+Set DRL for Amex Expresspay
+
+public int setDynamicReaderLimitListForExpressPay (List<DynamicReaderLimitEntity> drlEntityList)
+
+Description
+DRL list
+
+Description
+Application Prog ID
+statusCheck
+
+Parameters:
+
+Parameter
+drlEntityList
+DynamicReaderLimitEntity
+
+attribute
+byte[] appProgID
+boolean statusCheck
+boolean authOfZeroCheck
+byte authOfZeroCheckOption;
+boolean readerContactlessTransLimitCheck;
+boolean readerCVMReqLimitCheck;
+boolean readerContactlessFloorLimitCheck;
+private boolean drlSupport;
+byte[] readerContactlessTransLimit;
+byte[] readerCVMReqLimit;
+byte[] readerContactlessFloorLimit;
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.18   getTlv
+
+Get tag.
+
+Public byte [] getTlv (byte [] tag, EmvDataSourceEnum pathId);
+
+Parameters:
+
+Confidential
+
+87
+```
+
+## Page 88
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+Description
+
+tag
+
+pathId
+
+tag value
+
+tag source
+
+EmvDataSourceEnum
+
+Enumeration Name
+
+Description
+
+FROM_KERNEL
+
+FORM_CARD
+
+Return Value:
+
+Tlv successful Return Value
+
+Else return null
+
+3.8.19   getTlvByTags
+
+public String getTlvByTags(String[] tags);
+
+Parameters:
+
+Parameter
+tags
+
+Return Value:
+
+Tlv successful Return  string Value
+
+Else return null
+
+3.8.20   setTlv
+
+Settings tag for EMV processing
+
+public int setTlv (byte [] tag, byte [] value);
+
+Parameters:
+
+Confidential
+
+Data sources kernel
+
+Data sources cards
+
+Description
+Tag such as: String[] TAGS = {"9f26", "9f27", "9f10",
+
+"9f37", "9f36", "95", "9a", "9c", "9f02",
+
+"5f2a", "82", "9f1a", "9f03","9f33", "9f34",
+
+"9f35", "9f1e", "9f09", "84", "9f41"}
+
+88
+```
+
+## Page 89
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+Parameter
+
+tag
+
+value
+
+Return Value:
+
+tag value
+
+data
+
+SdkResult.Success success
+
+SdkResult.Fail failure
+
+SdkResult.Param_In_Invalid Parameter error
+
+3.8.21   initTermConfig
+
+Allows  the  user  to  set  the  terminal  personalization attribute, initialize the  EMV  kernel,  and  use  the
+EMV kernel default attribute if the user does not call it. (Not recommended, please use method setTlv
+instead of this method)- Deprecated
+
+Description
+
+Public int initTermConfig (byte [] cfgTlv);
+
+Parameters:
+
+Parameter
+
+cfgTlv
+
+Standard tlv data stream
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.22   emvProcess
+
+Start emv process
+
+Public int emvProcess (EmvTransConfigurationEntity transData, OnEmvProcessListener2 listener);
+
+Parameters:
+
+Parameter
+
+transData
+listener
+EmvTransDataEntity
+
+EMV transactions Entity Info
+EMV flow monitor interfaces
+
+Description
+
+Confidential
+
+89
+```
+
+## Page 90
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Attributes
+
+Description
+
+String traceNo
+
+String transAmt
+
+String cashbackAmt
+
+String transDate
+
+String transTime
+
+byte[] merName
+
+String merId
+
+String termId
+
+byte emvTransType
+
+String countryCode
+
+String currencyCode
+
+trace number, length 8
+
+Amount, length 12, for example “000000010000” = 100.00
+
+Cash back amount, length 12
+
+Transaction date yyMMDD, length 6
+
+Transaction date HHMMSS, length 6
+
+merchant name
+
+merchant ID, length 15
+
+terminal ID, length 8
+
+EMV Transaction Type, sale-0x00, refund-0x20…
+
+Country code , emv tage 9f1a
+
+Currency code, emv tag 5f2a
+
+EmvEntryModeEnum entryModeEnum
+EmvProcessFlowEnum
+processFlowEnum
+
+Entry mode: contact or contactless
+Standard flow(full flow)
+Read app data flow
+
+boolean isContactForceOnline
+
+MasterCardTransDataEntity entity
+
+True: Contact transaction force online
+False: standard process
+Master card parameter
+
+VisaTransDataEntity entity
+
+Visa  parameter
+
+AmexTransDataEntity entity
+
+Amex parameters
+
+UnionPayTransDataEntity entity
+
+UnionPay parameter
+
+EmvProcessFlowEnum
+
+Enumeration Name
+
+Description
+
+EMV_PROCESS_FLOW_STANDARD
+EMV_PROCESS_FLOW_READ_APPDATA
+
+Standard emv flow
+Read application data, card number ..etc(it is
+suitable for contact and contactless)
+
+EmvEntryModeEnum
+
+Enumeration Name
+
+EMV_ENTRY_MODE_CONTACT
+
+EMV_ENTRY_MODE_CONTACTLESS
+
+Description
+
+Contact
+
+Contactless
+
+Confidential
+
+90
+```
+
+## Page 91
+
+```text
+MasterCardTransDataEntity
+
+Attributes
+
+Boolean isSupportContactQps
+
+String contactNoCvmLimit
+
+VisaTransDataEntity
+
+Attributes
+
+Boolean isSupportContactQps
+
+String contactNoCvmLimit
+
+isPaywaveCashPassProcessRestrict
+
+isPaywaveCashBackPassProcessRestrict
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+True: support conatact QPS
+False: do not support
+Contact QPS limit, 12 bytes. If transaction
+amount < contactNoCvmLimit, for master credit
+card, No cvm replace signature.
+
+Description
+
+True : support conatact QPS
+False: do not support
+Contact QPS limit, 12 bytes. If transaction
+amount < contactNoCvmLimit, for master credit
+card, No cvm replace signature.
+Cash skip Process Restrict or not for Visa Paywave
+True: skip Process Restrict
+False: do process Restrict
+Default is false
+CashBack skip Process Restrict or not for Visa
+Paywave
+True: skip Process Restrict
+False: do process Restrict
+Default is false
+
+AmexTransDataEntity
+
+Attributes
+
+Description
+
+Boolean isExpressPaySeePhoneTapCardAgain
+
+express pay see phone test cases, the second tap
+should set the value true
+
+UnionPayTransDataEntity
+
+Attributes
+
+Description
+
+Boolean isForceOnline
+
+Boolean isSupportCDCVM
+
+Boolean isQpbocForGlobal
+
+Boolean isSupportContactlessQps
+
+Force online
+
+Support CDCVM, default value is true
+
+if use China market, please set false, others
+please set true. Default value is true
+Support QPS
+
+String contactlessQpsLimit
+
+QPS limit
+
+Confidential
+
+91
+```
+
+## Page 92
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+DPASTransDataEntity
+
+Attributes
+
+DPASVersionEnum dpasVersion
+
+Description
+
+DPAS_VERSION_1: DPAS 1.0 version; default
+value
+DPAS_VERSION_2: DPAS 2.0 version
+
+DPASVersionEnum
+
+Enumeration Name
+
+Description
+
+DPAS_VERSION_1
+
+DPAS_VERSION_2
+
+DPAS 1.0 version; default value
+
+DPAS 2.0 version
+
+Return Value:
+
+SdkResult.Success success execution listener callback
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+3.8.23   onSetSelAppResponse
+
+After  executing  the  OnEMVProcessListener2.  OnSelApp  method,  call  it  to  notify  the  EMV  kernel  to
+continue the process.
+
+Public void onSetSelAppResponse (int selResult);
+
+Parameters:
+
+Parameter
+
+selResult
+
+After selecting the AID index number, the index starts at 1; the
+method is performed by onSelApp after obtained.
+
+Description
+
+Return Value: None
+
+3.8.24   onSetTransInitBeforeGPOResponse
+
+Confidential
+
+92
+```
+
+## Page 93
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+After executing the OnEMVProcessListener2. onTransInitBeforeGPO method, call it to notify the EMV
+kernel to continue the process.
+
+Public void onSetTransInitBeforeGPOResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+
+isSuccess
+
+Default value: true.
+The result of final select application.
+
+Description
+
+Return Value: None
+
+3.8.25   onSetConfirmCardNoResponse
+
+After  executing  the  OnEmvProcessListener2.  OnConfirmCardNo  method,  call  it  to  notify  the  EMV
+kernel to continue the process.
+
+Public void onSetConfirmCardNoResponse (boolean isConfirm);
+
+Parameters:
+
+Parameter
+
+isConfirm
+
+true: yes, false: no
+
+Return Value: None
+
+3.8.26   onSetPinInputResponse
+
+Description
+
+After executing the OnEMVProcessListener2. OnCardHolderInputPin method, call it to notify the EMV
+kernel to continue the process.
+
+Public void onSetPinInputResponse (boolean isConfirm, boolean isBypass);
+
+Parameters:
+
+Parameter
+
+isConfirm
+
+isBypass
+
+Description
+
+Whether the Enter key is pressed
+
+If no password is entered, press the Enter key(Pinbypass)
+
+Return Value: None
+
+3.8.27   onSetContactlessTapCardResponse
+
+Confidential
+
+93
+```
+
+## Page 94
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+After  executing  OnEmvProcessListener2.  onContactlessTapCardAgain  method，call  it  to  notify  the
+EMV kernel to continue the process.
+
+public void onSetContactlessTapCardResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+3.8.28   onSetOnlineProcResponse
+
+After executing the OnEmvProcessListener. OnOnlineProc method, call it to notify the EMV kernel to
+take the secondary authorization.
+
+public void onSetOnlineProcResponse (int retCode, EmvOnlineResultEntity result);
+
+Parameters:
+
+Parameter
+
+retCode
+
+result
+
+Description
+
+SdkResult.Success: connect to the host successfully.
+SdkResult.Fail: unable connect to the host.
+EmvOnlineResultEntity, EMV online results
+
+EmvOnlineResultEntity
+
+Attributes
+
+Description
+
+String rejCode
+
+String authCode
+
+Host respond with transaction response codes
+
+Host respond with Transaction Authorization
+Code
+
+Byte [] recvField55
+
+Host respond 55 field data
+
+EmvTerminalDecisionForSecondGAC
+TerminalDecisionSecondGAC
+
+Terminal second GAC force TC regardless of host
+response code:
+DECISION_KERNEL: kernel process, default value
+DECISION_TERMINAL_AAC:
+terminal request AAC, not implement
+DECISION_TERMINAL_TC: terminal request TC
+when response code ！= 00
+Note: If no special scenarios are used, this field can
+be left unconfigured; Processed by the kernel itself
+
+Confidential
+
+94
+```
+
+## Page 95
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+EmvTerminalDecisionForSecondGAC
+
+Enumeration Name
+
+DECISION_KERNEL
+DECISION_TERMINAL_AAC
+DECISION_TERMINAL_TC
+
+Return Value: None
+
+3.8.29   onSetPromptResponse
+
+Description
+kernel process, default value
+terminal request AAC, not implement
+terminal request TC when response code ！
+= 00
+
+After  executing  OnEmvProcessListener.  onPrompt  method，call  it  to  notify  the  EMV  kernel  to
+continue the process.
+
+public void onSetPromptResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+3.8.30   onSetRemoveCardResponse
+
+After  executing  OnEmvProcessListener.  onRemoveCard  method，call  it  to  notify  the  EMV  kernel  to
+continue the process.
+
+public void onSetRemoveCardResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+Confidential
+
+95
+```
+
+## Page 96
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.8.31   EMVProcessCancel
+
+Cancel EMV process.
+
+public void emvProcessCancel ();
+
+Parameters: None
+
+Return Value: None
+
+3.8.32   EMVProcessAbort
+
+Force quite EMV process.
+
+public void emvProcessAbort ();
+
+Parameters: None
+
+Return Value: None
+
+3.8.33   getEmvContactlessMode
+
+get EMV contactless flow mode, EMV mode or MSD mode, should be called in method
+onOnlineProc or onFinish method
+
+public EmvModeEnum getEmvContactlessMode();
+
+Return Value:
+
+EmvModeEnum
+
+Enumeration Name
+EMV
+MSD
+UNDEF
+LEGACY
+
+Description
+EMV mode
+MSD mode
+UNDEF mode
+LEGACY mode
+
+3.8.34  contactlessSetAidFirstSelect
+
+Confidential
+
+96
+```
+
+## Page 97
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+set which AID first select for contactless transaction. It should be called before emvProcess.
+
+public int contactlessSetAidFirstSelect (byte aidLen, byte[] aid);
+parameter：
+
+Description
+AID length
+AID
+
+Attributes
+aidLen
+aid
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.35  setPureKernelCapab
+
+set pure kernel capability. It  should be called in method "onTransInitBeforeGPO"
+
+Description
+Capability, 5 bytes
+
+int setPureKernelCapab(byte[] capab);
+parameter：
+Attributes
+capab
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.36  setJcbContactlessTIP
+
+set JCB contactless TIP.  It  should be called in method "onTransInitBeforeGPO"
+
+void setJcbContactlessTIP(byte[] terminalInterchangeProfile);
+parameter：
+Attributes
+terminalInterchangeProfile
+
+Description
+TIP
+
+Return Value:
+
+Confidential
+
+97
+```
+
+## Page 98
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+None
+
+3.8.37  setRupayTransType
+
+set Rupay contactless transaction type.   It  should be called in method
+"onTransInitBeforeGPO"
+
+void setRupayTransType (RupayTransType transType);
+parameter：
+
+Description
+Transaction Type
+
+Description
+GOODS, 0x00
+CASH, 0x01
+CASHBACK, 0x19
+MONEYADD, 0x28
+BALANCEENQUIRY,0x31
+VOID,0x34
+SERVICE CREATION,0x83
+DEFAULT, 0xff
+
+Attributes
+transType
+
+RupayTransType
+
+Attributes
+RUPAY_TRANSTYPE_GOODS
+RUPAY_TRANSTYPE_CASH
+RUPAY_TRANSTYPE_CASHBACK
+RUPAY_TRANSTYPE_MONEYADD
+RUPAY_TRANSTYPE_BALANCEENQUIRY
+RUPAY_TRANSTYPE_VOID
+RUPAY_TRANSTYPE_SERVICECREATION
+RUPAY_TRANSTYPE_OTHER
+
+Return Value:
+
+None
+
+3.8.38  getJcbContactlessTIP
+
+get JCB contactless TIP.
+
+byte[] getJcbContactlessTIP();
+
+Return Value:
+
+Confidential
+
+98
+```
+
+## Page 99
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+JCB contactless TIP
+
+3.8.39  getSignNeed
+
+get cvm result if need signature
+
+public boolean getSignNeed();
+Return Value:
+
+ture
+
+false
+
+need signature
+
+not need signature
+
+3.8.40  getEmvCvmResult
+
+get EMV CVM result
+
+EmvCvmResultEnum getEmvCvmResult();
+Return Value:
+
+EmvCvmResultEnum
+
+Enumeration Name
+
+Description
+
+EMV_CVMR_NA
+
+EMV_CVMR_NOCVM
+
+EMV_CVMR_SIGNATURE
+
+EMV_CVMR_ONLINEPIN
+
+EMV_CVMR_CONFVERIFIED
+
+EMV_CVMR_CDCVM
+
+EMV_CVMR_OFFLINEPIN_PLAINTEXT
+
+EMV_CVMR_OFFLINEPIN_ENCIPHER
+
+CVM result is not specified, or the result is null
+
+No cvm required
+
+Signature
+
+Online pin
+
+ID verify (not used)
+
+CDCVM
+
+Offline plaintext pin
+
+Offline encipher pin
+
+EMV_CVMR_OFFLINEPIN_PLAINTEXT_SIGNATURE  Offline plaintext pin & signature
+
+EMV_CVMR_OFFLINEPIN_ENCIPHER_SIGNATURE  Offline encipher pin & signature
+
+EMV_CVMR_SKIP_CVM
+
+Skip cvm, used for MIR
+
+Confidential
+
+99
+```
+
+## Page 100
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.8.41  getEmvCardDataInfo
+
+get EMV card data, such as pan, track2 data
+
+CardInfoEntity getEmvCardDataInfo();
+Return Value:
+
+CardInfoEntity
+
+Attributes
+
+Description
+
+String cardNo
+CardSlotTypeEnum  cardExistslot
+RfCardTypeEnum   rfCardType
+String tk1
+String tk2
+String tk3
+String expiredDate
+String serviceCode
+boolean isTk1Valid
+boolean isTk2Valid
+boolean isTk3Valid
+boolean isICC
+String csn
+
+CardSlotTypeEnum
+
+Card number
+CardSlotType
+RfCardTyp
+track 1
+tracks 2
+tracks 3
+Card is valid
+Service Code
+A track LRC is correct
+Two tracks LRC is correct
+Three tracks LRC is correct
+If mag card has chip flag
+Card serial number, only returnd in
+OnEmvProcessListener.onConfirmCardNo
+
+Enumeration Name
+
+Description
+
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+
+RfCardTypeEnum
+
+Enumeration Name
+TYPE_A_CPU
+
+Confidential
+
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable(only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+
+Description
+
+100
+```
+
+## Page 101
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+TYPE_B_CPU
+S50
+FELICA
+S70
+ULTRALIGHT
+MEMORY_OTHER
+S50_PRO
+S70_PRO
+
+3.8.42 getEmvContactlessKernelId
+
+get EMV contactless kernel ID
+
+byte[] getEmvContactlessKernelId();
+Return Value:
+
+Success return Kernel ID, otherwise return null.
+
+3.8.43 contactlessAppendAidIntoKernel
+
+For special contactless kernel, application can pass the specify AID to expect kernel process.
+
+int contactlessAppendAidIntoKernel(EmvCardBrandEnum emvCardBrandEnum,  byte aidLen, byte[] aid);
+
+Parameters:
+
+Parameter
+
+Description
+
+emvCardBrandEnum  Card brand, such as : VISA, MASTER, JCB, UNION PAY, AMEX, DIS, PURE…
+
+aidLen
+
+aid
+
+The length of the aid
+
+aid
+
+EmvCardBrandEnum
+
+Enumeration Name
+
+Description
+
+EMV_CARD_BRAND_VISA
+
+EMV_CARD_BRAND_MASTER
+
+VISA
+
+MASTER
+
+Confidential
+
+101
+```
+
+## Page 102
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+EMV_CARD_BRAND_AMEX
+
+EMV_CARD_BRAND_RUPAY
+
+AMEX
+
+RUPAY
+
+EMV_CARD_BRAND_UNIONPAY
+
+UNION PAY(UPI)
+
+EMV_CARD_BRAND_DPAS
+
+EMV_CARD_BRAND_JCB
+
+EMV_CARD_BRAND_PURE
+
+EMV_CARD_BRAND_MIR
+
+EMV_CARD_BRAND_MB
+
+EMV_CARD_BRAND_NSICCS
+
+EMV_CARD_BRAND_BANCOMAT
+
+EMV_CARD_BRAND_CPACE
+
+DPAS: Discover , Diners
+
+JCB
+
+PURE
+
+MIR
+
+MB
+
+NSICCS
+
+BANCOMAT
+
+CPACE
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.8.44 getPayWaveResult
+
+get the TVR and TSI of paywave flow.
+
+PayWaveResultEntity getPayWaveResult();
+
+Return :
+
+PayWaveResultEntity
+
+Parameter
+
+tvr
+
+tsi
+
+TVR
+
+TSI
+
+3.8.45 initReader
+
+Description
+
+Confidential
+
+102
+```
+
+## Page 103
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+set contactless reader mode, internal reader, or external reader. It is used for Nexgo K110
+Pinpad as contactless reader
+
+void initReader(ReaderTypeEnum readerTypeEnum, int comNo);
+
+parameter：
+
+Attributes
+readerTypeEnum
+
+comNo
+
+Return Value:
+
+None
+
+Description
+INNER: internal reader, default
+OUTER: external reader
+Com number, default value is 0;
+If N86 with K110, value should be 101
+
+3.8.46 contactlessConfigKernelId
+
+App can call this API to assign EMV contactless flow if card return kernel ID
+
+int contactlessConfigKernelId(EmvCardBrandEnum emvCardBrandEnum, byte kernelLen, byte[] kernelId)
+
+Parameters:
+
+Parameter
+
+Description
+
+emvCardBrandEnum  Card brand, such as: VISA, MASTER, JCB, UNION PAY, AMEX, DIS, PURE…
+
+kernelLen
+
+kernelId
+
+The length of the kernel id
+
+Kernel id, normally is returned in PPSE.
+
+EmvCardBrandEnum
+
+Enumeration Name
+
+Description
+
+EMV_CARD_BRAND_VISA
+
+EMV_CARD_BRAND_MASTER
+
+EMV_CARD_BRAND_AMEX
+
+EMV_CARD_BRAND_RUPAY
+
+VISA
+
+MASTER
+
+AMEX
+
+RUPAY
+
+EMV_CARD_BRAND_UNIONPAY
+
+UNION PAY(UPI)
+
+Confidential
+
+103
+```
+
+## Page 104
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+EMV_CARD_BRAND_DPAS
+
+EMV_CARD_BRAND_JCB
+
+EMV_CARD_BRAND_PURE
+
+EMV_CARD_BRAND_MIR
+
+EMV_CARD_BRAND_MB
+
+EMV_CARD_BRAND_NSICCS
+
+EMV_CARD_BRAND_BANCOMAT
+
+EMV_CARD_BRAND_CPACE
+
+DPAS: Discover/Diners
+
+JCB
+
+PURE
+
+MIR
+
+MB
+
+NSICCS
+
+BANCOMAT
+
+CPACE
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9  EMV class(Emvhandler) Deprecated
+
+Please note: All the Emvhandler method, do not recommend use it anymore.
+
+The EMV class is responsible for managing the EMV operation of the POS.
+
+Get the object of the EMV class:
+
+EmvHandler EmvHandler = deviceEngine getEmvHandler (String appId ).;
+
+Parameters:
+
+Parameter
+
+appId
+
+Description
+
+Application ID is mainly used to distinguish between aid and capk storage
+paths
+
+This module operates using the basic flow chart:
+
+Confidential
+
+104
+```
+
+## Page 105
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Confidential
+
+105
+
+StartGet ContextObtain EMV objectUse initermocnfig to set terminal attributem initialized EMV kernel or use defaultCall emvprocess to start EMVEMV transactionAfter inputting amount, call onsetrequestamount responseAfter choosing app list, call onsetselappresponseAfter confirming card no callback onsetconfirmcardnoresponseAfter verifying certificate call onsetcertverifyyresponseAfter handling terminal risk call onSetOnlineprocrepsonseAfter inputting key call onsetpininputresponseAfter return call onsetonlinerpcoresponseConfirm where eCash is used and then callback on setconfirmEcswitch response
+```
+
+## Page 106
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.1    delAllAid
+
+Remove all AIDs.
+
+Public void delAllAid ();
+
+Parameters: None
+
+Return Value: None
+
+3.9.2    delOneAid
+
+Delete an AID.
+
+Public boolean delOneAid (byte [] aid);
+
+Parameters:
+
+Parameter
+
+aid
+
+Enter aid
+
+Return Value:
+
+True success
+
+False failure
+
+3.9.3    delAllCapk
+
+Remove all CAPK.
+
+Public void delAllCapk ();
+
+Parameters: None
+
+Return Value: None
+
+3.9.4    delOneCapk
+
+Delete a CAPK.
+
+Description
+
+Public boolean delOneCapk (byte [] rid, int capkIdx);
+
+Parameters:
+
+Parameter
+
+rid
+
+Enter rid
+
+Description
+
+Confidential
+
+106
+```
+
+## Page 107
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+capkIdx
+
+capk Index
+
+Return Value:
+
+True success
+
+False failure
+
+3.9.5    setAidParaList
+
+Set the AID.
+
+public int setAidParaList(List<AidEntity> aidParaTlvList);
+
+Parameters:
+
+Parameter
+aidParaTlvList
+AidEntity
+attribute
+String aid
+int asi
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String DDOL
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+
+Return Value:
+
+Confidential
+
+Description
+Aid list
+
+Description
+Application ID
+Application selection indicator
+
+0-  needn't  match  exactly(partial  match  up  to
+
+the length);
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+Terminal online Pin capability
+
+107
+```
+
+## Page 108
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.6    setAidParaList
+
+Set the AID.
+
+Public int setAidParaList (List <byte []> aidParaTlvList);
+
+Parameters:
+
+Parameter
+
+aidParaTlvList
+
+Description
+
+Enter the number of aid data list, such as:
+aidParaTlvList.add(ByteUtils.hexString2ByteArray("9F0607A0000000043060DF010
+1009F08020002DF1105FC5058A000DF1205F85058F800DF130504000000009F1B0
+400000000DF150400000000DF160199DF170199DF14039F3704DF180101DF20060
+00999999999"));
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.7    setAidParaList
+
+Set the AID.
+
+public int setAidParaList(List<String> aidParaTlvList);
+
+Parameters:
+
+Parameter
+
+Description
+
+aidParaTlvList
+
+Enter the number of aid data list, such as:
+
+aidParaTlvList.add("9F0607A0000000043060DF01
+01009F08020002DF1105FC5058A000DF1205F850
+58F800DF130504000000009F1B0400000000DF15
+0400000000DF160199DF170199DF14039F3704DF
+180101DF2006000999999999");
+
+Confidential
+
+108
+```
+
+## Page 109
+
+```text
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.8    setCAPKList
+
+Set CAPK.
+
+public int setCAPKList(List<CapkEntity> capkTlvList);
+Parameter：
+
+Parameter
+capkTlvList
+CapkEntity
+
+attribute
+String rid
+int capkIdx
+int hashInd
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.9    setCAPKList
+
+Set CAPK.
+
+Public int setCAPKList (List <byte []> capkTlvList);
+
+Parameters:
+
+Confidential
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+Capk list
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(YYYYMMDD)
+
+109
+```
+
+## Page 110
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+capkTlvList
+
+Description
+
+Enter multiple capk data list, such as:
+capkTlvList.add (ByteUtils.hexString2ByteArray
+("9F0605A0000000659F220109DF05083230303931323331DF060101DF070101DF02
+8180B72A8FEF5B27F2B550398FDCC256F714BAD497FF56094B7408328CB626AA6F0
+E6A9DF8388EB9887BC930170BCC1213E90FC070D52C8DCD0FF9E10FAD36801FE93F
+C998A721705091F18BC7C98241CADC15A2B9DA7FB963142C0AB640D5D0135E77EB
+AE95AF1B4FEFADCF9C012366BDDA0455C1564A68810D7127676D493890BDDF0401
+03DF03144410C6D51C2F83ADFD92528FA6E38A32DF048D0A"));
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.10   setCAPKList
+
+Set CAPK.
+
+public int setCAPKList(List<String> capkTlvList);
+
+Parameters:
+
+Parameter
+capkTlvList
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+Description
+Enter multiple capk data list, such as:
+capkTlvList.add("9F0605A0000000659F220109DF050
+83230303931323331DF060101DF070101DF028180B
+72A8FEF5B27F2B550398FDCC256F714BAD497FF560
+94B7408328CB626AA6F0E6A9DF8388EB9887BC9301
+70BCC1213E90FC070D52C8DCD0FF9E10FAD36801FE
+93FC998A721705091F18BC7C98241CADC15A2B9DA
+7FB963142C0AB640D5D0135E77EBAE95AF1B4FEFA
+DCF9C012366BDDA0455C1564A68810D7127676D49
+3890BDDF040103DF03144410C6D51C2F83ADFD925
+28FA6E38A32DF048D0A");
+
+Confidential
+
+110
+```
+
+## Page 111
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.11   setDynamicReaderLimitList
+
+Set DRL for paywave
+
+public int setDynamicReaderLimitList(List<DynamicReaderLimitEntity> drlEntityList)
+
+Description
+DRL list
+
+Description
+
+Parameters:
+
+Parameter
+drlEntityList
+
+DynamicReaderLimitEntity
+
+attribute
+byte[] appProgID
+
+boolean statusCheck
+
+boolean authOfZeroCheck
+
+byte authOfZeroCheckOption;
+
+boolean readerContactlessTransLimitCheck;
+
+boolean readerCVMReqLimitCheck;
+
+boolean readerContactlessFloorLimitCheck;
+
+private boolean drlSupport;
+
+byte[] readerContactlessTransLimit;
+
+byte[] readerCVMReqLimit;
+
+byte[] readerContactlessFloorLimit;
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+Confidential
+
+111
+```
+
+## Page 112
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.12   setDynamicReaderLimitListForExpressPay
+
+Set DRL for Amex Expresspay
+
+public int setDynamicReaderLimitListForExpressPay (List<DynamicReaderLimitEntity> drlEntityList)
+
+Description
+DRL list
+
+Description
+Application Prog ID
+
+statusCheck
+
+Parameters:
+
+Parameter
+drlEntityList
+
+DynamicReaderLimitEntity
+
+attribute
+byte[] appProgID
+
+boolean statusCheck
+
+boolean authOfZeroCheck
+
+byte authOfZeroCheckOption;
+
+boolean readerContactlessTransLimitCheck;
+
+boolean readerCVMReqLimitCheck;
+
+boolean readerContactlessFloorLimitCheck;
+
+private boolean drlSupport;
+
+byte[] readerContactlessTransLimit;
+
+byte[] readerCVMReqLimit;
+
+byte[] readerContactlessFloorLimit;
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.13   initTermConfig
+
+Confidential
+
+112
+```
+
+## Page 113
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Allows  the  user  to  set  the  terminal  personalization attribute, initialize the  EMV  kernel,  and  use  the
+EMV kernel default attribute if the user does not call it. (Not recommended, please use method setTlv
+instead of this method)
+
+Description
+
+Public int initTermConfig (byte [] cfgTlv);
+
+Parameters:
+
+Parameter
+
+cfgTlv
+
+Standard tlv data stream
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.14   emvProcess
+
+Start emv process
+
+Public int emvProcess (emvTransDataEntity transData, OnEmvProcessListener listener);
+
+Parameters:
+
+Parameter
+
+transData
+
+EMV transactions Entity Info
+
+listener
+EmvTransDataEntity
+
+EMV flow monitor interfaces
+
+Description
+
+Attributes
+
+Description
+
+EmvAlgorithmTypeEnum algType
+
+Type RSA algorithm or SM2, the default RSA
+
+EmvTransFlowEnum procType
+
+EMV Process Type
+
+String traceNo
+
+String transAmt
+
+String cashbackAmt
+
+String transDate
+
+String transTime
+
+byte[] merName
+
+String merId
+
+Serial number, length 8
+
+Amount, length 12
+
+Cash back amount, length 12
+
+Transaction date yyMMDD, length 6
+
+Transaction date HHMMSS, length 6
+
+Business name
+
+Business number, length 15
+
+Confidential
+
+113
+```
+
+## Page 114
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+String termId
+
+byte B9C
+
+boolean isSupportEC
+
+EMVChannelTypeEnum channelType
+
+Terminal number, length 8
+
+Transaction Type, sale-0x00, refund-0x20…
+
+Whether support e-cash(only sued for union pay in china
+market)
+Card approach, contact or contactless
+
+boolean isQpbocForceLine
+
+union pay whether to force go online
+
+boolean isDefaultEC
+
+isSupportCDCVM
+
+isQpbocForGlobal
+
+When set to support EC is true, the default is e-cash; when
+false, then callback the method to let user to select whether
+to use electronic cash(only sued for union pay in china
+market)
+union pay support CDCVM
+
+Union pay contactless check CVM limit for excute CVM
+method.(not force prompt online pin).
+
+isPaywaveCashPassProcessRestrict
+
+Cash skip Process Restrict or not for Visa Paywave
+True: skip Process Restrict
+False: do process Restrict
+Default is false
+isPaywaveCashBackPassProcessRestrict  CashBack skip Process Restrict or not for Visa Paywave
+
+True: skip Process Restrict
+False: do process Restrict
+Default is false
+
+EMVAlgorithmTypeEnum
+
+Enumeration Name
+
+Description
+
+RSA
+SM2
+
+EMVTransFlowEnum
+
+RSA
+Country code
+
+Enumeration Name
+
+Description
+
+FULL
+SIMPLE
+
+QPASS
+
+Standard full process
+Simple processonly confirms the callback
+number, then
+directlyOnFinish ends EMV process
+qpboc flow only confirms the callback
+number, then directly OnFinish ends EMV
+process
+
+Confidential
+
+114
+```
+
+## Page 115
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+EMVChannelTypeEnum
+
+Enumeration Name
+
+Description
+
+FROM_ICC
+
+FROM_PICC
+
+Return Value:
+
+Contact
+
+Contactless
+
+SdkResult.Success success execution listener callback
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+3.9.15   onSetSelAppResponse
+
+After  executing  the  OnEMVProcessListener.  OnSelApp  method,  call  the  EMV  kernel  to  continue  the
+process.
+
+Public void onSetSelAppResponse (int selResult);
+
+Parameters:
+
+Parameter
+
+selResult
+
+After selecting the AID index number, the index starts at 1; the
+method is performed by onSelApp after obtained.
+
+Description
+
+Return Value: None
+
+3.9.16   onSetAfterFinalSelectedAppResponse
+
+After executing the OnEMVProcessListener. onAfterFinalSelectedApp method, call the EMV kernel to
+continue the process.
+
+Public void onSetAfterFinalSelectedAppResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+
+isSuccess
+
+Default value: true.
+The result of final select application.
+
+Description
+
+Return Value: None
+
+3.9.17   onSetRequestAmountResponse
+
+Confidential
+
+115
+```
+
+## Page 116
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+After  executing  the  OnEmvProcessListener.  OnRequestAmount  method,  call  the  EMV  kernel  to
+continue the process.
+
+Public void onSetRequestAmountResponse (String amount);
+
+Parameters:
+
+Parameter
+
+Description
+
+amount
+
+Amount length 12, prepend with 0s to make it 12 digits long.
+
+Return Value: None
+
+3.9.18   onSetConfirmEcSwitchResponse
+
+After  executing  the  OnEMVProcessListener.  OnConfirmEcSwitch  method,  call  the  EMV  kernel  to
+continue the process.
+
+Public void onSetConfirmEcSwitchResponse (boolean isConfirm);
+
+Parameters:
+
+Parameter
+
+Description
+
+isConfirm
+
+Whether to use electronic cash, true: yes, false: no
+
+Return Value: None
+
+3.9.19   onSetConfirmCardNoResponse
+
+After  executing  the  OnEmvProcessListener.  OnConfirmCardNo  method,  call  the  EMV  kernel  to
+continue the process.
+
+Public void onSetConfirmCardNoResponse (boolean isConfirm);
+
+Parameters:
+
+Parameter
+
+Description
+
+isConfirm
+
+Are you sure, true: yes, false: no
+
+Return Value: None
+
+3.9.20   onSetPinInputResponse
+
+After  executing  the  OnEMVProcessListener.  OnCardHolderInputPin  method,  call  the  EMV  kernel  to
+continue the process.
+
+Public void onSetPinInputResponse (boolean isConfirm, boolean isBypass);
+
+Parameters:
+
+Confidential
+
+116
+```
+
+## Page 117
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+isConfirm
+
+isBypass
+
+Description
+
+Whether the Enter key is pressed
+
+If no password is entered, press the Enter key
+
+Return Value: None
+
+3.9.21   onsetCertVerifyResponse
+
+After executing the OnEMVProcessListener. OnCertVerify method, call the EMV kernel to continue the
+process.
+
+Public void onSetCertVerifyResponse (boolean isVerify);
+
+Parameters:
+
+Parameter
+
+Description
+
+isVerify
+
+Are you sure, true: yes, false: no
+
+Return Value: None
+
+3.9.22   onSetReadCardAgainResponse
+
+After  executing  OnEmvProcessListener.  onReadCardAgain  method，call  the EMV  kernel  to  continue
+the process.
+
+public void onSetReadCardAgainResponse(boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+3.9.23   onSetOnlineProcResponse
+
+After  executing  the  OnEmvProcessListener.  OnOnlineProc  method,  call  the  EMV  kernel  to  take  the
+secondary authorization.
+
+public void onSetOnlineProcResponse (int retCode, EmvOnlineResultEntity result);
+
+Parameters:
+
+Parameter
+
+Confidential
+
+Description
+
+117
+```
+
+## Page 118
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+retCode
+
+result
+
+SdkResult.Success: connect to the host successfully.
+SdkResult.Fail: unable connect to the host.
+EmvOnlineResultEntity, EMV online results
+
+EmvOnlineResultEntity
+
+Attributes
+
+Description
+
+String rejCode
+
+String authCode
+
+Byte [] recvField55
+
+Return Value: None
+
+3.9.24   onSetPromptResponse
+
+Host respond with transaction response codes
+
+Host respond with Transaction Authorization
+Code
+
+Host respond 55 field data
+
+After  executing  OnEmvProcessListener.  onPrompt  method，call  the  EMV  kernel  to  continue  the
+process.
+
+public void onSetPromptResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+3.9.25   onSetRemoveCardResponse
+
+After executing OnEmvProcessListener. onRemoveCard method，call the EMV kernel to continue the
+process.
+
+public void onSetRemoveCardResponse (boolean isSuccess);
+
+Parameters:
+
+Parameter
+isSuccess
+
+Return Value: None
+
+isSuccess，true:yes，false:no
+
+Description
+
+Confidential
+
+118
+```
+
+## Page 119
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.26   getTlv
+
+Get tag.
+
+Public byte [] getTlv (byte [] tag, EmvDataSourceEnum pathId);
+
+Parameters:
+
+Parameter
+
+tag
+
+pathId
+
+tag value
+
+tag source
+
+EmvDataSourceEnum
+
+Description
+
+Enumeration Name
+
+Description
+
+FROM_KERNEL
+
+FORM_CARD
+
+Return Value:
+
+Tlv successful Return Value
+
+Else return null
+
+3.9.27   getTlvByTags
+
+public String getTlvByTags(String[] tags);
+
+Parameters:
+
+Parameter
+tags
+
+Return Value:
+
+Tlv successful Return  string Value
+
+Else return null
+
+3.9.28   setTlv
+
+Confidential
+
+Data sources kernel
+
+Data sources cards
+
+Description
+Tag such as: String[] TAGS = {"9f26", "9f27", "9f10",
+"9f37", "9f36", "95", "9a", "9c", "9f02", "5f2a", "82",
+"9f1a", "9f03","9f33", "9f34", "9f35", "9f1e", "9f09",
+"84", "9f41"}
+
+119
+```
+
+## Page 120
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+Settings tag.
+
+public int setTlv (byte [] tag, byte [] value);
+
+Parameters:
+
+Parameter
+
+tag
+
+value
+
+tag value
+
+data
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail failure
+
+SdkResult.Param_In_Invalid Parameter error
+
+3.9.29   getEMVCardLog
+
+Read the log, this method is finished after the callback to onFinish method.
+
+public int getEmvCardLog (EmvChannelTypeEnum channelType, OnEmvProcessListener listener);
+
+Parameters:
+
+Parameter
+
+channelType
+
+Channel Type
+
+listener
+
+Callback
+
+EmvChannelTypeEnum
+
+Description
+
+Enumeration Name
+
+Description
+
+Contact
+
+Contactless
+
+FROM_ICC
+
+FROM_PICC
+
+Return Value:
+
+SdkResult.Success successful execution of listener callback interface
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.30   Clear the Log
+
+Clear the log.
+
+public int clearLog();
+
+Confidential
+
+120
+```
+
+## Page 121
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters: None
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail failure
+
+3.9.31   EMVGetEcBalance
+
+Read electronic cash balance.
+
+public int emvGetEcBalance (EmvChannelTypeEnum channelType, OnEmvProcessListener listener);
+
+Parameters:
+
+Parameter
+
+channelType
+
+Channel Type
+
+listener
+
+Callback
+
+EmvChannelTypeEnum
+
+Description
+
+Enumeration Name
+
+Description
+
+Contact
+
+Contactless
+
+FROM _ICC
+
+FROM_PICC
+
+Return Value:
+
+SdkResult.Success successful execution of listener callback interface
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.32   EMVProcessCancel
+
+Cancel EMV process.
+
+public void emvProcessCancel ();
+
+Parameters: None
+
+Return Value: None
+
+3.9.33   emvDebugLog
+
+enable EMV log, default false
+
+Confidential
+
+121
+```
+
+## Page 122
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public void emvDebugLog(boolean isEnable);
+
+Parameters:
+
+Parameter
+isEnable
+
+Return Value: None
+
+3.9.34   getEmvContactlessMode
+
+Description
+
+True ，false
+
+get EMV contactless flow mode, EMV mode or MSD mode, should be called in method
+onOnlineProc or onFinish method
+
+public EmvModeEnum getEmvContactlessMode();
+
+Return Value:
+
+EmvModeEnum
+
+Enumeration Name
+EMV
+MSD
+
+3.9.35   getAidListNum
+
+get aid list number
+
+public int getAidListNum();
+
+Return Value:
+
+Number of aid list
+
+3.9.36   getAidList
+
+get aid list
+
+public List<AidEntity> getAidList();
+
+AidEntity
+
+Attributes
+
+Confidential
+
+Description
+EMV mode
+MSD mode
+
+Description
+
+122
+```
+
+## Page 123
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+String aid
+int asi
+
+Application ID
+Application selection indicator
+
+0-  needn't  match  exactly(partial  match  up
+
+to the length);
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+Terminal online Pin capability
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String DDOL
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+Return Value:
+
+Success
+
+return aid list
+
+Fail
+
+ return null
+
+3.9.37   getCapkListNum
+
+get capk list number
+
+public int getCapkListNum();
+
+Return Value:
+
+Number of capk list
+
+3.9.38   getCapkList
+
+get capk list
+
+Confidential
+
+123
+```
+
+## Page 124
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(MMYY)
+
+Description
+aid
+
+public List<CapkEntity> getCapkList();
+
+CapkEntity
+Attributes
+String rid
+int capkIdx
+int hashInd
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+Return Value:
+
+Success
+
+return capk list
+
+Fail
+
+ return null
+
+3.9.39  newDelAllAid
+
+Pure , MIR kernel API, delete all the AID
+
+public void newDelAllAid();
+
+Parameters: None
+
+Return Value: None
+
+3.9.40  newDelOneAid
+
+Pure , MIR kernel API, delete one AID
+public boolean newDelOneAid(byte[] aid);
+parameter：
+Attributes
+byte[] aid
+Return Value:
+
+ture
+
+false
+
+delete success
+
+delete failed
+
+Confidential
+
+124
+```
+
+## Page 125
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.41  newDelAllCapk
+
+Pure , MIR kernel API, delete all CAPK
+
+public void newDelAllCapk();
+
+Parameters: None
+
+Return Value: None
+
+3.9.42  newDelOneCapk
+
+Pure , MIR kernel API, delete one CAPK
+
+public boolean newDelOneCapk(byte[] rid,int capkIdx);
+parameter：
+
+Attributes
+rid
+capkIdx
+Return Value:
+
+ture
+
+false
+
+delete success
+
+delete failed
+
+Description
+rid
+Capk index
+
+3.9.43  newSetAidParaList
+
+Pure , MIR kernel API, set AID list
+
+public int newSetAidParaList(List<byte[]> aidParaTlvList);
+parameter：
+
+Attributes
+
+aidParaTlvList
+
+Description
+
+Aid list：
+aidParaTlvList.add(ByteUtils.hexString2ByteArray("9F
+0607A0000000043060DF0101009F08020002DF1105
+FC5058A000DF1205F85058F800DF13050400000000
+9F1B0400000000DF150400000000DF160199DF1701
+99DF14039F3704DF180101DF2006000999999999"));
+
+Confidential
+
+125
+```
+
+## Page 126
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.44  newSetAidParaList
+
+Pure , MIR kernel API, set AID list
+
+public int newSetAidParaList(List<String> aidParaTlvList);
+parameter：
+
+Attributes
+
+aidParaTlvList
+
+Description
+
+Aid list：
+aidParaTlvList.add("9F0607A0000000043060DF0101
+009F08020002DF1105FC5058A000DF1205F85058F8
+00DF130504000000009F1B0400000000DF15040000
+0000DF160199DF170199DF14039F3704DF180101DF
+2006000999999999");
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.45  newSetAidParaList
+
+Pure , MIR kernel API, set AID list
+
+public int newSetAidParaList(List<AidEntity> aidParaTlvList);
+parameter：
+
+Attributes
+aidParaTlvList
+AidEntity
+
+Attributes
+
+Confidential
+
+Description
+Aid list
+
+Description
+
+126
+```
+
+## Page 127
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+String aid
+int asi
+
+Application ID
+Application selection indicator
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String DDOL
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.46  newSetCAPKList
+
+Pure , MIR kernel API, set CAPK list
+
+public int newSetCAPKList(List<byte[]> capkTlvList);
+parameter：
+Attributes
+capkTlvList
+
+0-  needn't  match  exactly(partial  match  up
+
+to the length);
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+Terminal online Pin capability
+
+Description
+Capk list：
+capkTlvList.add(ByteUtils.hexString2ByteArray("9F06
+05A0000000659F220109DF05083230303931323331
+
+Confidential
+
+127
+```
+
+## Page 128
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+DF060101DF070101DF028180B72A8FEF5B27F2B550
+398FDCC256F714BAD497FF56094B7408328CB626AA
+6F0E6A9DF8388EB9887BC930170BCC1213E90FC070
+D52C8DCD0FF9E10FAD36801FE93FC998A721705091
+F18BC7C98241CADC15A2B9DA7FB963142C0AB640D
+5D0135E77EBAE95AF1B4FEFADCF9C012366BDDA04
+55C1564A68810D7127676D493890BDDF040103DF0
+3144410C6D51C2F83ADFD92528FA6E38A32DF048D
+0A"));
+
+Description
+Capk list：
+capkTlvList.add("9F0605A0000000659F220109DF050
+83230303931323331DF060101DF070101DF028180B
+72A8FEF5B27F2B550398FDCC256F714BAD497FF560
+94B7408328CB626AA6F0E6A9DF8388EB9887BC9301
+70BCC1213E90FC070D52C8DCD0FF9E10FAD36801FE
+93FC998A721705091F18BC7C98241CADC15A2B9DA
+7FB963142C0AB640D5D0135E77EBAE95AF1B4FEFA
+DCF9C012366BDDA0455C1564A68810D7127676D49
+3890BDDF040103DF03144410C6D51C2F83ADFD925
+28FA6E38A32DF048D0A");
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.47  newSetCAPKList
+
+Pure , MIR kernel API, set CAPK list
+
+public int newSetCAPKList(List<String> capkTlvList);
+parameter：
+Attributes
+capkTlvList
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+Confidential
+
+128
+```
+
+## Page 129
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.9.48  newSetCAPKList
+
+Pure , MIR kernel API, set CAPK list
+
+public int newSetCAPKList(List<CapkEntity> capkTlvList);
+parameter：
+Attributes
+capkTlvList
+CapkEntity
+Attributes
+String rid
+int capkIdx
+int hashInd
+
+Description
+Capk list
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(MMYY)
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.49  newGetAidListNum
+
+Pure , MIR kernel API, get AID list number
+
+public int getAidListNum();
+
+Return Value:
+
+Number of aid list
+
+3.9.50 newGetAidList
+
+Pure , MIR kernel API, get AID list number
+
+Confidential
+
+129
+```
+
+## Page 130
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+Application ID
+Application selection indicator
+
+0-  needn't match exactly(partial match
+
+up to the length);
+
+1-  match exactly
+
+Terminal Action Code – Default
+Terminal Action Code – Online
+Terminal Action Code – Denial
+Application Version Number
+DDOL
+Threshold value for biased random selection
+The maximum target percentage to be used for
+biased random selection
+The target percentage to be used for random
+selection
+Terminal online Pin capability
+
+public List<AidEntity> newGetAidList();
+
+AidEntity
+
+Attributes
+String aid
+int asi
+
+String tacDefault
+String tacOnline
+String tacDenial
+String appVerNum
+String DDOL
+long threshold
+int maxTargetPercent
+
+int targetPercent
+
+int onlinePinCap
+long floorLimit
+long transLimit
+long contactlessCvmLimit
+long contactlessTransLimit
+long contactlessFloorLimit
+Return Value:
+
+Success
+
+return aid list
+
+Fail
+
+ return null
+
+3.9.51  newGetCapkListNum
+
+Pure , MIR kernel API, get CAPK list number
+
+public int newGetCapkListNum();
+
+Return Value:
+
+Confidential
+
+130
+```
+
+## Page 131
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+Registered Application Identifier
+Unique CA public key index number
+Cryptographic algorithm ID used to generate the
+CAPK
+CA Public Key modulus
+CA Public Key exponent
+CA Public Key checkSum
+CA Public Key expireDate(MMYY)
+
+Number of capk list
+
+3.9.52  newGetCapkList
+
+Pure , MIR kernel API, get CAPK list
+
+public List<CapkEntity> newGetCapkList();
+
+CapkEntity
+
+Attributes
+String rid
+int capkIdx
+int hashInd
+
+String modulus
+String exponent
+String checkSum
+String expireDate
+Return Value:
+
+Success
+
+return capk list
+
+Fail
+
+ return null
+
+3.9.53  selectAidFirst
+
+set which AID first select for contactless transaction
+
+public int selectAidFirst(boolean enable, byte aidLen, byte[] aid);
+
+parameter：
+
+Attributes
+enable
+aidLen
+aid
+
+Return Value:
+
+SdkResult.Success success
+
+Description
+Enable: true--first; false--default
+AID length
+AID
+
+Confidential
+
+131
+```
+
+## Page 132
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+3.9.54  getSignNeed
+
+get signature state
+
+public boolean getSignNeed();
+
+Return Value:
+
+ture
+
+false
+
+need signature
+
+not need signature
+
+3.9.55 setPureKernelCapab
+
+set pure kernel capability
+
+int setPureKernelCapab(byte[] capab);
+
+parameter：
+
+Attributes
+capab
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail failure
+
+Description
+Capability, 5 bytes
+
+3.10   setSystemClock
+
+Set the system time.
+
+public void setSystemClock (Context context, String datetime);
+
+Confidential
+
+132
+```
+
+## Page 133
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+Description
+
+context
+datetime
+
+Context
+Time format YYYYMMDDHHMMSS, the year in the range 1970-2049
+
+Return Value: None
+
+3.11   getDeviceInfo
+
+get device information
+
+public DeviceInfo getDeviceInfo();
+DeviceInfo
+
+Attributes
+String sn
+String ksn
+String model
+
+Description
+Terminal serail number
+Custom Terminal serail number
+Terminal model, such as N5
+
+String osVer
+String sdkVer
+String firmWareVer
+String kernelVer
+String vendor
+String firmWareFullVersion
+EmvKernelVersionInfo emvKernelVersionInfo
+String spCoreVersion;
+String spBootVersion;
+
+Os version, such as 5.1.1
+Sdkversion, 3.0.7
+firmware version, base version such as v1.2.8
+linuxversion
+vendor, such as Nexgo
+Full firmware version, such as “v1.2.8_N50000001”
+Emv L1 , L2 kernel version
+Secure chip Core version
+Secure chip boot version
+
+EmvKernelVersionInfo
+
+Attributes
+
+Description
+
+String emvContactL1KernelVersion;
+String emvContactlessL1KernelVersion;
+String emvContactKernelVersion;
+String emvPayPassKernelVersion;
+String emvPayWaveKernelVersion;
+String emvExpressPayKernelVersion;
+
+EMV Contact L1
+EMV Contactless L1
+EMV Contact L2
+Paypass version
+Paywave version
+Amex Expresspay version
+
+Confidential
+
+133
+```
+
+## Page 134
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+String emvDiscoverKernelVersion;
+String emvJcbKernelVersion;
+String emvUnionPayKernelVersion;
+
+EMV DIS version
+EMV JCB version
+EMV UPI version
+
+Return Value:
+
+successful return DeviceInfo
+
+else return null
+
+3.12   Serial class
+
+Serial class is responsible for managing POS serial port.
+
+Get the serial class objects:
+
+SerialPortDriver port = deviceEngine.getSerialPortDriver(int portNo);
+
+Parameter
+
+portNo
+
+Description
+
+Serial No.
+N5, N3, N86, N6, P200 = 0;
+UN20 = 1, or 2, it depends on which serial port insert.
+If N86 integrate with dock, the portNo = 101.
+N6(android 7) countertop, the portNo = 0.
+N6(android 10) countertop, the portNo = 0.
+
+This module uses the basic flow chart:
+
+Confidential
+
+134
+```
+
+## Page 135
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Confidential
+
+135
+
+StartObtain contextObtain serial objectCall disconnect method, prevent serial port from disconnectingCall connect to connect serial portCall clrbuffer to clear bufferCall send method to send dataCall recv to receive dataCall disconnect to disconnect
+```
+
+## Page 136
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.12.1  disconnect
+
+Disconnect.
+
+public int disconnect ();
+
+Parameters: None
+
+Return Value:
+
+SdkResult.Success off successfully
+
+SdkResult.SerialPort_Port_Not_Open serial port is not open
+
+SdkResult.SerialPort_DisConnect_Fail serial chain disconnection failure
+
+3.12.2  connect
+
+Serial connection.
+
+public int connect(SerialCfgEntity entity);
+
+Parameters:
+
+Parameter
+
+entity
+
+SerialCfgEntity , Serial Info
+
+Description
+
+Description
+
+SerialCfgEntity
+
+Attributes
+int bauRate
+
+int dataBits
+char parity
+int stopBits
+
+Return Value:
+
+The baud rate in the range of (bps):
+110,300,600,1200,2400,4800, 9600,14400,56000,19200,38400,57600,115200,230400
+Data Bits Range: 5, 6, 7, 8
+Test methods in the range : 'o' odd , 'e' parity, 'n' no parity
+Stop bit value range : 1, 2
+
+SdkResult.Success serial connection success
+
+SdkResult.Param_In_Invalid Parameter is null, illegal Parameter
+
+SdkResult.SerialPort_Invalid_Communication_Parameter invalid communication Parameters
+
+SdkResult.SerialPort_Connect_Fail serial connection failure
+
+SdkResult.Fail other errors
+
+3.12.3  clrBuffer
+
+Confidential
+
+136
+```
+
+## Page 137
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Clear the buffer.
+
+public void clrBuffer ();
+
+Parameters: None
+
+Return Value: None
+
+3.12.4  send
+
+Send data.
+
+public int send (byte [] data, int dataLen);
+
+Parameters:
+
+Parameter
+
+Description
+
+data
+dataLen
+
+Input data
+Data length Range: 1-2048 bytes ; non-blocking send
+
+Return Value:
+
+SdkResult.Success sent successfully
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Not_Open serial port is not open
+
+SdkResult.SerialPort_Send_Fail serial data transmission failure
+
+SdkResult.Fail other errors
+
+3.12.5  recv
+
+Receive data.
+
+public int recv (byte [] buffer, int recvLen, long timeout);
+
+Parameters:
+
+Parameter
+
+buffer
+recvLen
+timeout
+
+Return Value:
+
+Description
+
+Buffer to receive data
+The maximum length of buffer, which is 2048 bytes
+Timeout in milliseconds; recommended value 3000
+
+Successfully received returns the length of the received data
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Not_Open serial port is not open
+
+Confidential
+
+137
+```
+
+## Page 138
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.SerialPort_Timeout_Receiving_Data serial data receive timeout
+
+SdkResult.Fail other errors
+
+3.13   Buzzer class
+
+Class is responsible for managing POS buzzer.
+
+Get buzzer objects of class:
+
+Beeper beep = deviceEngine.getBeeper();
+
+This module uses the basic flow chart:
+
+3.13.1  beep
+
+Drive the buzzer sound duration specified length of time.
+
+public void beep (int timeout);
+
+Parameters:
+
+Parameter
+
+Description
+
+timeout
+
+Timeout in milliseconds. Zero immediately stops.
+
+Confidential
+
+138
+
+StartObtain contextObtain buzzer objectCall beep method to drive beeper
+```
+
+## Page 139
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Note: the timeout parameter is invalid.
+
+Return Value: None
+
+3.14   M1 Cards
+
+M1 card class is responsible for managing M1 card (Mifare classic card).
+
+Get M1 card class objects:
+
+M1CardHandler m1Card = deviceEngine.getM1CardHandler();
+
+This module uses the basic flow chart:
+
+3.14.1  authority
+
+Block certification.
+
+public int authority (Authentity entity) ;
+
+Confidential
+
+139
+
+Start Obtain contextObtain M1 card objectCall authority method to verify blockCall readblock method to read block data, Call writeblock method to write block data, Call operateblock to operate block
+```
+
+## Page 140
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+Description
+
+entity
+
+AuthEntity, the authentication information class
+
+AuthEntity
+
+Attributes
+
+Description
+
+int blkNo
+M1KeyTypeEnum keyType
+byte [] pwd
+String m1SN
+
+M1KeyTypeEnum
+
+Block number
+Key type enumeration
+Password authentication
+M1 card uid
+
+Enumeration Name
+
+Description
+
+KEYTYPE_A
+KEYTYPE_B
+
+Return Value:
+
+KEY A
+KEY B
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.M1Card_Verify_Err M1 card authentication failure
+
+SdkResult.Fail other errors
+
+3.14.2  readBlock
+
+Read block data.
+
+public int readBlock (Blockentity entity) ;
+
+Parameters:
+
+Parameter
+
+entity
+
+BlockEntity block Info
+
+BlockEntity
+
+Attributes
+
+M1CardOperTypeEnum operType
+byte [] blkData
+int BLKNO
+
+Description
+
+Description
+
+Operation enumeration
+Data to be operated
+Block number to be operated
+
+Confidential
+
+140
+```
+
+## Page 141
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+int desBlkNo
+
+M1CardOperTypeEnum
+
+Destination block number
+
+Enumeration Name
+
+Description
+
+INCREMENT
+DECREMENT
+BACKUP
+
+Return Value:
+
+Increment
+Decrement operation
+Backup
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.Fail other errors
+
+3.14.3  readBlockValue
+
+Read block value
+
+public int readblockValue(Blockentity entity);
+
+Parameters:
+
+Parameter
+entity
+BlockEntity
+Attributes
+M1CardOperTypeEnum  operType
+byte[]  blkData
+int  blkValue
+
+int BLKNO
+int desBlkNo
+M1CardOperTypeEnum
+Enumeration Name
+INCREMENT
+DECREMENT
+BACKUP
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+Description
+BlockEntity block Info
+
+Description
+Operation enumeration
+Data to be operated
+Read and write block data values in M1 card data
+format
+Block number to be operated
+Destination block number
+
+Description
+Increment
+Decrement operation
+Backup
+
+Confidential
+
+141
+```
+
+## Page 142
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.Fail other errors
+
+3.14.4  writeBlock
+
+Write block data.
+
+public int writeBlock (Blockentity entity) ;
+
+Parameters:
+
+Parameter
+
+entity
+
+BlockEntity block Info
+
+BlockEntity
+
+Attributes
+
+M1CardOperTypeEnum operType
+byte [] blkData
+int BLKNO
+int desBlkNo
+
+M1CardOperTypeEnum
+
+Description
+
+Description
+
+Operation enumeration
+Data to be operated
+Block number to be operated
+Destination block number
+
+Enumeration Name
+
+Description
+
+INCREMENT
+DECREMENT
+BACKUP
+
+Return Value:
+
+Increment
+Decrement operation
+Backup
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.Fail other errors
+
+3.14.5  writeBlockValue
+
+Write block value
+
+public int writeblock(Blockentity entity);
+
+Parameters:
+
+Confidential
+
+142
+```
+
+## Page 143
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+entity
+BlockEntity
+Attributes
+M1CardOperTypeEnum  operType
+byte[]  blkData
+
+Description
+BlockEntity block Info
+
+Description
+Operation enumeration
+Data to be operated
+
+int  blkValue
+
+int BLKNO
+
+int desBlkNo
+M1CardOperTypeEnum
+Enumeration Name
+INCREMENT
+DECREMENT
+BACKUP
+
+Return Value:
+
+Read and write block data values in M1 card data
+format
+Block number to be operated
+
+Destination block number
+
+Description
+Increment
+Decrement operation
+Backup
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.Fail other errors
+
+3.14.6  operateBlock
+
+Operation block data.
+
+public int operateblock (Blockentity entity) ;
+
+Parameters:
+
+Parameter
+
+entity
+
+BlockEntity block Info
+
+BlockEntity
+
+Attributes
+
+M1CardOperTypeEnum operType
+byte [] blkData
+int BLKNO
+int desBlkNo
+
+Description
+
+Description
+
+Operation enumeration
+Data to be operated
+Block number to be operated
+Destination block number
+
+Confidential
+
+143
+```
+
+## Page 144
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+M1CardOperTypeEnum
+
+Enumeration Name
+
+Description
+
+INCREMENT
+DECREMENT
+BACKUP
+
+Return Value:
+
+Increment
+Decrement operation
+Backup
+
+SdkResult.Success success
+
+SdkResult.Device_Not_Ready device is not ready
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.Fail other errors
+
+3.15  MemoryCard
+
+MemoryCard class is responsible for managing MemoryCard.
+
+Get MemoryCard card class objects:
+
+MemoryCard  memoryCard = deviceEngine.getMemoryCardHandler (CardSlotTypeEnum slotType);
+
+Parameters:
+
+Parameter
+slotTypes
+
+CardSlotTypeEnum
+
+Enumeration Name
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+RF
+SWIPE
+
+This module uses the basic flow chart:
+
+Description
+Slot enumerated type CardSlotTypeEnum; supports a
+variety of combinations of slots
+
+Description
+Default IC card slot
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable
+Non-access card slot
+Magnetic stripe card slot
+
+Confidential
+
+144
+```
+
+## Page 145
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.15.1  reset
+
+reset
+
+public  int  reset(CardTypeEnum cardType);
+
+Parameters:
+
+Parameter
+cardType
+CardTypeEnum
+Enumeration Name
+AT24C01
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+
+Confidential
+
+Description
+Card type
+
+Description
+
+145
+
+startObtain contextObtain Memory contextReset Call read, write, verfy..operate cardPower off
+```
+
+## Page 146
+
+```text
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.15.2  read
+
+read
+
+public  byte[]  read(ReadEntity read);
+
+Parameters:
+
+Parameter
+read
+ReadEntity
+
+attribute
+CardTypeEnum cardType
+int zone
+
+int address
+int readLen
+CardTypeEnum
+Enumeration Name
+AT24C01
+
+Confidential
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+ReadEntity
+
+Description
+Card type
+SLE4428 means protection bit mode 0: no protection
+bit, 1: protection bit
+SLE4442 means the storage area, 0: main storage
+area, 1: protection area
+AT88SC153,AT88SC1608 means the partition number
+IS23SC1604 means area code
+
+The starting address, starting at 0
+Len of read data
+
+Description
+
+146
+```
+
+## Page 147
+
+```text
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+Success  return byte[]
+
+Fail  return null
+
+3.15.3  write
+
+write
+
+public  int  write(WriteEntity write);
+
+Parameters:
+
+Parameter
+write
+WriteEntity
+
+attribute
+CardTypeEnum cardType
+int zone
+
+int address
+byte[] writeData
+int writeLen
+CardTypeEnum
+
+Confidential
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+WriteEntity
+
+Description
+Card type
+SLE4428 means protection bit mode 0: no protection
+bit, 1: protection bit
+SLE4442 means the storage area, 0: main storage
+area, 1: protection area
+AT88SC153,AT88SC1608 means the partition number
+IS23SC1604 means area code
+The starting address, starting at 0
+Write data
+Len of write data
+
+147
+```
+
+## Page 148
+
+```text
+Enumeration Name
+AT24C01
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.15.4  erase
+
+erase
+
+public  int earse(EraseEntity erase);
+
+Parameters:
+
+Parameter
+erase
+EraseEntity
+
+attribute
+CardTypeEnum cardType
+
+int address
+int eraseLen
+int zone
+CardTypeEnum
+
+Enumeration Name
+AT24C01
+
+Confidential
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+
+Description
+EraseEntity
+
+Description
+Cardtype ,only support
+IS23SC1604,AT88SC101,AT88SC102
+The starting address, starting at 0
+Erase data length, unit byte
+Zone number
+
+Description
+
+148
+```
+
+## Page 149
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid          invaild param
+
+SdkResult.Fail other errors
+
+3.15.5  verify
+
+verify card pin.
+
+public  int  verify(VerifyEntity verify);
+
+Parameters:
+
+Parameter
+verify
+VerifyEntity
+
+attribute
+CardTypeEnum cardType
+
+byte[] pwd
+int mode
+
+Confidential
+
+Description
+VerifyEntity
+
+Description
+cardtype ,only support
+SLE4428,SLE4442,AT88SC153,AT88SC1608,IS23SC160
+4,AT88SC101,AT88SC102
+password
+AT88SC153,AT88SC1608 means check mode, 0: read
+check ;1: write check
+AT88SC101 AT88SC102, IS23SC1604 means check
+content 0: security code ;1: erase the password
+
+149
+```
+
+## Page 150
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+AT88SC153,AT88SC1608 means password index
+AT88SC101 AT88SC102, IS23SC1604 means area ,0:
+the whole storage area; 1 ~ n: application code
+
+Description
+
+int zone
+
+CardTypeEnum
+
+Enumeration Name
+AT24C01
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success  the remaining password verification times
+
+SdkResult.Param_In_Invalid          invaild param
+
+SdkResult.Fail other errors
+
+3.15.6  readEC
+
+Read remaining password check times.
+
+public  int  readEC(ReadECEntity readEC);
+
+Parameters:
+
+Parameter
+readEC
+ReadECEntity
+
+Confidential
+
+Description
+ReadECEntity
+
+150
+```
+
+## Page 151
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+card type , only support
+SLE4428,SLE4442,AT88SC153,AT88SC1608,IS23SC160
+4,AT88SC101,AT88SC102
+AT88SC153,AT88SC1608 means check mode, 0: read
+check ;1: write check
+AT88SC101 AT88SC102, IS23SC1604 means check
+content 0: security code ;1: erase the password
+
+AT88SC153,AT88SC1608 means password index
+AT88SC101 AT88SC102, IS23SC1604 means area ,0:
+the whole storage area; 1 ~ n: application code
+
+Description
+
+attribute
+CardTypeEnum cardType
+
+int mode
+
+int zone
+
+CardTypeEnum
+
+Enumeration Name
+AT24C01
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success  the remaining password verification times
+
+SdkResult.Param_In_Invalid          invaild param
+
+SdkResult.Fail other errors
+
+3.15.7  updateEC
+
+Modify card password
+
+Confidential
+
+151
+```
+
+## Page 152
+
+```text
+public  int  updateEC(UpdateECEntity updateEC);
+
+Parameters:
+
+Parameter
+readEC
+UpdateECEntity
+
+attribute
+CardTypeEnum cardType
+
+byte[] pwd
+int mode
+
+int zone
+
+CardTypeEnum
+
+Enumeration Name
+AT24C01
+AT24C02
+AT24C04
+AT24C08
+AT24C16
+AT24C32
+AT24C64
+AT88SC101
+AT88SC102
+IS23SC1604
+AT88SC153
+AT88SC1608
+SLE4442
+SLE4428
+
+Return Value:
+
+SdkResult.Success
+
+Confidential
+
+ SmartPos API Reference Manual:  25/03/24
+
+Description
+UpdateECEntity
+
+Description
+Card type, only support
+SLE4428,SLE4442,AT88SC153,AT88SC1608,IS23SC160
+4,AT88SC101,AT88SC102
+password
+AT88SC153,AT88SC1608 means check mode, 0: read
+check ;1: write check
+AT88SC101 AT88SC102, IS23SC1604 means check
+content 0: security code ;1: erase the password
+
+AT88SC153,AT88SC1608 means password index
+AT88SC101 AT88SC102, IS23SC1604 means area ,0:
+the whole storage area; 1 ~ n: application code
+
+Description
+
+152
+```
+
+## Page 153
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Param_In_Invalid          invaild param
+
+SdkResult.Fail other errors
+
+3.15.8  powerOff
+
+poweroff
+
+public  void  powerOff();
+
+Return Value:
+
+None
+
+3.16  Desfire Cards
+
+DesfireHandler is responsible for interacting with Desfire card.
+
+Get Desfire card handler Object:
+
+DesfireHandler desfireHandler = deviceEngine.getDesfireHandler();
+
+This module uses the basic flow chart:
+
+Confidential
+
+153
+```
+
+## Page 154
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Confidential
+
+154
+```
+
+## Page 155
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.1  Authenticate
+
+Prototype
+
+int authenticate(byte keyNo, byte[] key);
+
+Function
+
+confirms that both entities (PICC and PCD) can trust each other, DES/3DES algorithm
+
+Parameters
+
+keyNo
+
+the key no used to authentication process
+
+Key
+
+key used for authentication, 16bytes need.
+
+if the actual key is only 8bytes long, then should
+extended to 16bytes: key[0...7] || key[0...7].
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+3.16.2  AuthenticateIso
+
+Prototype
+
+int authenticateIso(byte keyNo, byte[] key);
+
+Function
+
+confirms that both entities (PICC and PCD) can trust each other, DES/3DES /3KDES
+algorithm
+
+Parameters
+
+keyNo
+
+the key no used to authentication process
+
+Key
+
+key used for authentication, 24bytes need.
+
+if the actual key is only 8bytes long, then should
+extended to 24bytes: key[0...7] || key[0...7] || key[0...7]
+
+if the actual key is only 16bytes long, then should
+extended to 24bytes: key[0...7] || key[8...15] ||
+
+Confidential
+
+155
+```
+
+## Page 156
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return
+
+SdkResult.Success
+
+Success
+
+key[0...7]
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+3.16.3  AuthenticateAes
+
+Prototype
+
+int authenticateAes(byte keyNo, byte[] key);
+
+Function
+
+confirms that both entities (PICC and PCD) can trust each other, AES algorithm
+
+Parameters
+
+keyNo
+
+the key no used to authentication process
+
+Key
+
+key used for authentication, 16bytes need.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+3.16.4  changeKeySettings
+
+Prototype
+
+int changeKeySettings(byte keySettings);
+
+Function
+
+Changes the master key configuration settings depending on the currently selected
+AID.
+
+Parameters
+
+keySettings
+
+------  for PICC master key:
+
+bit7~bit4: 0000 RFU
+
+bit3: whether a change of the PICC master key settings
+
+Confidential
+
+156
+```
+
+## Page 157
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+is allowed
+
+bit2: whether PICC master key authentication is needed
+
+before Create- / DeleteApplication
+
+bit1: whether PICC master key authentication is needed
+
+for application directory access
+
+bit0: whether the PICC master key is changeable
+
+ ------  for Application master key:
+
+ bit7~bit4: hold the Access Rights for changing
+application keys (ChangeKey command)
+
+ 0x0: Application master key authentication is
+
+necessary to change any key (default)
+
+  0x1~0x0D: Authentication with the specified key is
+
+necessary to change any key.
+
+  0x0E: Authentication with the key to be changed
+
+(same
+
+KeyNo) is necessary to change a key.
+
+  0x0F: All Keys (except application master key, see Bit0)
+
+within this application are frozen.
+
+  bit3: whether a change of the application master key
+
+settings is allowed
+
+   bit2: whether application master key authentication
+is needed before CreateFile / DeleteFile
+
+   bit1: whether application master key authentication
+
+is needed for file directory access
+
+    bit0: whether the application master key is
+changeable
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+Confidential
+
+157
+```
+
+## Page 158
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.TimeOut
+
+TimeOut
+
+3.16.5  getKeySettings
+
+Prototype
+
+KeySettingsEntity getKeySettings();
+
+Function
+
+get configuration information on the PICC and application master key configuration
+settings, and get maximum number of keys which can be stored within the selected
+application.
+
+Depending on the master key settings, a preceding authentication with the master
+key is required.
+
+Parameters
+
+null
+
+Return
+
+KeySettingsEntity  getKeySettings
+
+current master key setting
+
+getMaxKeyNum
+
+maximum number of keys which can be stored within the
+selected application
+
+3.16.6  changePiccMasterkey
+
+Prototype
+
+int changePiccMasterkey(KeyTypeEnum masterKeyType, byte[] key, byte aesVersion);
+
+Function
+
+change PICC master key
+
+1. according to PICC master key setting, a authentication with PICC master key is
+necessary
+
+2. After a successful change of the key used to reach the current authentication
+status, this authentication is invalidated i.e. an authentication with the new key is
+necessary for subsequent operations.
+
+Parameters  masterKeyType
+
+PICC master key type
+
+Confidential
+
+158
+```
+
+## Page 159
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+key
+
+aesVersion
+
+key information (16/24 bytes)
+
+key version, only valid when type = {@link
+KeyTypeEnum#AES}.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+KeyTypeEnum
+
+Enumeration Name
+
+DES_TDES_128
+KEYTYPE_B
+
+AES
+
+3.16.7  changeAppKey
+
+Description
+
+16bytes DES/3DES key
+24bytes 3KDES key
+
+16bytes AES key
+
+Prototype
+
+int changeAppKey(KeyTypeEnum appKeyType, byte keyNo, byte[] oldKey, byte[]
+newKey, byte aesVersion);
+
+Function
+
+change application master key
+
+1. according to application master key setting, a authentication with specified key is
+necessary
+
+2. After a successful change of the key used to reach the current authentication
+status, this authentication is invalidated i.e. an authentication with the new key is
+necessary for subsequent operations.
+
+Parameters
+
+appKeyType
+
+app key type{ KeyTypeEnum}
+
+keyNo
+
+oldKey
+
+newKey
+
+the key to change
+
+old key value
+
+new key value
+
+Confidential
+
+159
+```
+
+## Page 160
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+aesVersion
+
+key version, only valid when type = {@link
+KeyTypeEnum#AES}.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+3.16.8  getKeyVersion
+
+Prototype
+
+byte getKeyVersion(byte keyNo);
+
+Function
+
+read out the current key version of any key stored on the PICC
+
+This command can be issued without valid authentication.
+
+Parameters
+
+keyNo
+
+key no
+
+Return
+
+key version of this key
+
+3.16.9  createApplication
+
+Prototype
+
+int createApplication(ApplicationEntity application);
+
+Function
+
+create new applications on the PICC.
+
+1. Application Identifier 0x00 00 00 is reserved as a reference to the PICC itself.
+2. After application be created, All keys are initialised with a string consisting of
+0x00 bytes
+3. Before any setup of a file system, it is recommemded to configure the whole
+card using the command ‘SetConfiguration’. This command will initialize all keys of
+any created application to a specified value which is taken out of the default key
+and default version from the ‘SetConfiguration’ command. Without this command
+all keys are consisting of 0x00 bytes.
+
+Parameters  application
+
+{@link ApplicationEntity}
+
+Confidential
+
+160
+```
+
+## Page 161
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is Invalid
+
+SdkResult.TimeOut
+
+TimeOut
+
+ApplicationEntity
+Attributes
+
+byte[] aid
+
+byte[] isoFid
+
+byte[]dfName
+
+Byte masterKeySetting
+
+byte numberOfKey
+
+KeyTypeEnum keyType
+
+application identifier
+
+Description
+
+2 byte ISO/IEC 7816-4 File Identifies for files within the
+application
+"DF-name" used in 7816-4 mode in combination with the ISO
+SELECT command
+Application master key setting
+
+Number of keys that can be stored within the application for
+cryptographic purposes. A maximum of 14 keys can be stored
+within an application of MIFARE DESFire EV1. One can also create
+an application with no keys
+the key type of application
+
+boolean isSupFid
+
+whether use File Identifies
+
+boolean isSupIsoFid
+
+whether use of 2 byte ISO/IEC 7816-4 File Identifies for files
+within the Application
+
+3.16.10
+
+deleteApplication
+
+Prototype
+
+int deleteApplication(byte[] aid);
+
+Function
+
+allows to permanently deactivate applications on the PICC
+
+1. Depending on the PICC master key settings, an PICC master key authentication is
+required.
+
+ 2. The AID allocation is removed, therefore it is possible to create a new
+application with the deleted application's AID. However, the deleted memory
+
+Confidential
+
+161
+```
+
+## Page 162
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+blocks can only be recovered by using the FormatPICC command which erases the
+full user memory of the PICC.
+
+Parameters  aid
+
+application Identifies (3bytes)
+
+Return
+
+SdkResult.Success
+
+success
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.11
+
+getAids
+
+Prototype
+
+List<byte[]> getAids();
+
+Function
+
+returns the Application IDentifiers of all active applications on a PICC.
+
+Depending on the PICC master key settings a successful authentication with the
+PICC master key might be required to execute this command.
+
+Parameters
+
+null
+
+Return
+
+if error return empty list.
+
+3.16.12
+
+getDfNames
+
+Prototype
+
+List<DfNameEntity> getDfNames();
+
+Function
+
+Returns the ISO/IEC 7816-4 DF-Names of all active applications on a PICC
+Depending on the PICC master key settings a successful authentication with the
+PICC master key might be required to execute this command.
+
+Parameters
+
+null
+
+Return
+
+if error return empty list.
+
+Confidential
+
+162
+```
+
+## Page 163
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.13
+
+selectApplication
+
+Prototype
+
+int selectApplication(byte[] aid);
+
+Function
+
+select one specific application for further access.
+
+1. each SelectApplication command invalidates the current authentication status.
+
+2. If this pAID is 0x00 00 00, the PICC level is selected and any further operations
+(typically commands like CreateApplication, DeleteApplication) are related to this
+level.
+
+3. If an application with the specified AID is found in the application directory of
+the PICC, the subsequent commands interact with this application.
+
+Parameters  aid
+
+Application Identifier (3bytes)
+
+Return
+
+SdkResult.Success
+
+success
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid  Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.14
+
+formatPicc
+
+Prototype
+
+int formatPicc();
+
+Function
+
+This command releases the PICC user memory.
+
+  1. The FormatPICC Command releases all allocated user memory on the PICC.
+
+  2. All applications are deleted and all files within those applications are deleted.
+
+  3. This command always requires a preceding authentication with the PICC
+master key.
+
+  4. The PICC master key and the PICC master key settings keep their currently set
+values, they are not influenced by this command.
+
+Parameters  null
+
+Confidential
+
+163
+```
+
+## Page 164
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return
+
+SdkResult.Success
+
+success
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid  Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.15
+
+getVersion
+
+Prototype
+
+VersionEntity getVersion();
+
+Function
+
+Return manufacturing related data of the PICC.
+
+Parameters  null
+
+Return
+
+VersionEntity
+
+{@link  VersionEntity }
+
+VersionEntity
+
+Attributes
+byte hwVendorId
+
+codes the vendor ID ( 0x04 for PHILIPS )
+
+Description
+
+byte hwType
+
+codes the type (here 0x01 )
+
+byte hwSubType
+
+codes the subtype (here 0x01 )
+
+byte hwMajorVer
+
+codes the major version number
+
+byte hwMinorVer
+
+codes the minor version number
+
+byte hwSize
+
+codes the storage size (here 0x1A = 8192 bytes )
+
+byte hwProtocol
+
+byte swVendorId
+
+codes the communication protocol type (here 0x05 meaning ISO
+14443-2 and -3 )
+codes the vendor ID ( here 0x04 for PHILIPS )
+
+byte swType
+
+codes the type ( here 0x01 )
+
+byte swSubType
+
+codes the subtype ( here 0x01 )
+
+byte swMajorVer
+
+codes the major version
+
+Confidential
+
+164
+```
+
+## Page 165
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+byte swMinorVer
+
+codes the minor version
+
+byte swSize
+
+codes the storage size (here 0x1A = 8192 bytes )
+
+byte swProtocol
+
+byte[] uid
+
+codes the communication protocol type (here 0x05 meaning ISO
+14443-3 and -4 )
+code the unique serial number
+
+byte[] batchNo
+
+code the production batch number
+
+byte weekOfProduction
+
+codes the calendar week of production
+
+byte yearOfProduction
+
+codes the year of production
+
+3.16.16
+
+getFreeMemory
+
+Prototype
+
+int getFreeMemory();
+
+Function
+
+Returns the available bytes on the PICC
+
+Parameters  null
+
+Return
+
+SdkResult.Success
+
+success
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid  Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.17
+
+setConfiguration
+
+Prototype
+
+int setConfiguration(byte option, byte[] info);
+
+Function
+
+set PICC configuration
+
+PICC master key authentication on card level needs to be performed prior to this
+command.
+
+Parameters  option
+
+configuration type, value as following
+
+Confidential
+
+165
+```
+
+## Page 166
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+0x00: info data is the configuration byte
+
+0x01: info data is the default key version and default
+key all applications will be personalized during
+creation with this default key and version
+instead of 0x00
+
+ 0x02: info data is the user defined ATS
+
+ 0xxx: RF
+
+info
+
+configuration information, according to option
+
+if option = 0x00, the configuration byte showed as
+following:
+
+     bit0 = 0   Format card enabled
+
+     bit0 = 1  Format card disabled;can not be reset
+
+     bit1 = 0   Random ID disabled
+
+     bit1 = 1   Random ID enabled; can not be reset
+
+if option = 0x01, the *info should be 24bytes key and
+1byte default version
+
+Return
+
+SdkResult.Success
+
+success
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid  Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.18
+
+getCardUid
+
+Prototype
+
+byte[] getCardUid();
+
+Function
+
+return the uid of PICC
+
+ 1. An authentication with any key needs to be performed prior to this command
+
+ 2. This command is only available when {@link
+
+DesfireHandler#authenticateIso(byte, byte[])} or {@link
+
+Confidential
+
+166
+```
+
+## Page 167
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+DesfireHandler#authenticateAes(byte, byte[])} called
+
+Parameters  null
+
+Return
+
+uid information of PICC (7bytes)
+
+3.16.19
+
+getFids
+
+Prototype
+
+List<byte[]> getFids();
+
+Function
+
+returns the File IDentifiers of all active files within the currently selected
+application.
+
+1. Depending on the application master key settings, a preceding authentication
+with the application master key might be required.
+
+2. Each File ID is coded in one byte and is in the range from 0x00 to 0x1F.
+
+Parameters  null
+
+Return
+
+if error return empty list.
+
+3.16.20
+
+getIsoFids
+
+Prototype
+
+List<byte[]> getIsoFids();
+
+Function
+
+Returns the 2 byte ISO/IEC 7816-4 File IDentifiers of all active files within the
+currently selected application
+
+1. Depending on the application master key settings, a preceding authentication
+with the application master key might be required.
+
+2. Each  ISO File ID is coded in two byte .
+
+Parameters  null
+
+Return
+
+if error return empty list.
+
+Confidential
+
+167
+```
+
+## Page 168
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.21
+
+getFileSettings
+
+Prototype
+
+FileSettingsEntity getFileSettings(byte fileNo);
+
+Function
+
+get information on the properties of a specific file.
+
+1. This file number must be in the range between 0x00 and 0x1F.
+
+2. Depending on the application master key settings, a preceding authentication
+with the application master key might be required.
+
+3. After updating a value file's value but before issuing the CommitTransaction
+command, the GetFileSettings command will always retrieve the old, unchanged
+limit for the limited credit value.
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+Return
+
+FileSettingsEntity
+
+FileSettingsEntity
+
+Attributes
+
+byte fileType
+
+byte commSettings
+
+byte readAccessRightKeyNum
+
+byte writeAccessRightKeyNum
+
+Byte
+readAndWriteAccessRightKeyNum
+
+Description
+
+--- Plain communication secured by MACing
+
+DESfire file type:
+0x00  --- Standard Data Files
+0x01  --- Backup Data Files
+0x02  --- Value Files wih Backup
+0x03  --- Linear record Files with Backup
+0x04  --- Cyclic Record Files with Backup
+0x00 or 0x02  --- Plain communication
+0x01
+0x03          --- Fully enciphered communication
+ Access right capability, 0x0E means free access, and
+0x0F means deny access. the reference number of the
+key which needs to be authenticated prior to Read
+Access and Read&Write Access
+the reference number of the key which needs to be
+authentication prior to Write Access and Read&Write
+Access
+the reference number of the key which needs to be
+authentication prior to  Read&Write Access
+
+Confidential
+
+168
+```
+
+## Page 169
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+byte changeAccessRightKeyNum
+
+int fileSize
+
+int lowerLimit
+
+int upperLimit
+
+the current maximum" limited
+credit" value
+boolean limitedCreditEnabled
+
+int recordSize
+
+int maxNumberOfRecords
+
+int currentNumberOfRecords
+
+the reference number of the key,which is necessary to
+be authenticated with in order to change the access
+rights for the file and to link each access right to key
+numbers
+the user file size in bytes, only available when
+file_type = 0x00 or file_type = 0x01
+lower limit of the value file ,only available when
+file_type = 0x02
+upper limit of the value file,only available when
+file_type = 0x02
+limitedCreditValue,only available when file_type =
+0x02
+if the LimitedCredit command is allowed for this
+file,only available when file_type = 0x03 or file_type =
+0x04
+the size of one single record (as deefined at file
+creation),only available when file_type = 0x03 or
+file_type = 0x04
+the maximum number of records within the record
+file (as defined at file creation),only available when
+file_type = 0x03 or file_type = 0x04
+the current number of records within the record
+file,only available when file_type = 0x03 or file_type =
+0x04
+
+3.16.22
+
+changeFileSettings
+
+Prototype
+
+int changeFileSettings(byte fileNo, byte commSettings, byte
+newReadAccessKeyNum, byte newWriteAccessKeyNum, byte
+newReadAndWriteAccessKeyNum, byte newChangeAccessKeyNum);
+
+Function
+
+changes the access parameters of an existing file
+
+ 1. This change only succeeds if the current "Change Access Right" is different from
+"never", that is old_change_access_keyno != 0x0E
+
+ 2. To guarantee that the ChangeFileSettings command is coming from the same
+party which did the preceding authentication, it is necessary to apply basically the
+same security mechanism as used with the ChangeKey command
+
+Confidential
+
+169
+```
+
+## Page 170
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by
+MACing
+
+0x03--- Fully enciphered communication
+
+newReadAccessKeyNum
+
+new Read Access Right Key No
+
+newWriteAccessKeyNum
+
+new Write Access Right Key No
+
+newReadAndWriteAccessKeyNum  new Read and Write Access Right Key No
+
+newChangeAccessKeyNum
+
+new Change Access Right Key No
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.23
+
+createStdDataFile
+
+Prototype
+
+int createStdDataFile(byte fileNo, DataFileEntity dataFile);
+
+Function
+
+create files for the storage of plain unformatted user data within an existing
+application on the PICC
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+dataFile
+
+file settings {@link DataFileEntity}
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+Confidential
+
+170
+```
+
+## Page 171
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.TimeOut
+
+timeout
+
+DataFileEntity
+
+Attributes
+boolean isoFidEnable
+
+byte[] isoFid
+
+Description
+whether ISO/IEC 7816-4 File IDentifiers enabled (0x00
+- disabled, 0x01-enabled)
+2bytes ISO/IEC 7816-4 File IDentifiers
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+byte readAccessRightKeyNum
+
+byte writeAccessRightKeyNum
+
+Byte
+readAndWriteAccessRightKeyNum
+byte changeAccessRightKeyNum
+
+int fileSize
+
+0x01 --- Plain communication secured by MACing
+
+0x03--- Fully enciphered communication
+ Access right capability, 0x0E means free access, and
+0x0F means deny access. the reference number of the
+key which needs to be authenticated prior to Read
+Access and Read&Write Access
+
+the reference number of the key which needs to be
+authentication prior to Write Access and Read&Write
+Access
+the reference number of the key which needs to be
+authentication prior to  Read&Write Access
+the reference number of the key,which is necessary to
+be authenticated with in order to change the access
+rights for the file and to link each access right to key
+numbers
+the user file size in bytes, only available when
+file_type = 0x00 or file_type = 0x01
+
+3.16.24
+
+createBackupDatafile
+
+Prototype
+
+int createBackupDatafile(byte fileNo, DataFileEntity dataFile);
+
+Function
+
+create files for the storage of plain unformatted user data within an existing
+application on the PICC, additionally supporting the feature of an integrated
+
+Confidential
+
+171
+```
+
+## Page 172
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+backup mechanism
+
+1. Due to the mirror image a BackupDataFile always consumes DOUBLE the NV-
+memory on the PICC compared to a StdDataFile with the same specified FileSize.
+
+2. Every Write command is done in a independent mirror image of this file. To
+validate a write access to this file type, it is necessary to confirm it with a
+CommitTransaction command. If no CommitTransaction command is send by the
+PCD, only the mirror image is changed, the original data remains unchanged and
+valid.
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+dataFile
+
+file settings {@link DataFileEntity}
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.25
+
+createValueFile
+
+Prototype
+
+int createValueFile(byte fileNo, ValueFileEntity valueFile);
+
+Function
+
+create files for the storage and manipulation of 32bit signed integer values within
+an existing application on the PICC
+
+ValueFiles feature always the integrated backup mechanism. Therefore every
+access changing the value needs to be validated using the CommitTransaction
+command
+
+1. It is necessary to validate the updated value with a CommitTransaction
+command. An AbortTransaction command will invalidate all changes
+
+2. The value modifications of Credit, Debit and LimitedCredit commands are
+cumulated until a CommitTransaction command is issued.
+
+Confidential
+
+172
+```
+
+## Page 173
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+valueFile
+
+file settings {@link  ValueFileEntity }
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+ValueFileEntity
+
+Attributes
+
+Description
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by MACing
+
+0x03--- Fully enciphered communication
+ Access right capability, 0x0E means free access, and
+0x0F means deny access. the reference number of the
+key which needs to be authenticated prior to Read
+Access and Read&Write Access
+
+the reference number of the key which needs to be
+authentication prior to Write Access and Read&Write
+Access
+the reference number of the key which needs to be
+authentication prior to  Read&Write Access
+the reference number of the key,which is necessary to
+be authenticated with in order to change the access
+rights for the file and to link each access right to key
+numbers
+lower limit of the value file, only available when
+file_type = 0x02
+upper limit of the value file, only available when
+file_type = 0x02
+the initial value of this value file, only available when
+file_type = 0x02
+
+byte readAccessRightKeyNum
+
+byte writeAccessRightKeyNum
+
+Byte
+readAndWriteAccessRightKeyNum
+byte changeAccessRightKeyNum
+
+int lowerLimit
+
+int upperLimit
+
+int initValue
+
+Confidential
+
+173
+```
+
+## Page 174
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+boolean limitedCreditEnabled
+
+if the LimitedCredit command is allowed for this file,
+only available when file_type = 0x02
+
+3.16.26
+
+createLinearRecordFile
+
+Prototype
+
+int createLinearRecordFile(byte fileNo, RecordFileEntity recordFile);
+
+Function
+
+create files for multiple storage of structural data, for example for loyalty
+programs, within an existing application on the PICC
+
+1. Once the file is filled completely with data records, further writing to the file is
+not possible unless it is cleared, see command ClearRecordFile.
+
+2. Linear Record Files feature always the integrated backup mechanism. Therefore
+every access appending a record needs to be validated using the
+CommitTransaction command
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+valueFile
+
+file settings {@link  ValueFileEntity }
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+RecordFileEntity
+
+Attributes
+
+boolean isoFidEnable
+
+byte[] isoFid
+
+Description
+
+whether ISO/IEC 7816-4 File IDentifiers enabled
+(0x00 - disabled, 0x01-enabled)
+2bytes ISO/IEC 7816-4 File IDentifiers
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by MACing
+
+Confidential
+
+174
+```
+
+## Page 175
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+byte readAccessRightKeyNum
+
+byte writeAccessRightKeyNum
+
+Byte
+readAndWriteAccessRightKeyNum
+byte changeAccessRightKeyNum
+
+int recordSize
+
+int maxNumberOfRecords
+
+byte
+specifiesRandomWriteAccessOption
+
+boolean
+allowedRandomWriteAccess
+
+0x03--- Fully enciphered communication
+
+ Access right capability, 0x0E means free access, and
+0x0F means deny access. the reference number of the
+key which needs to be authenticated prior to Read
+Access and Read&Write Access
+
+the reference number of the key which needs to be
+authentication prior to Write Access and Read&Write
+Access
+the reference number of the key which needs to be
+authentication prior to  Read&Write Access
+the reference number of the key,which is necessary
+to be authenticated with in order to change the
+access rights for the file and to link each access right
+to key numbers
+the size of one single record (as deefined at file
+creation), only available when file_type = 0x03 or
+file_type = 0x04
+the maximum number of records within the record
+file (as defined at file creation) , only available when
+file_type = 0x03 or file_type = 0x04
+whether specifies Random write access option,
+(0x00 - not, 0x01 - yes), only available when file_type
+= 0x03 or file_type = 0x04
+whether allowed Random write access, only
+available when file_type = 0x03 or file_type = 0x04
+
+3.16.27
+
+createCyclicRecordFile
+
+Prototype
+
+int createCyclicRecordFile(byte fileNo, RecordFileEntity recordFile);
+
+Function
+
+create files for multiple storage of structural data, for example for loyalty
+programs, within an existing application on the PICC
+
+1. Once the file is filled completely with data records, further writing to the file is
+not possible unless it is cleared, see command ClearRecordFile.
+
+2. Linear Record Files feature always the integrated backup mechanism. Therefore
+
+Confidential
+
+175
+```
+
+## Page 176
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+every access appending a record needs to be validated using the
+CommitTransaction command
+
+Parameters
+
+fileNo
+
+the specific file no, value 0~0x1F allowed
+
+valueFile
+
+file settings {@link  ValueFileEntity }
+
+Return
+
+SdkResult.Success
+
+SdkResult.Fail
+
+success
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.28
+
+deleteFile
+
+Prototype
+
+int deleteFile(byte fileNo);
+
+Function
+
+permanently deactivates a file within the file directory of the currently selected
+application.
+
+1. The operation of this command invalidates the file directory entry of the
+specified file which means that the file can't be accessed anymore.
+
+2. Depending on the application master key settings, a preceding authentication
+with the application master key is required.
+
+3. Allocated memory blocks associated with the deleted file are not set free. The
+FileNo of the deleted file can be re-used to create a new file within that
+application.
+
+4. To release memory blocks for re-use, the whole PICC user NV-memory needs to
+be erased using the FormatPICC command.
+
+Parameters
+
+fileNo
+
+the file number within the file directory of the
+currently selected application.
+
+Return
+
+SdkResult.Success
+
+success
+
+Confidential
+
+176
+```
+
+## Page 177
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Fail
+
+fail
+
+SdkResult.Param_In_Invalid
+
+Parameter is not legitimate
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.29
+
+readData
+
+Prototype
+
+byte[] readData(byte fileNo, byte commSettings, int offset, int len);
+
+Function
+
+Read data from Standard Data Files or Backup Data Files
+
+1. This offset has to be in the range from 0 to file size -1.
+
+2. If the len is coded as 0, the entire data file, starting from the position specified in
+
+the offset value, is read.
+
+3. If Backup Data Files are read after writing to them, but before issuing the
+
+CommitTransaction command, the ReadData command will always retrieve the
+old, unchanged data stored in the PICC. All data written to a Backup Data File is
+validated and externally "visible" for a ReadData command only after a
+CommitTransaction command.
+
+4. The Read command requires a preceding authentication either with the key
+specified for "Read" or "Read&Write" access
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the starting position for the read operation within the
+file
+
+the number of data bytes want to be read
+
+offset
+
+len
+
+Return
+
+return the out data
+
+Confidential
+
+177
+```
+
+## Page 178
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.30
+
+writeData
+
+Prototype
+
+int writeData(byte fileNo, byte commSettings, int offset, byte[] data);
+
+Function
+
+Write data to Standard Data Files and Backup Data Files.
+
+1. The Write command requires a preceding authentication either with the key
+specified for  "Write" or "Read&Write" access.
+
+2. If the WriteData operation is performed on a Backup Data File, it is necessary to
+validate the written data with a CommitTransaction command. An
+AbortTransaction command will invalidate all changes.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+offset
+
+data
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the starting position for the write operation within
+the file
+
+Data to send
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.31
+
+getValue
+
+Prototype
+
+int getValue(byte fileNo, byte commSettings);
+
+Function
+
+Read the currently stored value from Value Files.
+
+1. The GetValue command requires a preceding authentication with the key
+specified for Read, Write or Read&Write access
+
+Confidential
+
+178
+```
+
+## Page 179
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+2. After updating a value file's value but before issuing the CommitTransaction
+command, the GetValue command will always retrieve the old, unchanged value
+which is still the valid one.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.32
+
+credit
+
+Prototype
+
+int credit(byte fileNo, byte commSettings, int value);
+
+Function
+
+Increase a value stored in a Value File.
+
+1. Credit commands do NEVER modify the Limited Credit Value of a Value file.
+However, if the Limited Credit Value needs to be set to 0, a LimitedCredit with
+value 0 can be used.
+
+2. The Credit command requires a preceding authentication with the key specified
+for "Read&Write" access.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+value
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the value which will be subtracted from the current
+value stored in the file. Only positive values are
+
+Confidential
+
+179
+```
+
+## Page 180
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+allowed for the Credit command.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.33
+
+debit
+
+Prototype
+
+int debit(byte fileNo, byte commSettings, int value);
+
+Function
+
+Decrease a value stored in a Value File.
+
+1. The Debit command requires a preceding authentication with one of the keys
+specified for Read, Write or Read&Write access.
+
+2. If the usage of the LimitedCredit feature is enabled, the new limit for a
+subsequent LimitedCredit command is set to the sum of Debit commands within
+one transaction before issuing a CommitTransaction command. This assures that a
+LimitedCredit command can not re-book more values than a debiting transaction
+
+  deducted before.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+value
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the value which will be subtracted from the current
+value stored in the file. Only positive values are
+allowed for the Credit command.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+Confidential
+
+180
+```
+
+## Page 181
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.34
+
+limitedCredit
+
+Prototype
+
+int limitedCredit(byte fileNo, byte commSettings, int value);
+
+Function
+
+Allows a limited increase of a value stored in a Value File without having full
+Read&Write permissions to the file. This feature can be enabled or disabled during
+value file creation.
+
+1. The LimitedCredit command requires a preceding authentication with the key
+specified for "Write" or "Read&Write" access.
+
+2. The value for LimitedCredit is limited to the sum of the Debit commands on this
+value file within the most recent transaction containing at least one Debit. After
+executing the LimitedCredit command the new limit is set to 0 regardless of the
+amount which has been re-booked. Therefore the LimitedCredit command can only
+be used once after a Debit transaction.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+value
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the value which will be subtracted from the current
+value stored in the file. Only positive values are
+allowed for the Credit command.
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+Confidential
+
+181
+```
+
+## Page 182
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.16.35
+
+writeRecord
+
+Prototype
+
+int writeRecord(byte fileNo, byte commSettings, int offset, int len, byte[] record);
+
+Function
+
+The WriteRecord command allows to write data to a record in a Cyclic or Linear
+Record File.
+
+ 1. The WriteRecord command appends one record at the end of the linear record
+file, it erases and overwrites the oldest record in case of a cyclic record file if it is
+already full. The entire new record is cleared before data is written to it.
+
+ 2. If no CommitTransaction command  is sent after a WriteRecord command, the
+next WriteRecord command to the same file writes to the already created record.
+After sending a CommitTransaction command, a new WriteRecord command will
+create a new record in the record file. An AbortTransaction command will
+invalidate all changes
+
+3. After issuing a ClearRecordFile command, but before a CommitTransaction /
+AbortTransaction command, a WriteRecord command to the same record file will
+fail.
+
+4. The WriteRecord command requires a preceding authentication either with the
+key specified for "Write" or "Read&Write" access.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+offset
+
+len
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+the offset within one single record, the value has to
+be in therange from 0 to record size - 1.
+
+the length of data which is to be written to the
+record file, the value has to be in the range from 1 to
+record size - offset.
+
+record
+
+Record Information
+
+Return
+
+SdkResult.Success
+
+Success
+
+Confidential
+
+182
+```
+
+## Page 183
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.36
+
+readRecords
+
+Prototype
+
+byte[] readRecords(byte fileNo, byte commSettings, int recordSize, int first, int
+num);
+
+Function
+
+The ReadRecords command allows to read out a set of complete records from a
+Cyclic or Linear Record File.
+
+1. In cyclic record files the maximum number of stored valid records is one less
+than the number of records specified in the CreateCyclicRecordFile command.
+
+2. A ReadRecords command on an empty record file (directly after creation or after
+a committed clearance will result in an error.
+
+3. The ReadRecords command requires a preceding authentication either with the
+key specified for "Read" or "Read&Write" access.
+
+Parameters
+
+fileNo
+
+the file number
+
+commSettings
+
+0x00 or 0x02  --- Plain communication
+
+0x01 --- Plain communication secured by MACing
+
+0x03 --- Fully enciphered communication
+
+recordSize
+
+the size of single record
+
+first
+
+num
+
+the first record which is read out. In case of 0x00 the
+latest record is read out. The value must be in the
+range from 0x00 to number of existing records - 1.
+
+the number of records to be read from the PICC.
+
+Records are always transmitted by the PICC in
+chronological order (= starting with the oldest,
+
+ which is number of records ¨C 1 before the one
+
+Confidential
+
+183
+```
+
+## Page 184
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+addressed by the given offset). If this parameter
+
+is set to 0x00 then all records, from the oldest record
+up to and including the newest record(given by the
+offset parameter) are read.
+
+Return
+
+return Record Information
+
+3.16.37
+
+clearRecordFile
+
+Prototype
+
+int clearRecordFile(byte fileNo);
+
+Function
+
+The ClearRecordFile command allows to reset a Cyclic or Linear Record File to the
+empty state.
+
+ 1. After executing the ClearRecordFile command but before CommitTransaction,
+all subsequent WriteRecord commands will fail.
+
+2. The ReadRecords command will return the old still valid records.
+
+ 3. After the CommitTransaction command is issued, a ReadRecords command will
+fail, WriteRecord commands will be successful.
+
+ 4. An AbortTransaction command (instead of CommitTransaction) will invalidate
+the clearance
+
+Parameters
+
+fileNo
+
+the file number
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.38
+
+commitTransaction
+
+Prototype
+
+int commitTransaction();
+
+Confidential
+
+184
+```
+
+## Page 185
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Function
+
+The CommitTransaction command allows to validate all previous write access on
+Backup Data Files, Value Files and Record Files within one application.
+
+The CommitTransaction is typically the last command of a transaction before the
+ISO 14443-4 Deselect command or before proceeding with another application
+(SelectApplication command).
+
+Parameters  null
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+3.16.39
+
+abortTransaction
+
+Prototype
+
+int abortTransaction();
+
+Function
+
+The AbortTransaction command allows to invalidate all previous write access on
+Backup Data Files, Value Files and Record Files within one application.
+
+This is useful to cancel a transaction without the need for re-authentication to the
+PICC, which would lead to the same functionality.
+
+Parameters  null
+
+Return
+
+SdkResult.Success
+
+Success
+
+SdkResult.Fail
+
+Fail
+
+SdkResult.Param_In_Invalid  Parameter is invalid
+
+SdkResult.TimeOut
+
+timeout
+
+Confidential
+
+185
+```
+
+## Page 186
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.17  Mifare Ultralight card
+
+The Ultralight module class is responsible for managing operate the Mifare Ultralight card.
+
+UltralightCCardHandler ultralightCCardHandler = deviceEngine.getUltralightCCardHandler();
+
+3.17.1 authority
+
+Block certification.
+
+public int authority(byte[] keyData);
+
+Parameters:
+
+Parameter
+
+Description
+
+keyData
+
+Password authentication, 16 bytes(hex)
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+Description
+
+3.17.2 readBlock
+
+Read block data.
+
+public byte[] readBlock(byte blockNum);
+
+Parameters:
+
+Parameter
+
+blockNum
+
+block number
+
+Return Value:
+
+Success, return block data
+
+Failed, return null
+
+3.17.3 writeBlock
+
+Write block data.
+
+Confidential
+
+186
+```
+
+## Page 187
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public int writeBlock(byte blockNum, byte[] writeData);
+
+Description
+
+Parameters:
+
+Parameter
+
+blockNum
+writeData
+
+Return Value:
+
+Block number
+Write data
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.17.4 exchangeCmd
+
+Exchange data with command(use original command communicate with the card directly)
+
+public byte[] exchangeCmd(byte[] cmdData);
+
+Parameters:
+
+Parameter
+
+cmdData
+
+Command data send to card
+
+Return Value:
+
+Success, return response data
+
+Failed ,return null
+
+Description
+
+3.18  NTAG card
+
+The NTAG module class is responsible for managing operate the NTAG card.
+
+NTAGCardHandler cardHandler = deviceEngine.getNTAGCardHandler();
+
+3.18.1 authority
+
+Block certification.
+
+public int authority(byte[] keyData);
+
+Parameters:
+
+Confidential
+
+187
+```
+
+## Page 188
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+Description
+
+keyData
+
+Password authentication, 16 bytes(hex)
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.18.2 getCardVersion
+
+Get the card version
+
+public byte[] getCardVersion();
+
+Return Value:
+
+success: return the card version
+
+failed: return null
+
+3.18.3 read
+
+Read block data.
+
+public byte[] read (byte address);
+
+Parameters:
+
+Parameter
+
+address
+
+block number
+
+Return Value:
+
+Success, return block data
+
+Failed, return null
+
+3.18.4 fastRead
+
+Fast Read block data.
+
+Description
+
+public byte[] fastRead (byte startAddress, byte endAddress);
+
+Confidential
+
+188
+```
+
+## Page 189
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+Description
+
+startAddress
+endAddress
+
+The start address which you want to read
+The end address which you want to read
+
+Return Value:
+
+Success, return block data
+
+Failed, return null
+
+3.18.5 write
+
+Write block data.
+
+public int writeBlock(byte address, byte[] writeData, boolean isCompatibility);
+
+Parameters:
+
+Parameter
+
+address
+writeData
+isCompatibility
+
+Block number
+Write data
+true: Compatibility
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.18.6 readCNT
+
+read counter
+
+public byte[] readCNT(byte address);
+
+Parameters:
+
+Parameter
+
+address
+
+Block number
+
+Return Value:
+
+Description
+
+Description
+
+Confidential
+
+189
+```
+
+## Page 190
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+success: return the card counter
+
+failed: return null
+
+3.18.7 exchangeCmd
+
+Exchange data with command(use original command communicate with the card directly)
+
+public byte[] exchangeCmd(byte[] cmdData);
+
+Parameters:
+
+Parameter
+
+cmdData
+
+Command data send to card
+
+Return Value:
+
+Success, return response data
+
+Failed ,return null
+
+Description
+
+3.19  Platform
+
+The platform module class is responsible for managing operate the device function, such as install
+application, uninstall application , reboot device, update firmware..etc.
+
+Platform platform = deviceEngine.getPlatform();
+
+3.19.1 installApp
+
+Install application.
+
+public int installApp(String appFilePath, final OnAppOperatListener listener);
+
+Parameters:
+
+Parameter
+
+appFilePath
+
+Description
+
+The path of the application.
+Note: the application must be signed if you want to install in production
+devices
+Example: Environment.getExternalStorageDirectory().getPath() + "/" +
+"demo.apk"
+
+Confidential
+
+190
+```
+
+## Page 191
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+listener
+
+Install result callback
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid parameter invalid
+
+SdkResult.Fail other errors
+
+Other error code, please refer to Appendix
+
+3.19.2 unInstallApp
+
+Uninstall application.
+
+public int uninstallApp(String appPackageName, final OnAppOperatListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+appPackageName  Thepackae name of the application which you want to uninstall
+listener
+
+Uninstall result callback
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid parameter invalid
+
+SdkResult.Fail other errors
+
+Other error code, please refer to Appendix
+
+3.19.3 updateFirmware
+
+update firmware. The firmware must be provided by Nexgo .
+
+public int updateFirmware(String firmwareFilePath);
+
+Parameters:
+
+Parameter
+
+Description
+
+firmwareFilePath  The path of the firmware which you want to update
+
+Example: Environment.getExternalStorageDirectory().getPath() + "/"
++"xx_custom_ en0002.zip"
+Note: the firmware must be provided by Nexgo
+
+Confidential
+
+191
+```
+
+## Page 192
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid parameter invalid
+
+SdkResult.Fail other errors
+
+Other error code, please refer to Appendix
+
+3.19.4 reboot
+
+Reboot device
+
+public int rebootDevice();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.5 shutDownDevice
+
+power off  device
+
+public int shutDownDevice();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.6 enableHomeButton
+
+enable home button
+
+public int enableHomeButton();
+
+Return Value:
+
+SdkResult.Success success
+
+Confidential
+
+192
+```
+
+## Page 193
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SdkResult.Fail other errors
+
+3.19.7 disableHomeButton
+
+disable home button
+
+public int disableHomeButton();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.8 enableTaskButton
+
+enable task button
+
+public int enableTaskButton();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.9 disableTaskButton
+
+disable task button
+
+public int disableTaskButton();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+Confidential
+
+193
+```
+
+## Page 194
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.19.10
+
+enableControlBar
+
+enable controlBar (popup menu)
+
+public int enableControlBar();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.11
+
+disableControlBar
+
+disable controlBar (popup menu)
+
+public int disableControlBar();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.12
+
+enablePowerButton
+
+enable power button
+
+public int enablePowerButton;
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.13
+
+disablePowerButton
+
+disable power button
+
+Confidential
+
+194
+```
+
+## Page 195
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public int disablePowerButton();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.14
+
+setBeepMode
+
+set device beep mode, application can control the beep volume
+
+public void setBeepMode(BeepVolumeModeEnum beepMode, int volume);
+
+Parameters:
+
+Parameter
+
+beepMode
+
+volume
+
+Description
+
+BEEP_MODE_SYSTEM_DEFAULT: system default
+BEEP_MODE_CUSTOM: application set the beep volume with fix value
+BEEP_MODE_SYSTEM_VOLUME: beep volume will follow with system
+volume
+Beep volume, range 0 -100 (volume percentage)
+
+Description
+
+use 80% of the maximum volume of the
+system, regardless of the volume of the
+system
+application set the beep volume, need to set
+the volume value
+Beep sound following system volume
+
+BeepVolumeModeEnum
+
+Enumeration Name
+BEEP_MODE_SYSTEM_DEFAULT
+
+BEEP_MODE_CUSTOM
+
+BEEP_MODE_SYSTEM_VOLUME
+
+Return Value:
+
+None
+
+3.19.15
+
+enableUsbCdc
+
+Confidential
+
+195
+```
+
+## Page 196
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+enable usb cdc option
+
+public int enableUsbCdc ();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.16
+
+disableUsbCdc
+
+disable usb cdc option
+
+public int disableUsbCdc ();
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Fail other errors
+
+3.19.17
+
+getUsbCdcStatus
+
+get usb cdc status
+
+public boolean getUsbCdcStatus ();
+
+Return Value:
+
+true enable
+
+false disable
+
+3.19.18
+
+showNavigationBar
+
+Show bottom Navigation Bar.
+
+public void showNavigationBar ();
+
+Confidential
+
+196
+```
+
+## Page 197
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+None
+
+3.19.19
+
+hideNavigationBar
+
+Hide bottom Navigation Bar.
+
+public void hideNavigationBar ();
+
+Return Value:
+
+None
+
+3.19.20
+
+switchMobileDataNetwork
+
+Switch mobile network , Sim card 1 to sim card 2.
+
+public void switchMobileDataNetwork(int mobileDataSlot);
+
+Parameters:
+
+Parameter
+
+mobileDataSlot
+
+Return Value:
+
+None
+
+Description
+
+Sim card slot ,
+Use SIM 1: mobileDataSlot = 0
+Use SIM 2: mobileDataSlot = 1
+
+3.19.21
+
+setNetworkStatusListener
+
+set network status listener
+
+void setNetworkStatusListener(onMobileDataNetworkListener onMobileDataNetworkListener);
+
+Parameters:
+
+Parameter
+
+Description
+
+onMobileDataNetworkListener  Callback of the network status
+
+Return Value:
+
+None
+
+Confidential
+
+197
+```
+
+## Page 198
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.19.22
+
+stopNetworkStatusListener
+
+stop network status listener
+
+void stopNetworkStatusListener ();
+
+Return Value:
+
+None
+
+3.19.23
+
+executeGeneralMethod
+
+execute general method
+
+public int executeGeneralMethod(int cmd, byte[] inParam, byte[] otherParam, byte[] outData)
+
+Description
+
+Parameters:
+
+Parameter
+
+cmd
+byte[] inParam
+byte[]
+otherParam
+byte[] outData
+
+Return Value:
+
+Cmd
+Depends on the cmd
+Depends on the cmd
+
+Depends on the cmd
+
+SdkResult.Success success
+
+SdkResult.Param_In_Invalid parameter invalid
+
+SdkResult.Fail other errors
+
+3.20   Usb Serial class
+
+Usb Serial class is responsible for managing POS usb serial port.
+
+Please note, need to use Nexgo special cable.
+
+Get the usb serial class objects:
+
+Confidential
+
+198
+```
+
+## Page 199
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+UsbSerial usbSerial = deviceEngine. getUsbSerial ();
+
+3.20.1  open
+
+Open usb serial port.
+
+public int open(UsbSerialCfgEntity entity, OnUsbSerialReadListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+entity
+listener
+
+UsbSerialCfgEntity, usb Serial Info
+OnUsbSerialReadListener, the reading data will be sent by this listener.
+
+UsbSerialCfgEntity
+
+Attributes
+int vid
+int pid
+int bauRate
+
+int dataBits
+char parity
+int stopBits
+
+Description
+
+The verdor id of the usb serial port
+The product id of the usb serial port
+The baud rate in the range of (bps):
+110,300,600,1200,2400,4800, 9600,14400,56000,19200,38400,57600,115200,230400
+Data Bits Range: 5, 6, 7, 8
+Test methods in the range : 'o' odd , 'e' parity, 'n' no parity
+Stop bit value range : 1, 2
+
+Return Value:
+
+SdkResult.Success serial connection success
+
+SdkResult.Fail other errors
+
+3.20.2  close
+
+Close the usb serial port.
+
+public int close ();
+
+Parameters: None
+
+Confidential
+
+199
+```
+
+## Page 200
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+SdkResult.Success close successfully
+
+SdkResult.Fail other errors
+
+3.20.3 clrBuffer
+
+Clear the buffer.
+
+public void clrBuffer ();
+
+Parameters: None
+
+Return Value: None
+
+3.20.4  write
+
+Send data.
+
+public int write (byte [] data, int dataLen);
+
+Parameters:
+
+Parameter
+
+data
+dataLen
+
+Write data
+Data length
+
+Return Value:
+
+SdkResult.Success sent successfully
+
+SdkResult.Fail other errors
+
+3.20.5  read
+
+Receive data.
+
+Description
+
+public int read (byte [] buffer, int readLen);
+
+Parameters:
+
+Parameter
+
+Description
+
+buffer
+recvLen
+
+Buffer to receive data
+The maximum length of buffer, which is 4096 bytes
+
+Return Value:
+
+Confidential
+
+200
+```
+
+## Page 201
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Successfully received returns the length of the received data
+
+SdkResult.Fail other errors
+
+3.21  MDB LED class
+
+LED class is responsible for managing POS MDB LED lights.
+
+Get the object of the LED class:
+
+MdbLEDDriver ledDriver = deviceEngine. getMdbLEDDriver ();
+
+3.21.1  SetLed
+
+Drive POS red, green, yellow, blue light switch.
+
+void setLed(MdbLightModeEnum light, boolean isOn);
+
+Parameters:
+
+Parameter
+
+light
+
+isOn
+
+Card reader light, contact reader, contactless reader, mag-stripe reader lights
+
+  True: on, false: off
+
+Description
+
+MdbLightModeEnum
+
+Enumeration Name
+
+Description
+
+RF_BLUE
+
+RF_YELLOW
+
+RF_GREEN
+
+RF_RED
+
+IC_BLUE
+
+IC_GREEN
+
+IC_RED
+
+MAG_BLUE
+
+MAG_GREEN
+
+MAG_RED
+
+SYS_GREEN
+
+Confidential
+
+Contactless reader - blue light;same function with
+LEDDriver
+Contactless reader - yellow light
+
+Contactless reader - green light
+
+Contactless reader - red light
+
+Contact reader – blue light
+
+Contact reader – green light
+
+Contact reader – red light
+
+Mag-stripe reader – blue light
+
+Mag-stripe reader – green light
+
+Mag-stripe reader – red light
+
+System – green light
+
+201
+```
+
+## Page 202
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+SYS_RED
+
+System – red light
+
+Return Value: None
+
+3.22  MDB Serial class
+
+Serial class is responsible for managing MDB serial port for UN20 only.
+
+Get the serial class objects:
+
+MdbSerialPortDriver port = deviceEngine. getMdbSerialPortDriver ();
+
+Note: only support slave mode.
+
+3.22.1 mdbOpen
+
+Open MDB port.
+
+int mdbOpen(MdbModeEnum mdbMode);
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+MdbModeEnum
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+
+Enumeration Name
+
+Description
+
+MDB_MODE_MASTER
+
+MDB_MODE_SLAVE
+
+Return Value:
+
+master mode
+
+slave mode(default)
+
+SdkResult.Success MDB open success
+
+SdkResult.SerialPort_Connect_Fail MDB open failed
+
+SdkResult.Fail other errors
+
+Confidential
+
+202
+```
+
+## Page 203
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.22.2 mdbWrite
+
+Write data
+
+int mdbWrite(byte[] buf);
+
+Parameters:
+
+Parameter
+
+buf
+
+Input data
+
+Return Value:
+
+Description
+
+SdkResult.Success sent successfully
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Send_Fail serial data transmission failure
+
+SdkResult.Fail other errors
+
+3.22.3  mdbMergerWrite
+
+Merger write data
+
+int mdbMergerWrite(byte[] buf);
+
+Parameters:
+
+Parameter
+
+buf
+
+Input data
+
+Return Value:
+
+Description
+
+SdkResult.Success sent successfully
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Send_Fail serial data transmission failure
+
+SdkResult.Fail other errors
+
+3.22.4  mdbRead
+
+Receive data.
+
+int mdbRead(byte[] buf);
+Note: app need to process the read time.
+
+Confidential
+
+203
+```
+
+## Page 204
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+buffer
+
+Buffer to receive data
+
+Return Value:
+
+Description
+
+Successfully received returns the length of the received data
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.22.5 mdbClose
+
+Close MDB port.
+
+int mdbClose();
+
+Return Value:
+
+SdkResult.Success MDB close success
+
+SdkResult. SerialPort_DisConnect_Fail MDB close failed
+
+SdkResult.Fail other errors
+
+3.22.6 mdbClearBuffer
+
+Clear buffer
+
+int mdbClearBuffer();
+
+Return Value:
+
+SdkResult.Success MDB clear buffer success
+
+SdkResult. SerialPort_Other_Error other errors
+
+3.22.7 mdbWrite
+
+Write data
+
+int mdbWrite(MdbModeEnum mdbMode, byte[] buf);
+
+Confidential
+
+204
+```
+
+## Page 205
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+buf
+
+Return Value:
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+Input data
+
+SdkResult.Success sent successfully
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Send_Fail serial data transmission failure
+
+SdkResult.Fail other errors
+
+3.22.8  mdbMergerWrite
+
+Merger write data. If MDB slave mode and matser mode work at same time, please use this API for
+operation
+
+int mdbMergerWrite(MdbModeEnum mdbMode, byte[] buf);
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+buf
+
+Return Value:
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+Input data
+
+SdkResult.Success sent successfully
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.SerialPort_Send_Fail serial data transmission failure
+
+SdkResult.Fail other errors
+
+3.22.9  mdbRead
+
+Confidential
+
+205
+```
+
+## Page 206
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Receive  data.  If  MDB  slave  mode  and  matser  mode  work  at  same  time,  please  use  this  API  for
+operation
+
+int mdbRead(MdbModeEnum mdbMode, byte[] buf);
+Note: app need to process the read time.
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+buffer
+
+Return Value:
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+Buffer to receive data
+
+Successfully received returns the length of the received data
+
+SdkResult.Param_In_Invalid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.22.10
+
+mdbClose
+
+Close  MDB  port.  If  MDB  slave  mode  and  matser  mode  work  at  same  time,  please  use  this  API  for
+operation
+
+int mdbClose(MdbModeEnum mdbMode);
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+Return Value:
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+
+SdkResult.Success MDB close success
+
+SdkResult. SerialPort_DisConnect_Fail MDB close failed
+
+SdkResult.Fail other errors
+
+Confidential
+
+206
+```
+
+## Page 207
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.22.11
+
+mdbClearBuffer
+
+Clear  buffer.  If  MDB  slave  mode  and  matser  mode  work  at  same  time,  please  use  this  API  for
+operation
+
+int mdbClearBuffer(MdbModeEnum mdbMode);
+
+Parameters:
+
+Parameter
+
+mdbMode
+
+Return Value:
+
+Description
+
+MdbModeEnum：
+MDB_MODE_MASTER – master mode
+MDB_MODE_SLAVE – slave mode(default)
+
+SdkResult.Success MDB clear buffer success
+
+SdkResult. SerialPort_Other_Error other errors
+
+3.23  GPIO Drive class
+
+GPIO Drive class is responsible for managing GPIO for UN20 only.
+
+Note:
+
+1. the input IO port is only valid for the input low level
+2. the ouput IO port, if call the API to set 1 that will get the low level from ouput IO port
+   if call the API set 0 that will get the high resistance state from output IO port
+
+Get the GPIO Drive class objects:
+
+GpioDriver gpio = deviceEngine. getGpioDriver ();
+
+Confidential
+
+207
+```
+
+## Page 208
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.23.1 setOutPutGpio
+
+Output GPIO
+
+Confidential
+
+208
+```
+
+## Page 209
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+void setOutPutGpio(GpioInputEnum gpioInputEnum,int value);
+
+Parameters:
+
+Parameter
+
+Description
+
+gpioInputEnum  GPIO list
+value
+
+0: get the high resistance state from output IO port
+1: low level from output IO port
+
+GpioInputEnum
+
+Enumeration Name
+
+Description
+
+Not support
+
+Not support
+
+Not support
+
+IN_P0.3_D
+
+IN_P0.4_D
+
+IN_P0.5_D
+
+GPIO_INPUT_0_0
+
+GPIO_INPUT_0_1
+
+GPIO_INPUT_0_2
+
+GPIO_INPUT_0_3
+
+GPIO_INPUT_0_4
+
+GPIO_INPUT_0_5
+
+Return Value:
+
+null
+
+3.23.2 getInPutGpio
+
+get input IO
+
+void getInPutGpio(GpioOutputEnum gpioOutputEnum, OnGpioOutPutListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+gpioOutputEnum  GPIO list
+listener
+
+the callback interface after get input IO is complete
+
+GpioInputEnum
+
+Enumeration Name
+
+Description
+
+GPIO_OUTPUT_1_0
+
+GPIO_OUTPUT_1_1
+
+GPIO_OUTPUT_1_2
+
+Confidential
+
+Not support
+
+Not support
+
+Not support
+
+209
+```
+
+## Page 210
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+OUT_P1.3_C
+
+OUT_P1.4_C
+
+OUT_P1.5_C
+
+GPIO_OUTPUT_1_3
+
+GPIO_OUTPUT_1_4
+
+GPIO_OUTPUT_1_5
+
+Return Value:
+
+null
+
+3.24  ExtPinpad Class
+
+This class is managing operate external pinpad, such as K110. Right now, K110 does not support AES
+AlgType
+
+3.24.1  initExtPinPad
+
+Initialize the external pinpad.
+
+Public void initExtPinPad (int comNo, SerialCfgEntity serialCfgEntity);
+
+Parameters:
+
+Parameter
+
+Description
+
+comNo
+
+Com number, default value is 0;
+
+If N86 with K110, value should be 101
+
+serialCfgEntity  External pinpad configuration, can pass null
+
+SerialCfgEntity
+
+attribute
+baudRate
+
+dataBits
+parity
+stopBits
+
+Return Value:
+
+None
+
+Confidential
+
+Description
+
+210
+```
+
+## Page 211
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.24.2  writeMasterKey
+
+Inject the master key(plaintext key)
+
+Public int writeMasterKey (int mKeyIdx, ExtPinPadKeyAlgTypeEnum keyAlgType, byte [] keyData);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+keyAlgType
+keyData
+
+Description
+
+Master Key Index 0-19
+DES or AES(K110 does not support AES)
+Plaintext master key data
+
+ExtPinPadKeyAlgTypeEnum
+
+Enumeration Name
+
+Description
+
+DES
+
+SM4
+
+AES
+
+DES, and TDES
+
+China SM4
+
+AES
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index
+
+SdkResult.Fail other errors
+
+3.24.3  writeMasterKey
+
+Inject the master key(cipher key)
+
+Public int writeMKey (int mKeyIdx, ExtPinPadKeyAlgTypeEnum keyAlgType, ExtPinPadCipherModeEnum
+
+cipherModeEnum, int decKeyIdx, byte[] iv, byte[] mkCipher);
+
+Parameters:
+
+Parameter
+
+mKeyId
+keyAlgType
+
+Confidential
+
+Description
+
+Master Key Index 0-19
+DES, or AES(K110 does not support AES)
+
+211
+```
+
+## Page 212
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+cipherModeEnum  ECB, or CBC
+decMKeyIdx
+iv
+mkCipher
+
+Decrypt the master key index 0-19
+iv
+Ciphertext master key data
+
+ExtPinPadCipherModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+
+CBC
+
+DES, and TDES
+
+China SM4
+
+Return Value:
+
+SdkResult.Success success
+
+SdkResult.Param_In_InValid Parameter is not legitimate
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index
+
+SdkResult.PinPad_No_Key_Error key does not exist
+
+SdkResult.Fail other errors
+
+3.24.4  writeWorkKey
+
+Inject work key.
+
+Public int writeWorkKey (int mKeyIdx, WorkKeyTypeEnum wKeyType, ExtPinPadKeyAlgTypeEnum
+
+keyAlgType, ExtPinPadCipherModeEnum cipherModeEnum, byte[] iv, byte [] keyData);
+
+Parameters:
+
+Parameter
+
+Description
+
+Master key index number 0-19
+Working key type, TAK, TPK,TDK
+DES, or AES(K110 does not support AES)
+
+mKeyIdx
+wKeyType
+algMode
+cipherModeEnum  ECB, CBC
+iv
+keyData
+
+iv
+Working key cipher text data
+
+Confidential
+
+212
+```
+
+## Page 213
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+WorkKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+PINKEY
+MACKEY
+TDKEY
+ENCRYPTIONKEY
+
+Return Value:
+
+SdkResult.Success success
+
+PIN key
+MAC key
+Track key
+Data encryption key, providing encryption
+and decryption
+
+SdkResult.Param_In_InValid Parameter is invalid
+
+SdkResult.PinPad_Dstkey_Idx_Error wrong key index object; not within the scope
+
+SdkResult.PinPad_Key_Len_Error wrong key length
+
+SdkResult.Fail other errors
+
+3.24.5  calcByWorkKey
+
+public byte[] calcByWKey(int mKeyIdx, WorkKeyTypeEnum wKeyType, ExtPinPadKeyAlgTypeEnum
+keyAlgType, ExtPinPadCipherModeEnum cipherModeEnum , byte[] iv, byte[] data);
+Parameters:
+
+Parameter
+
+Description
+
+Master Key Index 0-19
+Working key type
+DES, or AES(K110 does not support AES)
+
+mKeyIdx
+wKeyType
+algMode
+cipherModeEnum  ECB, CBC
+iv
+data
+
+iv
+Data to be encrypted
+
+Return:
+Null error
+Return calculate data
+
+Confidential
+
+213
+```
+
+## Page 214
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.24.6  calcMac
+
+Use TAK work key to Calculate MAC.
+
+Public byte [] calcMac (int mKeyIdx, MacAlgorithmModeEnum macAlgMode,
+ExtPinPadCipherModeEnum cipherModeEnum , byte[] iv, byte [] data);
+
+Parameters:
+
+Parameter
+
+Description
+
+Master Key Index 0-19
+MAC algorithm approach
+
+mKeyIdx
+macAlgMode
+cipherModeEnum  ECB, CBC
+iv
+data
+
+iv
+Input data
+
+MacAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+X99
+X919
+
+ECB Algorithm
+ANSI X9.9 Encryption Algorithm
+ANSI X9.19 Encryption Algorithm
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.24.7 calcByMasterKey
+
+Master key encryption.
+
+Public byte [] encryptByMKey (int mKeyId, ExtPinPadKeyAlgTypeEnum keyAlgType,
+
+ExtPinPadCipherModeEnum cipherModeEnum, byte[] iv, byte [] data);
+
+Parameters:
+
+Parameter
+
+Description
+
+Master Key Index 0-19
+DES, or AES(K110 does not support AES)
+
+mKeyId
+keyAlgType
+cipherModeEnum  ECB, CBC
+iv
+
+iv
+
+Confidential
+
+214
+```
+
+## Page 215
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+data
+
+Data, lack of an integer multiple of 8, after the meeting 0x00
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.24.8 isKeyExist
+
+Check if terminal master key or work key exist or not.
+
+Public boolean isKeyExist(int mKeyIdx, WorkKeyTypeEnum wKeyType);
+Parameters:
+
+Parameter
+
+mKeyIdx
+wKeyType
+
+Description
+
+Master Key Index 0-19
+Null, means check master key exist or not;
+Not null, check work key exist or not
+
+Return Value:
+
+True, key exist
+
+False, not exist
+
+3.24.9  inputPin
+
+Enter the online PIN on external pinpad.
+
+Public int inputPin
+
+(int mKeyIdx, ExtPinPadKeyAlgTypeEnum algModeEnum, PinAlgorithmModeEnum pinAlg, int
+minLen, int maxLen, String cardNumber, int timeout, OnExtPinPadInputPinListener listener);
+
+Parameters:
+
+Parameter
+
+Description
+
+Master Key Index 0-19
+mKeyIdx
+algModeEnum  DES, AES(K110 does not support AES)
+pinAlg
+
+Format0
+
+Confidential
+
+215
+```
+
+## Page 216
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+minLen
+maxLen
+cardNumber
+timeout
+listener
+
+Min length of the PIN
+Max length of the PIN
+Pan, or Card number
+Enter a timeout in seconds; recommended value 60
+Monitor callback interface
+
+Return Value:
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.24.10
+
+ inputOfflinePin
+
+Enter the offline PIN(offline plaintext pin, or offline cipher pin) on external pinpad.
+
+Public int inputOfflinePin (int minLen, int maxLen, int timeout, OnPinPadInputListener listener);
+Parameters:
+
+Parameter
+
+minLen
+maxLen
+timeout
+listener
+
+Return Value:
+
+Description
+
+Min length of the PIN
+Max length of the PIN
+Enter a timeout in seconds; recommended value 60
+Monitor callback interface
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.24.11
+
+ dukptKeyInject
+
+Inject BDK(or IPEK) and KSN for DUKPT.
+
+Confidential
+
+216
+```
+
+## Page 217
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+int dukptInjectKey(int keyIndex, DukptAlgorithmModeEnum algType, DukptAESGenerateKeyTypeEnum g
+enerateKeyType, DukptKeyTypeEnum dukptKeyType, byte[] keyData, byte[] ksnData);
+
+Parameters:
+
+Parameter
+
+keyIndex
+
+algType
+
+Description
+
+Key Index 0-19
+
+DES, AES(K110 does not support AES)
+
+generateKeyType  DES/AES(K110 does not support AES)
+
+dukptKeyType
+
+BDK or IPEK
+
+keyData
+
+ksnData
+
+Key data
+
+KSN
+
+DukptKeyTypeEnum
+
+Enumeration Name
+
+Description
+
+BDK
+IPEK
+
+DES
+AES
+
+Description
+
+Description
+
+Double length DES
+Triple DES
+AES128
+AES192
+AES256
+
+BDK
+IPEK
+
+DukptAlgorithmModeEnum
+
+Enumeration Name
+
+DES
+AES
+
+DukptAESGenerateKeyTypeEnum
+
+Enumeration Name
+DUKPT_MODE_KEY_TYPE_2TDEA
+DUKPT_MODE_KEY_TYPE_3TDEA
+DUKPT_MODE_KEY_TYPE_AES128
+DUKPT_MODE_KEY_TYPE_AES192
+DUKPT_MODE_KEY_TYPE_AES256
+
+Return value:
+
+SdkResult.Success,
+
+SdkResult.Fail,
+
+SdkResult.PinPad_KeyIdx_Error,
+
+SdkResult.Param_In_Invalid
+
+Confidential
+
+217
+```
+
+## Page 218
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.24.12
+
+ dukptKsnIncrease
+
+Use it to increase ksn, otherwise the ksn will not change.
+
+Public void dukptKsnIncrease(int mKeyIdx, DukptAlgorithmModeEnum algType);
+Parameters:
+
+Parameter
+
+mKeyIdx
+
+algType
+
+Description
+
+Key Index 0-19
+
+DES or AES(K110 does not support AES)
+
+3.24.13
+
+ dukptCurrentKsn
+
+Get current Ksn value.
+
+Public byte[] dukptCurrentKsn(int mKeyIdx, DukptAlgorithmModeEnum algType);
+Parameters:
+
+Parameter
+
+mKeyIdx
+
+algType
+
+Description
+
+Key Index 0-19
+
+DES or AES(K110 does not support AES)
+
+If key exist, it will return the KSN
+Otherwise, it will return null.
+This API can be used to check if the DUKPT key exists or not.
+
+3.24.14
+
+ dukptEncrypt
+
+Encrypt data in dukpt model.
+
+Public byte[] dukptEncrypt(int keyIndex, DukptAlgorithmModeEnum algType, CipherModeEnum
+cipherModeEnum, byte[] iv, byte[] data)
+Parameters:
+
+Parameter
+
+keyIndex
+
+algType
+
+Description
+
+Key Index 0-19
+
+DES, AES(K110 does not support AES)
+
+cipherModeEnum  Encrypt model,ECB or CBC
+
+Confidential
+
+218
+```
+
+## Page 219
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+iv
+
+data
+
+Iv, CBC need
+
+data
+
+CipherModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+CBC
+
+Return value:
+
+Bytes Array,
+
+Null
+
+3.24.15
+
+dukptCalcMac
+
+Use TAK work key to Calculate MAC.
+
+Public byte [] calcMac (int
+mKeyIdx , DukptAlgorithmModeEnum algType, DukptAESGenerateKeyTypeEnum keyType, MacAlgorith
+mModeEnum macAlgMode, byte [] data);
+
+Parameters:
+
+Parameter
+
+mKeyIdx
+algType
+keyType
+macAlgMode
+data
+
+Description
+
+Master Key Index 0-19
+DES or AES(K110 does not support AES)
+
+Input data
+
+DukptAESGenerateKeyTypeEnum
+
+Enumeration Name
+DUKPT_MODE_KEY_TYPE_2TDEA
+DUKPT_MODE_KEY_TYPE_3TDEA
+DUKPT_MODE_KEY_TYPE_AES128
+DUKPT_MODE_KEY_TYPE_AES192
+DUKPT_MODE_KEY_TYPE_AES256
+
+Description
+
+Double length DES
+Triple DES
+AES128
+AES192
+AES256
+
+Confidential
+
+219
+```
+
+## Page 220
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+MacAlgorithmModeEnum
+
+Enumeration Name
+
+Description
+
+ECB
+CBC
+X919
+MAC9606
+
+Return Value:
+
+Success returns the computed array
+
+Failure, returning null
+
+3.24.16
+
+dukptInputPin
+
+Enter the online PIN.
+
+Public int dukptInputPin
+
+(int keyIndex, DukptAlgorithmModeEnum algType, DukptAESGenerateKeyTypeEnum keyType,
+PinAlgorithmModeEnum pinFormat, String cardNumber,
+int minLen, int maxLen, int timeout, OnExtPinPadInputPinListener listener);
+
+Parameters:
+
+Parameter
+
+keyIndex
+algType
+keyType
+pinFormat
+cardNumber
+minLen
+maxLen
+timeout
+listener
+
+Description
+
+Master Key Index 0-19
+DES, or AES(K110 does not support AES)
+
+Currently only support fomat 0
+Pan, or Card number
+Min length of the PIN
+Max length of the PIN
+Enter a timeout in seconds; recommended value 60
+Monitor callback interface
+
+DukptAESGenerateKeyTypeEnum
+
+Enumeration Name
+DUKPT_MODE_KEY_TYPE_2TDEA
+DUKPT_MODE_KEY_TYPE_3TDEA
+
+Description
+
+Double length DES
+Triple DES
+
+Confidential
+
+220
+```
+
+## Page 221
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+DUKPT_MODE_KEY_TYPE_AES128
+DUKPT_MODE_KEY_TYPE_AES192
+DUKPT_MODE_KEY_TYPE_AES256
+
+AES128
+AES192
+AES256
+
+Return Value:
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.24.17
+
+ getExtPinPadInfo
+
+get external Pinpad versions.
+
+Public ExtPinPadInfoEntity getExtPinPadInfo ();
+
+ExtPinPadInfoEntity
+
+attribute
+appVersion
+
+bootVersion
+coreVersion
+hardwareVersion
+
+Description
+
+3.24.18
+
+ extPinPadGetSn
+
+get external Pinpad SN.
+
+Public String extPinPadGetSn();
+
+Return SN of the external pinpad
+
+3.24.19
+
+setLedLight
+
+Confidential
+
+221
+```
+
+## Page 222
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+set pinpad LED
+
+Public int setLedLight(boolean blue, boolean yellow, boolean green, boolean red);
+Parameters:
+
+Parameter
+
+Description
+
+blue
+yellow
+green
+red
+
+Turn on Blue led
+Turn on yellow led
+Turn on green led
+Turn on red led
+
+Return Value:
+
+SdkResult.Success successful execution listener callback interface
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.24.20
+
+beep
+
+External Pinpad beep
+
+Public void beep(boolean isSuccessBeep);
+Parameters:
+
+Parameter
+isSuccessBeep
+
+Success beep or not
+
+Description
+
+Return Value:
+
+None
+
+3.24.21
+
+backToMainScreen
+
+return to idle screen
+
+Public void backToMainScreen ();
+
+Confidential
+
+222
+```
+
+## Page 223
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value:
+
+None
+
+3.24.22
+
+lcdShowText
+
+external pinpad show text
+
+Public int lcdShowText(int line, int startColumn, boolean isOpenLight, LcdDisplayModeEnum
+
+displayModeEnum, LcdAlignEnum alignEnum, byte[] content);
+
+Parameters:
+
+Parameter
+
+line
+startColumn
+isOpenLight
+
+Description
+
+Start from 1-5, total 5 lines
+Start Column
+Is the backlight turned on
+
+displayModeEnum  POSITIVE display text or INVERSE
+alignEnum
+content
+
+Left , right or center
+Text to be displayed
+
+LcdDisplayModeEnum
+
+Enumeration Name
+
+Description
+
+POSITIVE
+INVERSE
+
+LcdAlignEnum
+
+POSITIVE display text
+INVERSE display text
+
+Enumeration Name
+
+Description
+
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+left
+right
+center
+
+SdkResult.Success successful execution
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+Confidential
+
+223
+```
+
+## Page 224
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+3.24.23
+
+lcdShowImage
+
+external pinpad show image
+
+Public int lcdShowImage(int x, int y, int width, int height, String imageName);
+Parameters:
+
+Parameter
+
+Description
+
+x
+
+y
+
+Horizontal coordinate x
+
+Vertical coordinate y
+
+width
+
+Image width
+
+height
+imageName
+
+Image height
+Image name
+
+Return Value:
+
+SdkResult.Success successful execution
+
+SdkResult.Param_In_InValid illegal Parameter
+
+SdkResult.Fail other errors
+
+3.24.24
+
+lcdClean
+
+clean external pinpad screen
+
+Public void lcdClean ();
+
+Return Value:
+
+None
+
+3.24.25
+
+inputAmount
+
+Confidential
+
+224
+```
+
+## Page 225
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+external pinpad input amount
+
+Public void inputAmount(int line, int decimalDigit, LcdAlignEnum alignEnum, int timeout,
+
+OnExtPinPadInputAmountListener listener);
+
+Parameters:
+
+Parameter
+
+line
+decimalDigit
+alignEnum
+timeout
+listener
+
+LcdAlignEnum
+
+Description
+
+Start from 1-5, normally 4 or 5
+Decimal Digit
+Left, right or center
+Time out
+Listerer
+
+Enumeration Name
+
+Description
+
+LEFT
+RIGHT
+CENTER
+
+Return Value:
+
+None
+
+left
+right
+center
+
+3.24.26
+
+extPinPadKeyEcho
+
+external pinpad get press key value, it is used for item selected in external pinpad.
+
+Public void extPinPadKeyEcho(byte[] keyCodes, int timeout, OnExtPinPadKeyEchoListener listener);
+Parameters:
+
+Parameter
+
+Description
+
+byte[] keyCodes
+
+Expected key value, refer to ExtPinPadKeyCode
+
+timeout
+listener
+
+Time out
+Listerer
+
+ExtPinPadKeyCode:
+
+KEYCODE_0 = 0x00
+
+Confidential
+
+Description
+
+225
+```
+
+## Page 226
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+KEYCODE_1 = 0x01
+KEYCODE_2 = 0x02
+KEYCODE_3 = 0x03
+KEYCODE_4 = 0x04
+KEYCODE_5 = 0x05
+KEYCODE_6 = 0x06
+KEYCODE_7 = 0x07
+KEYCODE_8 = 0x08
+KEYCODE_9 = 0x09
+KEYCODE_OK = 0x0a
+KEYCODE_CANCEL = 0x0b
+KEYCODE_CLEAR = 0x0c
+KEYCODE_PAGE_UP = 0x0d
+KEYCODE_PAGE_DOWN = 0x0e
+KEYCODE_F1 = 0x0f
+KEYCODE_F2 = 0x10
+KEYCODE_F3 = 0x11
+
+Return Value:
+
+None
+
+4  Callback information
+
+4.1  OnPrintListener
+
+Responsible for managing the printer class callback interface.
+
+4.1.1   onPrintResult
+
+After executing the startPrint method, callback to print results.
+
+Confidential
+
+226
+```
+
+## Page 227
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public void onPrintResult (int retCode);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Print callback Results :
+
+Description
+
+SdkResult.Success success
+SdkResult.Printer_Print_Fail failed to print
+SdkResult.Printer_PaperLack out of paper
+SdkResult.Printer_UnFinished print unfinished
+SdkResult.Printer_TooHot printer is overheating
+
+Return Value: None
+
+4.2  OnPinPadInputListener
+
+PIN pad class is responsible for the management callback interface.
+
+4.2.1   onInputResult
+
+After inputOnlinePin or inputOffinePin method is executed, it callback to show pin result.
+
+public void onInputResult (int retCode, byte [] data);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.PinPad_Input_Timeout input timeout
+SdkResult.PinPad_Input_Cancel cancel input
+SdkResulr.PinPad_No_Pin_Input no password entered, press Enter
+
+directly
+
+data
+
+When retCode == SdkResult.Success return Pinblock for OnlinePin.
+
+Offline Pin return 00
+
+Otherwise return null
+
+Return Value: None
+
+4.2.2   onSendKey
+
+After  inputText,  inputOnlinePin,  inputOfflinePin  method,  this  is  executed,  callback  the  key  input,
+when input password, number key will return KEYCODE_STAR.
+
+Confidential
+
+227
+```
+
+## Page 228
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public void onSendKey (byte keyCode);
+
+Parameters:
+
+Parameter
+
+keyCode
+
+Input key value
+
+Key-Value
+
+Description
+
+Constant Name
+KEYCODE_0
+KEYCODE_1
+KEYCODE_2
+KEYCODE_3
+KEYCODE_4
+KEYCODE_5
+KEYCODE_6
+KEYCODE_7
+KEYCODE_8
+KEYCODE_9
+KEYCODE_ the STAR
+KEYCODE_OCTOTHORPE
+KEYCODE_CANCEL
+KEYCODE_BACKSPACE
+KEYCODE_CLEAR
+KEYCODE_CONFIRM
+
+Return Value: None
+
+4.3  OnScanner Listener
+
+Constant Value
+0x30 (byte)
+0x31 (byte)
+0x32 (byte)
+0x33 (byte)
+0x34 (byte)
+0x35 (byte)
+0x36 (byte)
+0x37 (byte)
+0x38 (byte)
+0x39 (byte)
+0x2a (byte)
+0x23 (byte)
+0x18 (byte)
+0x08 (byte)
+0xfe (byte)
+0x0d (byte)
+
+Description
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+*
+#
+Cancel key
+Backspace
+Clear key
+Enter
+
+Responsible for managing the camera scan code results callback.
+
+4.3.1   onInitResult
+
+Initialize the camera configuration callback.
+
+public void onInitResult (int retCode);
+
+Parameters:
+
+Parameter
+
+Confidential
+
+Description
+
+228
+```
+
+## Page 229
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+retCode
+
+Enter the result:
+
+SdkResult.Success success
+SdkResult.Fail failure
+
+Return Value: None
+
+4.3.2   onScannerResult
+
+Scan code results callback.
+
+public void onScannerResult (int retCode, String data);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.Param_In_Invalid Parameter error
+SdkResult. TimeOut scan code timeout
+SdkResult. Scanner_Customer_Exit voluntary user withdrawal
+
+data
+
+Scan code Results
+
+Return Value: None
+
+4.4  OnCardInfoListener
+
+Reader class is responsible for managing the callback interface.
+
+4.4.1   onCardInfo
+
+After executing the searchCard method, callback reader results.
+
+public void onCardInfo (int retCode, CardInfoEntity cardInfo);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.TimeOut timeout
+
+cardInfo
+
+When retCode == SdkResult.Success return card information
+Otherwise return null
+
+Confidential
+
+229
+```
+
+## Page 230
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+CardInfoEntity
+
+Attributes
+
+Description
+
+String cardNo
+CardSlotTypeEnum  cardExistslot
+RfCardTypeEnum   rfCardType
+String tk1
+String tk2
+String tk3
+String expiredDate
+String serviceCode
+boolean isTk1Valid
+boolean isTk2Valid
+boolean isTk3Valid
+boolean isICC
+String csn
+
+CardSlotTypeEnum
+
+Card number
+CardSlotType
+RfCardTyp
+track one
+tracks two
+tracks three
+Card is valid
+Service Code
+A track LRC is correct
+Two tracks LRC is correct
+Three tracks LRC is correct
+If mag card has chip flag
+Card serial number, only returnd in
+OnEmvProcessListener.onConfirmCardNo
+
+Enumeration Name
+
+Description
+
+ICC1
+ICC2
+ICC3
+PSAM1
+PSAM2
+PSAM3
+PSAM4
+RF
+SWIPE
+
+RfCardTypeEnum
+
+Enumeration Name
+TYPE_A_CPU
+TYPE_B_CPU
+S50
+FELICA
+S70
+ULTRALIGHT
+
+Confidential
+
+Default IC card slot(Contact card solt)
+Unavailable
+Unavailable
+PSAM slot 1
+PSAM slot 2
+Unavailable (only available for UN20)
+Unavailable (only available for UN20)
+Conactless card slot
+Magnetic stripe card slot
+
+Description
+
+230
+```
+
+## Page 231
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+MEMORY_OTHER
+S50_PRO
+S70_PRO
+
+Return Value: None
+
+4.4.2   onSwipeIncorrect
+
+After executing searchCard method,  will be  callback when a swipe error occurs. This callback
+is a process callback, not a result callback
+
+public  void onSwipeIncorrect();
+
+Return Value: None
+
+4.4.3   onMultipleCards
+
+After executing searchCard method，will be callback when find multiple contactless cards.
+This callback is a process callback, not a result callback
+
+public void onMultipleCards();
+
+Return Value: None
+
+4.5  OnEMVProcessListener2
+
+Responsible for managing the EMV class callback interface.
+
+4.5.1   onSelApp
+
+After EmvProcess executed, if card have multi-application, onSelApp callback will be executed .it will
+show app-list to let the user to select the application. Then call EmvHandler2.onSetSelAppResponse.
+
+public  void  onSelApp  (List  <String>  appNameList,  List  <CandidateAppInfoEntity>  appInfoList,  boolean
+isFirstSelect);
+
+Parameters:
+
+Parameter
+
+Description
+
+appNameList
+appInfoList
+
+Application displays a list of names
+Candidate application information card
+
+Confidential
+
+231
+```
+
+## Page 232
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+isFirstSelect
+
+Whether making the selection for the first time
+
+CandidateAppInfoEntity
+
+Attributes
+
+Description
+
+byte [] aid
+byte [] appLabel
+byte [] preferName
+byte priority
+byte [] langPrefer
+byte icti
+byte[] rfu
+
+Return Value: None
+
+AID
+Apply the label
+Application Preferred Name
+Application Priority Indicator
+The preferred language
+Issuer Code Table Index
+extro EMV tags list, such as 42, 5F55 during
+the multi application selection list(onSelApp)
+for EMV contact. Application can select
+specify application by these tags.
+
+4.5.2   onTransInitBeforeGPO
+
+After  EmvProcess  executed,   before  excute  GPO,  the  EMV  will  callback  this  method.  User  can  call
+setTlv method to set personalized tags. User can set it or not.(This is suit for both EMV contact and
+contactless flow), then call EmvHandler2. onSetContactlessTapCardResponse.
+
+public void onTransInitBeforeGPO ();
+
+Return Value: None
+
+4.5.3   onConfirmCardNo
+
+After EmvProcess executed, confirm the card number, then
+call EmvHandler2.onSetConfirmCardNoResponse.
+
+public void onConfirmCardNo (String cardNo);
+
+Parameters:
+
+Parameter
+
+cardNo
+
+card number
+
+Return Value: None
+
+Description
+
+Confidential
+
+232
+```
+
+## Page 233
+
+```text
+4.5.4   onCardHolderInputPin
+
+EmvProcess
+EmvHandler2.onSetPinInputResponse.
+
+executing
+
+the  method,
+
+ SmartPos API Reference Manual:  25/03/24
+
+enter
+
+the
+
+password,
+
+to
+
+be
+
+called
+
+public void onCardHolderInputPin (boolean isOnlinePin, int leftTimes);
+
+Parameters:
+
+Parameter
+
+Description
+
+isOnlinePin
+leftTimes
+
+Is online password
+Enter the remaining number of times for the offline PIN
+
+Return Value: None
+
+4.5.5   onContactlessTapCardAgain
+
+EmvProcess  executing  the  method,  Callback  the  second  read  card  .(When  host  response  the  script
+with contactless EMV transaction.) The application should re-search contactless card, then call
+
+EmvHandler2. onSetContactlessTapCardResponse to notify EMV continue procress.
+
+public  void onContactlessTapCardAgain ();
+
+Return Value: None
+
+Note: for amex contactless, the method will called by kernel, when process case “please see phone”
+
+4.5.6   onOnlineProc
+
+EmvProcess  executing  the  method,  means  EMV  kernel  request  online  process,  Then  the  application
+should  call  method  getTlv  to  get  the  EMV  tags,  then  send  request  message  to  the  host.  After  host
+response,  the  application  should  call  EmvHandler2.onSetOnlineProcResponse  to  notify  the  EMV
+kernel to do the second auth.
+
+public void onOnlineProc ();
+
+Parameters: None
+
+Return Value: None
+
+4.5.7   onPrompt
+
+Confidential
+
+233
+```
+
+## Page 234
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+EmvProcess executing the method,  notify the application prompt information to the user,  Then the
+application  should  call  EmvHandler2.  onPromptResponse  to  notify  the  EMV  kernel  to  continue  the
+flow.
+
+public  void onPrompt(PromptEnum prompt);
+
+Description
+enum
+
+Description
+Application is not accepted, please try again
+Offline pin incorrect, please try again
+
+Offline pin incorrect
+Offline pin correct
+
+Parameters:
+
+Parameters
+prompt
+
+PromptEnum
+enum
+APP_SELECTION_IS_NOT_ACCEPTED
+OFFLINE_PIN_INCORRECT_TRY_AGAIN
+
+OFFLINE_PIN_INCORRECT
+OFFLINE_PIN_CORRECT
+
+Return Value: None
+
+4.5.8   onRemoveCard
+
+EmvProcess  executing  the  method,  notify  the  application contactless  card  can  be  remove  from    the
+card reader, Then call EmvHandler2. onSetRemoveCardResponse to notify the EMV kernel to continue
+the flow.
+
+public void onRemoveCard ();
+
+Parameters: None
+
+Return Value: None
+
+4.5.9   onFinish
+
+EmvProcess executing the method, means all the EMV flow is finish. The retcode will indicate the EMV
+transaction result.
+
+public void onFinish (int retCode, EmvProcessResultEntity entity);
+
+Confidential
+
+234
+```
+
+## Page 235
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameters:
+
+Parameter
+
+Description
+
+retCode
+
+Enter the result :
+
+SdkResult.Success success
+
+        SdkResult.Fail failure
+Other return results please refer to the EMV class table 3.7 or consult
+Appendix 5
+
+entity
+
+When retCode == SdkResult.Success return data
+Otherwise return null
+
+EmvProcessResultEntity
+
+Attributes
+
+Description
+
+byte [] scriptResult
+List <EMVCardLogEntity> EMVlog
+byte [] ecBalance
+
+EmvCardLogEntity
+
+Script execution results
+Cards Blog List
+Electronic cash balance
+
+Attributes
+
+Description
+
+boolean isAmtExist
+String amt
+boolean isOtherAmtExist
+String otherAmt
+boolean isDateExist
+String transDate
+boolean isTimeExist
+String transTime
+boolean isCntCodeExist
+String cntCode
+boolean isCurExist
+String curCode
+boolean isAtcExist
+String atc
+boolean is9CExist
+String serveType
+boolean isMerNameExist
+String merName
+
+Return Value: None
+
+Confidential
+
+Whether the amount of presence
+Amount of money
+Whether the existence of other
+Other Amount
+Date of the transaction if there are
+transaction date
+The existence of transactions
+transaction hour
+Whether there is a country code
+country code
+Currency code if there
+Currency code
+The existence of the transaction counter
+Transaction Counter
+9c transaction type whether there
+Transaction Type
+The existence of a business name
+Business Name
+
+235
+```
+
+## Page 236
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+4.6  OnEMVProcessListener  Deprecated
+
+Please note: All the Emvhandler method, do not recommend use it anymore.
+
+Responsible for managing the EMV class callback interface.
+
+4.6.1   onSelApp
+
+EmvProcess  executed,
+
+After
+EmvHandler.onSetSelAppResponse.
+
+callback  app-list
+
+to
+
+select
+
+the  application,
+
+then
+
+call
+
+public  void  onSelApp  (List  <String>  appNameList,  List  <CandidateAppInfoEntity>  appInfoList,  boolean
+isFirstSelect);
+
+Parameters:
+
+Parameter
+
+appNameList
+appInfoList
+isFirstSelect
+
+Description
+
+Application displays a list of names
+Candidate application information card
+Whether making the selection for the first time
+
+CandidateAppInfoEntity
+
+Attributes
+
+byte [] aid
+byte [] appLabel
+byte [] preferName
+byte priority
+byte [] langPrefer
+byte icti
+
+Return Value: None
+
+4.6.2   onAfterFinalSelectedApp
+
+Description
+
+AID
+Apply the label
+Application Preferred Name
+Application Priority Indicator
+The preferred language
+Issuer Code Table Index
+
+Confidential
+
+236
+```
+
+## Page 237
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+After  EmvProcess  executed,   before  excute  GPO,  the  EMV  will  callback  this  method.  User  can  call
+setTlv  method  to  set  personalized  tags.  User  can  set  it  or  not.(This  is  suit  for  EMV  contactless
+flow), then call EmvHandler. onSetAfterFinalSelectedAppResponse.
+
+public void onAfterFinalSelectedApp ();
+
+Return Value: None
+
+4.6.3   onRequestAmount
+
+After  EmvProcess  executed,   callback  request  input  amount  (triggered  when  when  the  transaction
+amount has not been input), then call EmvHandler.onSetRequestAmountResponse.
+
+public void onRequestAmount ();
+
+Return Value: None
+
+4.6.4   onConfirmEcSwitch
+
+After  EmvProcess  method  executed,  whether  use  electronic  cash  (triggered  when  the  transaction  is
+call
+the
+and
+set
+EmvHandler.onSetConfirmEcSwitchResponse.
+
+support  electronic
+
+support  e-cash),
+
+cash,
+
+then
+
+card
+
+also
+
+to
+
+public void onConfirmEcSwitch ();
+
+Return Value: None
+
+4.6.5   onConfirmCardNo
+
+After EmvProcess executed, confirm the card number, then
+call EmvHandler.onSetConfirmCardNoResponse.
+
+public void onConfirmCardNo (String cardNo);
+
+Parameters:
+
+Parameter
+
+cardNo
+
+card number
+
+Return Value: None
+
+4.6.6   onCardHolderInputPin
+
+Description
+
+Confidential
+
+237
+```
+
+## Page 238
+
+```text
+EmvProcess
+EmvHandler.onSetPinInputResponse.
+
+executing
+
+the  method,
+
+ SmartPos API Reference Manual:  25/03/24
+
+enter
+
+the
+
+password,
+
+to
+
+be
+
+called
+
+public void onCardHolderInputPin (boolean isOnlinePin, int leftTimes);
+
+Parameters:
+
+Parameter
+
+Description
+
+isOnlinePin
+leftTimes
+
+Is online password
+Enter the remaining number of times for the offline PIN
+
+Return Value: None
+
+4.6.7   onCertVerify
+
+EmvProcess
+executing
+EmvHandler.onSetCertVerifyResponse.
+
+the  method  of
+
+confirming  documents,
+
+later
+
+to  be
+
+called
+
+public void onCertVerify (String certName, String certInfo);
+
+Parameters:
+
+Parameter
+
+certName
+certInfo
+
+the name of your ID
+identity information
+
+Return Value: None
+
+4.6.8   onReadCardAgain
+
+Description
+
+EmvProcess  executing  the  method,  Callback  the  second  read  card  .(When  host  response  the  script
+with contactless EMV transaction.) The application should re-search contactless card, then call
+
+EmvHandler.onSetReadCardAgainResponse to notify EMV continue procress.
+
+public  void onReadCardAgain();
+
+Return Value: None
+
+Note: for amex contactless, the method will called by kernel, when process case “please see phone”
+
+4.6.9   onOnlineProc
+
+EmvProcess  executing  the  method,  means  EMV  kernel  request  online  process,  Then  the  application
+should call method getTlv to get the tags, then send request message to the host. After host response,
+
+Confidential
+
+238
+```
+
+## Page 239
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+the application should call EmvHandler.onSetOnlineProcResponse to notify the EMV kernel to do the
+second auth.
+
+public void onOnlineProc ();
+
+Parameters: None
+
+Return Value: None
+
+4.6.10  onPrompt
+
+EmvProcess executing the method,  notify the application prompt information to the user,  Then the
+application should call EmvHandler. onPromptResponse to notify the EMV kernel to continue the flow.
+
+public  void onPrompt(PromptEnum prompt);
+
+Description
+enum
+
+Description
+Application is not accepted, please try again
+Offline pin incorrect, please try again
+
+Offline pin incorrect
+Offline pin correct
+
+Parameters:
+
+Parameters
+prompt
+
+PromptEnum
+enum
+APP_SELECTION_IS_NOT_ACCEPTED
+OFFLINE_PIN_INCORRECT_TRY_AGAIN
+
+OFFLINE_PIN_INCORRECT
+OFFLINE_PIN_CORRECT
+
+Return Value: None
+
+4.6.11  onRemoveCard
+
+EmvProcess  executing  the  method,  notify  the  application contactless  card  can  be  remove  from    the
+card reader, Then call EmvHandler. onSetRemoveCardResponse to notify the EMV kernel to continue
+the flow.
+
+public void onRemoveCard ();
+
+Parameters: None
+
+Confidential
+
+239
+```
+
+## Page 240
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Return Value: None
+
+4.6.12  onFinish
+
+EmvProcess executing the method, means all the EMV flow is finish. The retcode will indicate the EMV
+transaction result.
+
+public void onFinish (int retCode, EmvProcessResultEntity entity);
+
+Parameters:
+
+Parameter
+
+Description
+
+retCode
+
+Enter the result :
+
+SdkResult.Success success
+
+        SdkResult.Fail failure
+Other return results please refer to the EMV class table 3.7 or consult
+Appendix 5
+
+entity
+
+When retCode == SdkResult.Success return data
+Otherwise return null
+
+EmvProcessResultEntity
+
+Attributes
+
+Description
+
+byte [] scriptResult
+List <EMVCardLogEntity> EMVlog
+byte [] ecBalance
+
+EmvCardLogEntity
+
+Script execution results
+Cards Blog List
+Electronic cash balance
+
+Attributes
+
+Description
+
+boolean isAmtExist
+String amt
+boolean isOtherAmtExist
+String otherAmt
+boolean isDateExist
+String transDate
+boolean isTimeExist
+String transTime
+boolean isCntCodeExist
+String cntCode
+boolean isCurExist
+
+Whether the amount of presence
+Amount of money
+Whether the existence of other
+Other Amount
+Date of the transaction if there are
+transaction date
+The existence of transactions
+transaction hour
+Whether there is a country code
+country code
+Currency code if there
+
+Confidential
+
+240
+```
+
+## Page 241
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+String curCode
+boolean isAtcExist
+String atc
+boolean is9CExist
+String serveType
+boolean isMerNameExist
+String merName
+
+Return Value: None
+
+Currency code
+The existence of the transaction counter
+Transaction Counter
+9c transaction type whether there
+Transaction Type
+The existence of a business name
+Business Name
+
+4.7  OnAppOperatListener
+
+Responsible for managing the apk install and uninstall result callback.
+
+4.7.1    onOperatResult
+
+Executing the installApp, after uninstallApp method is executed, the callback print the results.
+
+public void onOperatResult (int result);
+
+Parameters:
+
+Parameter
+
+result
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+Other error code, please refer to Appendix
+
+Return Value: None
+
+4.8  OnUsbSerialReadListener
+
+Responsible for receiving the usb serial port data.
+
+4.8.1    onReadResult
+
+Executing the open method, if pos receive the data from usb serial port , this callback will be triggered.
+
+UsbSerial usbSerial = deviceEngine. getUsbSerial ();
+
+Confidential
+
+241
+```
+
+## Page 242
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+usbSerial.open(UsbSerialCfgEntity entity, OnUsbSerialReadListener listener);
+
+public void onReadResult(byte[] data);
+
+Parameters:
+
+Parameter
+
+Description
+
+data
+
+The Data receive from the usb serial port.
+
+Return Value: None
+
+4.9  onMobileDataNetworkListener
+
+Monitor the status of the mobile network
+
+4.9.1    onStatusChanged
+
+SIM cards network connection status
+
+void onStatusChanged(Map StatusMap);
+
+Parameters:
+
+Parameter
+
+StatusMap
+
+Description
+
+Key contains:
+"Sim_0" = SIM card 1
+"Sim_1" = SIM card 2
+Value contains:
+0 = DATA DISCONNECTED
+1 = DATA CONNECTING
+2= DATA CONNECTED
+
+Return Value: None
+
+4.9.2    onStrengthChanged
+
+SIM card Strength
+
+void onStrengthChanged(Map StrengthMap) ;
+
+Parameters:
+
+Confidential
+
+242
+```
+
+## Page 243
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Parameter
+
+StrengthMap
+
+Description
+
+Key contains:
+"Sim_0_dbm" = dbm of SIM card 1
+"Sim_0_asu" = asu of SIM card 1
+"Sim_1_dbm" = dbm of SIM card 2
+"Sim_1_asu" = asu of SIM card 2
+
+Return Value: None
+
+4.9.3    onServiceStatusChanged
+
+operator status
+
+void onServiceStatusChanged(int id, String operatorName);
+
+Parameters:
+
+Parameter
+
+id
+operatorName  Operator name
+
+Operator ID
+
+Return Value: None
+
+Description
+
+4.10  OnGpioOutPutListener
+
+Responsible for managing the getInPutGpio class callback interface.
+
+4.10.1  onGetHighLevel
+
+Because the inputIO default is high level, when your peripheral circuit input the high level or don’t
+input anything that will get the high level
+
+public void onGetHighLevel ();
+
+Return Value: None
+
+4.10.2  onLowLevel
+
+Confidential
+
+243
+```
+
+## Page 244
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+When your peripheral circuit input the low level that will get the low level
+
+public void onLowLevel ();
+
+Return Value: None
+
+4.11  OnExtPinPadInputPinListener
+
+4.11.1  onInputPinResult
+
+After inputOnlinePin or inputOffinePin method is executed, it callback to show pin result.
+
+public void onInputResult (int retCode, byte [] data);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.PinPad_Input_Timeout input timeout
+SdkResult.PinPad_Input_Cancel cancel input
+SdkResulr.PinPad_No_Pin_Input no password entered, press Enter
+
+directly
+
+data
+
+When retCode == SdkResult.Success return Pinblock for OnlinePin.
+
+Offline Pin return 00
+
+Otherwise return null
+
+Return Value: None
+
+4.12  OnExtPinPadInputAmountListener
+
+4.12.1  onInputAmountResult
+
+Confidential
+
+244
+```
+
+## Page 245
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+After inputOnlinePin or inputOffinePin method is executed, it callback to show pin result.
+
+public void onInputResult (int retCode, string amount);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.PinPad_Input_Timeout input timeout
+SdkResult.PinPad_Input_Cancel cancel input
+
+amount
+
+   Amount
+
+Return Value: None
+
+4.13  OnExtPinPadKeyEchoListener
+
+4.13.1  onKeyEchoResult
+
+After inputOnlinePin or inputOffinePin method is executed, it callback to show pin result.
+
+public void onInputResult (int retCode, byte keyCode);
+
+Parameters:
+
+Parameter
+
+retCode
+
+Enter the result :
+
+Description
+
+SdkResult.Success success
+SdkResult.Fail failure
+SdkResult.PinPad_Input_Timeout input timeout
+SdkResult.PinPad_Input_Cancel cancel input
+
+keyCode
+
+   keycode, refer to ExtPinPadKeyCode
+
+Return Value: None
+
+Confidential
+
+245
+```
+
+## Page 246
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+Appendix
+
+Return Value Description
+
+public class SdkResult {
+
+public final static int Success = 0;
+
+public final static int Fail = -1;
+
+public final static int Param_In_Invalid = -2;
+
+public final static int TimeOut = -3;
+
+/ * Device not signed * /
+
+public final static int Device_Not_Ready = -4;
+
+// ---- Printer Error -----
+
+private final static int Printer_Base_Error = -1000;
+
+/ ** * Print failed /
+
+public final static int Printer_Print_Fail = Printer_Base_Error -1;
+
+/ * Failed to set string buffer * /
+
+public final static int Printer_AddPrnStr_Fail = Printer_Base_Error -2;
+
+/ ** * Set picture buffer failure /
+
+public final static int Printer_AddImg_Fail = Printer_Base_Error -3;
+
+/ ** * Printer Busy /
+
+public final static int Printer_Busy = Printer_Base_Error - 4;
+
+/ ** * The printer is out of paper /
+
+public final static int Printer_PaperLack = Printer_Base_Error - 5;
+
+/ ** * Wrong packet format print /
+
+public final static int Printer_Wrong_Package = Printer_Base_Error - 6;
+
+/ ** * Printer Fault /
+
+public final static int Printer_Fault = Printer_Base_Error - 7;
+
+/ ** * Printer overheating /
+
+public final static int Printer_TooHot = Printer_Base_Error - 8;
+
+/ ** * Print the unfinished /
+
+public final static int Printer_UnFinished = Printer_Base_Error - 9;
+
+/ ** Other exception error * /
+
+Confidential
+
+246
+```
+
+## Page 247
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int Printer_Other_Error = Printer_Base_Error-999;
+
+// ---- Scanner Error -----
+
+private final static int Scanner_Base_Error = -2000;
+
+/ ** * Button to exit the user /
+
+public final static int Scanner_Customer_Exit = Scanner_Base_Error-1;
+
+/ ** Other exception error * /
+
+public final static int Scanner_Other_Error = Scanner_Base_Error-999;
+
+// ---- SerialPort Error -----
+
+private final static int SerialPort_Base_Error = -4000;
+
+/ ** * Serial connection failure /
+
+public final static int SerialPort_Connect_Fail = SerialPort_Base_Error - 1;
+
+/ ** * Serial data transmission failure /
+
+public final static int SerialPort_Send_Fail = SerialPort_Base_Error - 2;
+
+/ ** Fd error * /
+
+public final static int SerialPort_Fd_Error = SerialPort_Base_Error - 3;
+
+/ ** * Unopened serial /
+
+public final static int SerialPort_Port_Not_Open = SerialPort_Base_Error - 4;
+
+/ ** * Serial scission failure /
+
+public final static int SerialPort_DisConnect_Fail = SerialPort_Base_Error - 5;
+
+/ ** Transmit buffer is not empty (the remaining data to be transmitted) * /
+
+public final static int SerialPort_Sending_Buf_IsNot_Null = SerialPort_Base_Error - 6;
+
+/ ** Invalid channel number * /
+
+public final static int SerialPort_Invalid_Channel = SerialPort_Base_Error - 7;
+
+/ ** Channel is not open and no communication with any physical port * /
+
+public final static int SerialPort_Channel_Isnot_Open = SerialPort_Base_Error - 8;
+
+/ ** Transmit buffer error (continue 500ms at full state) * /
+
+public final static int SerialPort_Sending_Buffer_Error = SerialPort_Base_Error - 9;
+
+/ ** No available physical port * /
+
+public final static int SerialPort_No_Available_Ports = SerialPort_Base_Error - 10;
+
+/ ** Device enumeration and configuration process is not completed (USB DEV dedicated * /
+
+public final static int SerialPort_Conf_Process_Error = SerialPort_Base_Error - 11;
+
+Confidential
+
+247
+```
+
+## Page 248
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+/ ** Equipment de-energized and the host loses connection (USB DEV dedicated * /
+
+public final static int SerialPort_Device_Lost_Power = SerialPort_Base_Error - 12;
+
+/ ** From the host device and then plug plucking (USB DEV dedicated) * /
+
+public final static int SerialPort_Unplug_Error = SerialPort_Base_Error - 13;
+
+/ ** Device is off (USBDEV dedicated) * /
+
+public final static int SerialPort_Device_Is_Off = SerialPort_Base_Error - 14;
+
+/ ** * Data receive timeout /
+
+public final static int SerialPort_Timeout_Receiving_Data = SerialPort_Base_Error - 15;
+
+/ *** Channel is being occupied by the system * /
+
+public final static int SerialPort_Channle_Is_Occupied = SerialPort_Base_Error - 16;
+
+/ ** Invalid communication Parameters, communication Parameters do not meet the rules for
+
+strings or data beyond the normal range. * /
+
+public final static int SerialPort_Invalid_Communication_Parameter = SerialPort_Base_Error - 17;
+
+/ ** USB to serial device mounted unsuccessful (the Return Value only FIDI USB to serial use) * /
+
+public final static int SerialPort_Usb_Mounted_Unsuccessful = SerialPort_Base_Error - 18;
+
+/ ** Usb to serial device error (only FTDI USB serial port using the Return Value of re-exports * /
+
+public final static int SerialPort_Reset_Usb_Error = SerialPort_Base_Error - 19;
+
+/ ** Device USB to serial chip traffic congestion (only FIDI USB serial adapter used in the Return
+
+Value) * /
+
+public final static int SerialPort_Devices_Error = SerialPort_Base_Error - 20;
+
+/ ** Other exception error * /
+
+public final static int SerialPort_Other_Error = SerialPort_Base_Error-999;
+
+// ---- MagCardReader Error -----
+
+private final static int MagCardReader_Base_Error = -5000;
+
+/ ** * No credit card /
+
+public final static int MagCardReader_No_Swiped = MagCardReader_Base_Error -1;
+
+/ ** Other exception error * /
+
+public final static int MagCardReader_Other_Error = MagCardReader_Base_Error -999;
+
+// ---- IccCardReader Error -----
+
+private final static int IccCardReader_Base_Error = -6000;
+
+public final static int IccCardReader_Read_CardType_Error = IccCardReader_Base_Error-1;
+
+Confidential
+
+248
+```
+
+## Page 249
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int IccCardReader_CardInit_Error = IccCardReader_Base_Error-2;
+
+/ ** Other exception error * /
+
+public final static int IccCardReader_Other_Error = IccCardReader_Base_Error-999;
+
+// ---- PinPad Error ----
+
+private final static int PinPad_Base_Error = -7000;
+
+/ ** * Key does not exist /
+
+public final static int PinPad_No_Key_Error = PinPad_Base_Error - 1;
+
+/ ** Wrong key index, the index is not within the Parameters range * /
+
+public final static int PinPad_KeyIdx_Error = PinPad_Base_Error - 2;
+
+/ ** Did not enter PIN * /
+
+public final static int PinPad_No_Pin_Input = PinPad_Base_Error - 3;
+
+/ ** Cancel Enter PIN * /
+
+public final static int PinPad_Input_Cancel = PinPad_Base_Error - 4;
+
+/ ** * Key length wrong /
+
+public final static int PinPad_Key_Len_Error = PinPad_Base_Error - 8;
+
+/ ** Enter PIN Timeout * /
+
+public final static int PinPad_Input_Timeout = PinPad_Base_Error - 9;
+
+/ ** Open or close Pinpad failed * /
+
+public final static int PinPad_Open_Or_Close_Error = PinPad_Base_Error - 10;
+
+/ ** Pinpad process error * /
+
+public final static intPinPad_Deal_Error = PinPad_Base_Error - 11;
+
+/ ** Other exception error * /
+
+public final static int PinPad_Other_Error = PinPad_Base_Error-999;
+
+// ---- EMVHandler Error ----
+
+private final static int EMVHandler_Base_Error = -8000;
+
+/ ** <Try other communication interface * /
+
+public final static int EMV_Other_Interface = EMVHandler_Base_Error - 1;
+
+/ ** <Contactless transactions offline approved * /
+
+public final static int EMV_Qpboc_Offline = EMVHandler_Base_Error - 2;
+
+/ ** <Contactless union pay online transaction * /
+
+public final static int EMV_Qpboc_Online = EMVHandler_Base_Error - 3;
+
+Confidential
+
+249
+```
+
+## Page 250
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+/ ** <Contactless PBOC online transaction , Abolished * /
+
+public final static int EMV_Pboc_Online = EMVHandler_Base_Error - 4;
+
+/ ** <Contactless MSD online transaction, Abolished * /
+
+public final static int EMV_MSD_Online = EMVHandler_Base_Error - 5;
+
+/ ** <Offline electronic cash acceptance, Abolished * /
+
+public final static int EMV_Ec_Accept = EMVHandler_Base_Error - 6;
+
+/ ** <contact transaction Offline approved * /
+
+public final static int EMV_Offline_Accept = EMVHandler_Base_Error - 7;
+
+/ ** <Transaction card is removed * /
+
+public final static int EMV_Card_Removed = EMVHandler_Base_Error -8;
+
+/ ** <Reader failed * /
+
+public final static int EMV_Command_Fail = EMVHandler_Base_Error -9;
+
+/ ** <Card is Blocked * /
+
+public final static int EMV_Card_Block = EMVHandler_Base_Error -10;
+
+/ ** <Parameters wrong * /
+
+public final static int EMV_PARA_ERR = EMVHandler_Base_Error -11;
+
+/ ** <No common application * /
+
+public final static int EMV_Candidatelist_Empty = EMVHandler_Base_Error -12;
+
+/ ** <Application locked * /
+
+public final static int EMV_App_Block = EMVHandler_Base_Error -13;
+
+/ ** <Transaction fallback , need to swipe card* /
+
+public final static int EMV_FallBack = EMVHandler_Base_Error -14;
+
+/ ** <Data authentication has failed * /
+
+public final static int EMV_Auth_Fail = EMVHandler_Base_Error -15;
+
+/ ** <Application has not yet entered into force * /
+
+public final static int EMV_App_Ineffect = EMVHandler_Base_Error -16;
+
+/ ** <Application has expired * /
+
+public final static int EMV_App_Expired = EMVHandler_Base_Error -17;
+
+/ ** <Cardholder verification failed * /
+
+public final static int EMV_Cvm_Fail = EMVHandler_Base_Error -18;
+
+/ ** <* Transactions should the online,  Abolished /
+
+Confidential
+
+250
+```
+
+## Page 251
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int EMV_Online = EMVHandler_Base_Error -19;
+
+/ ** <Cancel the transaction * /
+
+public final static int EMV_Cancel = EMVHandler_Base_Error -20;
+
+/ ** <Transaction online decline * /
+
+public final static int EMV_Declined = EMVHandler_Base_Error -21;
+
+/ ** <Issuer Authentication failed * /
+
+public final static int EMV_Arpc_Fail = EMVHandler_Base_Error -22;
+
+/ ** <Issuer Script execution failed * /
+
+public final static int EMV_Script_Fail = EMVHandler_Base_Error -23;
+
+/ ** <Applications are not accepted, you can re-select * /
+
+public final static int EMV_App_NoAccept = EMVHandler_Base_Error -24;
+
+/ ** <Electronic cash offline decline * /
+
+public final static int EMV_Ec_Decliend = EMVHandler_Base_Error -25;
+
+/ ** <Successful transaction, Issuer Authentication failed * /
+
+public final static int EMV_Sucess_Arpc_Fail = EMVHandler_Base_Error -26;
+
+/ ** <plese see phone* /
+
+public final static int Emv_Plz_See_Phone = EmvHandler_Base_Error - 27;
+
+/ ** < Transaction Terminate * /
+
+public final static int Emv_Terminate = EmvHandler_Base_Error - 28;
+
+/ ** < Transaction Communicate Timeout * /
+
+public final static int Emv_Communicate_Timeout = EmvHandler_Base_Error - 29;
+
+/ ** < Use other card * /
+
+public final static int Emv_USE_OTHER_CARD = EmvHandler_Base_Error - 30;
+
+/ ** < Kernel end the application * /
+
+public final static int Emv_CTLS_EndApplication = EmvHandler_Base_Error - 32;
+
+/ ** < Torn * /
+
+public final static int Emv_CTLS_Torn = EmvHandler_Base_Error - 33;
+
+/ ** * Other error exception /
+
+Confidential
+
+251
+```
+
+## Page 252
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int EMV_Other_Error = EMVHandler_Base_Error -999;
+
+// ---- CardHandler Error -----
+
+// ---- ~ -10000 -19900 Allocated to card manipulation
+
+// ---- -10.1 Thousand representatives contact CPU card -10200-- non-contact CPU card supports
+
+a total of 99 kinds of card types
+
+private final static int CardHandler_Base_Error = -10000;
+
+// ---- Contactless IC card return code segment
+
+public final static int Icc_Base_Error = CardHandler_Base_Error -100;
+
+/ ** Transaction card dialed * /
+
+public final static int Icc_PullOut_Card = Icc_Base_Error - 1;
+
+/ ** Parity error * /
+
+public final static int Icc_Parity_Err = Icc_Base_Error - 2;
+
+/ ** Select the channel error * /
+
+public final static int Icc_Channel_Err = Icc_Base_Error - 3;
+
+/ ** Transmit data too long (LC) * /
+
+public final static int Icc_Data_Len_TooLong = Icc_Base_Error - 4;
+
+/ ** Card Error protocol (T = 0 or not T = 1) * /
+
+public final static int Icc_Protocol_Err = Icc_Base_Error - 5;
+
+/ ** * Not reset the card /
+
+public final static int Icc_No_Reset_Card = Icc_Base_Error - 6;
+
+/ ** The dead can not communicate or * /
+
+public final static int Icc_Not_Call = Icc_Base_Error - 7;
+
+/ ** Other exception error * /
+
+public final static int Icc_Other_Error = Icc_Base_Error - 99;
+
+// ---- Contactless IC card return code segment
+
+private final static int Picc_Base_Error = CardHandler_Base_Error -200;
+
+/ ** * RF module is not turned on /
+
+public final static int Picc_Not_Open = Picc_Base_Error - 1;
+
+/ ** Not find the card (the sensor area no specific type of card) * /
+
+public final static int Picc_Not_Searched_Card = Picc_Base_Error - 2;
+
+/ ** Card induction area too (there is a communication conflict) * /
+
+Confidential
+
+252
+```
+
+## Page 253
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int Picc_Card_Too_Many = Picc_Base_Error - 3;
+
+/ ** Protocol error (data in violation of the agreement appears response card) * /
+
+public final static int Picc_Protocol_Data_Err = Picc_Base_Error - 4;
+
+/ ** * Card not active /
+
+public final static int Picc_Card_No_Activation = Picc_Base_Error - 5;
+
+/ ** * Conflict Doka /
+
+public final static int Picc_Muti_Card_Err = Picc_Base_Error - 6;
+
+/ ** Protocol error * /
+
+public final static int Picc_Protocol_Err = Picc_Base_Error - 7;
+
+/ ** Communications transmission error * /
+
+public final static int Picc_Io_Err = Picc_Base_Error - 8;
+
+/ ** * Card is still the sensor area /
+
+public final static int Picc_Card_Sense_Err = Picc_Base_Error - 9;
+
+/  **  Card  status  error  (such  as  A  /  B  card  calling  card  interface  M1,  or  M1  card  call
+
+PiccIsoCommand Interface) * /
+
+public final static int Picc_Card_Status_Err = Picc_Base_Error - 10;
+
+/ ** Interface chip does not exist or abnormal * /
+
+public final static int Picc_Not_Call = Picc_Base_Error - 11;
+
+/ ** * Other error exception /
+
+public final static int Picc_Other_Error = Picc_Base_Error - 99;
+
+/ ** M1 card section * /
+
+public final static int M1Card_Base_Error = CardHandler_Base_Error -300;
+
+/ ** M1 card authentication failed * /
+
+public final static int M1Card_Verify_Err = M1Card_Base_Error - 1;
+
+/ ** * Sector unauthenticated /
+
+public final static int M1Card_Fan_Not_Verify = M1Card_Base_Error - 2;
+
+/ ** Numeric data block format is wrong * /
+
+public final static int M1Card_Data_Block_Err = M1Card_Base_Error - 3;
+
+/ ** * Module unopened /
+
+public final static int M1Card_Not_Open = M1Card_Base_Error - 4;
+
+/ ** * Card not active /
+
+Confidential
+
+253
+```
+
+## Page 254
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+public final static int M1Card_Card_Not_Activation = M1Card_Base_Error - 5;
+
+/ ** Wrong type of card operations for operateBlock the Senate operType Check * /
+
+public final static int M1Card_Card_OperType_Error = M1Card_Base_Error - 6;
+
+/ ** * Other error exception /
+
+public final static int M1Card_Other_Error = M1Card_Base_Error - 99;
+
+//---- -20000 - 21000 Platform
+
+private final static int Platform_Base_Error = -20000;
+
+//20100-20199 install
+
+public final static int Platform_Install_Base_Error = Platform_Base_Error - 100;
+
+/** the package is already installed.*/
+
+public final static int Platform_Install_Already_Exists = Platform_Install_Base_Error - 1;
+
+/**the package archive file is invalid*/
+
+public final static int Platform_Install_Invalid_Apk = Platform_Install_Base_Error - 2;
+
+/**the URI passed in is invalid.*/
+
+public final static int Platform_Install_Invalid_Uri = Platform_Install_Base_Error - 3;
+
+/**the  package  manager  service  found  that  the  device  didn't  have  enough  storage  space  to
+
+install the app.*/
+
+public final static int Platform_Install_Insufficient_Storage = Platform_Install_Base_Error - 4;
+
+/**package is already installed with the same name.*/
+
+public final static int Platform_Install_Duplicate_Package = Platform_Install_Base_Error - 5;
+
+/**the requested shared user does not exist*/
+
+public final static int Platform_Install_No_Shared_User = Platform_Install_Base_Error - 6;
+
+Confidential
+
+254
+```
+
+## Page 255
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+/**a  previously  installed  package  of  the  same  name  has  a  different  signature  than  the  new
+
+package (and the old package's data was not removed).*/
+
+public final static int Platform_Install_Update_Incompatible = Platform_Install_Base_Error - 7;
+
+/**the new package is requested a shared user which is already installed on the device and does
+
+not have matchingsignature*/
+
+public final static int Platform_Install_Shared_User_Incompatible = Platform_Install_Base_Error
+
+- 8;
+
+/**the new package uses a shared library that is not available*/
+
+public final static int Platform_Install_Missing_Shared_Library = Platform_Install_Base_Error - 9;
+
+/**the new package replace failed, case the delete failed.*/
+
+public final static int Platform_Install_Replace_Delete_Failed = Platform_Install_Base_Error - 10;
+
+/**the new package failed while optimizing and validating its dex files, either because there was
+
+not enough storage or the validation failed*/
+
+public final static int Platform_Install_Dexopt = Platform_Install_Base_Error - 11;
+
+//20200-20299 uninstall
+
+public final static int Platform_Uninstall_Base_Error = Platform_Base_Error - 200;
+
+/**the system failed to uninstall the apk for an unspecified reason*/
+
+public final static int Platform_Uninstall_Internal_Error = Platform_Uninstall_Base_Error - 1;
+
+/**the system failed to uninstall the apk because it is the active DevicePolicy manager.*/
+
+public
+
+final
+
+static
+
+int
+
+Platform_Uninstall_Device_Policy_Manager
+
+=
+
+Platform_Uninstall_Base_Error - 2;
+
+/**the system failed to uninstall the apk since the user is restricted*/
+
+public final static int Platform_Uninstall_User_Restricted = Platform_Uninstall_Base_Error - 3;
+
+Confidential
+
+255
+```
+
+## Page 256
+
+```text
+ SmartPos API Reference Manual:  25/03/24
+
+/**the  system  failed  to  uninstall  the  apk  because  a  profile  or  device  owner  has  marked  the
+
+package as uninstallable*/
+
+public final static int Platform_Uninstall_Owner_Blocked = Platform_Uninstall_Base_Error - 4;
+
+/**abort the uninstall*/
+
+public final static int Platform_Uninstall_Aborted = Platform_Uninstall_Base_Error - 5;
+
+//20300-20399 update logo & animation
+
+public final static int Platform_Update_Base_Error = Platform_Base_Error - 300;
+
+/**does not match, can not process*/
+
+public final static int Platform_Update_No_Match = Platform_Update_Base_Error - 1;
+
+/**update failed*/
+
+public final static int Platform_Update_Failed = Platform_Update_Base_Error - 2;
+
+}
+
+Confidential
+
+256
+```
+
+## Page 257
+
+```text
+
+```

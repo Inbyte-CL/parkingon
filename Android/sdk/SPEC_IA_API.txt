@@ -1,0 +1,631 @@
+# SPEC_IA: Nexgo SmartPOS API (SmartPos_API_3.08_002) - Structured Reference
+
+meta:
+  source: "Nexgo_SmartPos_API_3.08_002.pdf"
+  version: "3.08_002"
+  format: "spec_ia_v1"
+  note: "Structured for LLM ingestion; identifiers preserved; prose paraphrased."
+
+api:
+  modules:
+    - id: "3.1"
+      name: "Led class"
+      methods:
+        - section: "3.1.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get the singleton instance for LED control (module-level access pattern)."
+          params: []
+          returns: null
+        - section: "3.1.2"
+          name: "setLed"
+          signature: null
+          behavior: "Set LED state for a given LED/index and mode (on/off/blink depending on SDK support)."
+          params: []
+          returns: null
+
+    - id: "3.2"
+      name: "Printer class"
+      methods:
+        - section: "3.2.1"
+          name: "initPrinter"
+          signature: "public int initPrinter()"
+          behavior: "Initialize the printer device/subsystem before print operations."
+          params: []
+          returns: "SdkResult.Success success"
+        - section: "3.2.2"
+          name: "setTypeface"
+          signature: "public int setTypeface(Typeface typeface)"
+          behavior: "Set the Typeface used by text printing."
+          params:
+            - name: "typeface"
+              description: "Typeface used for printing."
+          returns: "SdkResult.Success success"
+        - section: "3.2.3"
+          name: "appendPrnStr"
+          signature: "public int appendPrnStr(String str, int size, AlignEnum alignEnum, boolean isBold)"
+          behavior: "Append a printable text line with size, alignment, and bold flag into the print buffer."
+          params:
+            - name: "str"
+              description: "Print text content."
+            - name: "size"
+              description: "Text size (SDK-defined)."
+            - name: "alignEnum"
+              description: "Alignment enum (left/center/right)."
+            - name: "isBold"
+              description: "Bold enable flag."
+          returns: "SdkResult.Success success"
+        - section: "3.2.4"
+          name: "append"
+          signature: "public int append(byte[] bytes)"
+          behavior: "Append raw bytes into printer buffer (advanced/low-level usage)."
+          params:
+            - name: "bytes"
+              description: "Raw bytes."
+          returns: "SdkResult.Success success"
+        - section: "3.2.5"
+          name: "appendSeparator"
+          signature: "public int appendSeparator()"
+          behavior: "Append a separator line into print buffer."
+          params: []
+          returns: "SdkResult.Success success"
+        - section: "3.2.6"
+          name: "appendBitmap"
+          signature: "public int appendBitmap(Bitmap bitmap, AlignEnum alignEnum)"
+          behavior: "Append a bitmap image to print buffer with alignment."
+          params:
+            - name: "bitmap"
+              description: "Bitmap image."
+            - name: "alignEnum"
+              description: "Alignment enum."
+          returns: "SdkResult.Success success"
+        - section: "3.2.7"
+          name: "appendQRCode"
+          signature: "public int appendQRCode(String data, int qrWidth, int qrHeight, AlignEnum alignEnum)"
+          behavior: "Append a QR code generated from data with specified width/height and alignment."
+          params:
+            - name: "data"
+              description: "QR payload content."
+            - name: "qrWidth"
+              description: "QR width."
+            - name: "qrHeight"
+              description: "QR height."
+            - name: "alignEnum"
+              description: "Alignment enum."
+          returns: "SdkResult.Success success"
+        - section: "3.2.8"
+          name: "appendBarcode"
+          signature: "public int appendBarcode(String data, int barWidth, int barHeight, AlignEnum alignEnum, boolean isShowText)"
+          behavior: "Append a barcode (1D) generated from data, with size, alignment and whether to print human-readable text."
+          params:
+            - name: "data"
+              description: "Barcode payload content."
+            - name: "barWidth"
+              description: "Barcode width."
+            - name: "barHeight"
+              description: "Barcode height."
+            - name: "alignEnum"
+              description: "Alignment enum."
+            - name: "isShowText"
+              description: "Show text under barcode."
+          returns: "SdkResult.Success success"
+        - section: "3.2.9"
+          name: "appendText"
+          signature: "public int appendText(String text, AlignEnum alignEnum, int textSize, boolean isBold)"
+          behavior: "Append text with alignment, size and bold to print buffer (alternative helper API)."
+          params:
+            - name: "text"
+              description: "Text content."
+            - name: "alignEnum"
+              description: "Alignment enum."
+            - name: "textSize"
+              description: "Text size."
+            - name: "isBold"
+              description: "Bold flag."
+          returns: "SdkResult.Success success"
+        - section: "3.2.10"
+          name: "startPrint"
+          signature: "public int startPrint(boolean isCutPaper)"
+          behavior: "Start actual printing of buffered content; optionally cut paper if device supports."
+          params:
+            - name: "isCutPaper"
+              description: "Cut paper flag."
+          returns: "SdkResult.Success success"
+        - section: "3.2.11"
+          name: "startPrint"
+          signature: "public int startPrint(PrintListener listener)"
+          behavior: "Start print with listener/callback for print status events."
+          params:
+            - name: "listener"
+              description: "Print listener for callbacks."
+          returns: "SdkResult.Success success"
+        - section: "3.2.12"
+          name: "startPrint"
+          signature: "public int startPrint(boolean isCutPaper, PrintListener listener)"
+          behavior: "Start print with cut flag and listener/callback."
+          params:
+            - name: "isCutPaper"
+              description: "Cut paper flag."
+            - name: "listener"
+              description: "Print listener."
+          returns: "SdkResult.Success success"
+        - section: "3.2.13"
+          name: "getStatus"
+          signature: "public int getStatus()"
+          behavior: "Get printer status (paper, cover, busy, etc.) via status code."
+          params: []
+          returns: null
+        - section: "3.2.14"
+          name: "getVersion"
+          signature: "public String getVersion()"
+          behavior: "Get printer module version string."
+          params: []
+          returns: null
+        - section: "3.2.15"
+          name: "paperCut"
+          signature: "public int paperCut()"
+          behavior: "Trigger paper cut operation (if hardware supports)."
+          params: []
+          returns: "SdkResult.Success success"
+        - section: "3.2.16"
+          name: "paperEject"
+          signature: "public int paperEject()"
+          behavior: "Eject paper (if supported)."
+          params: []
+          returns: "SdkResult.Success success"
+        - section: "3.2.17"
+          name: "appendRawData"
+          signature: "public int appendRawData(byte[] rawData)"
+          behavior: "Append raw printer command data (ESC/POS-like or vendor-specific)."
+          params:
+            - name: "rawData"
+              description: "Raw command bytes."
+          returns: "SdkResult.Success success"
+
+    - id: "3.3"
+      name: "SdkResult class"
+      methods:
+        - section: "3.3.1"
+          name: "getCode"
+          signature: null
+          behavior: "Read the numeric result/error code from an SdkResult instance."
+          params: []
+          returns: null
+        - section: "3.3.2"
+          name: "getMessage"
+          signature: null
+          behavior: "Read the human message associated with the code."
+          params: []
+          returns: null
+        - section: "3.3.3"
+          name: "Success"
+          signature: null
+          behavior: "Success constant."
+          params: []
+          returns: null
+        - section: "3.3.4"
+          name: "Error"
+          signature: null
+          behavior: "Generic error constant."
+          params: []
+          returns: null
+        - section: "3.3.5"
+          name: "Timeout"
+          signature: null
+          behavior: "Timeout constant."
+          params: []
+          returns: null
+
+    - id: "3.4"
+      name: "Scanner class"
+      methods:
+        - section: "3.4.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for scanner module."
+          params: []
+          returns: null
+        - section: "3.4.2"
+          name: "open"
+          signature: null
+          behavior: "Open/enable scanning service."
+          params: []
+          returns: null
+        - section: "3.4.3"
+          name: "close"
+          signature: null
+          behavior: "Close/disable scanning service."
+          params: []
+          returns: null
+        - section: "3.4.4"
+          name: "startScan"
+          signature: null
+          behavior: "Start a scan session; delivers result via callback/listener."
+          params: []
+          returns: null
+        - section: "3.4.5"
+          name: "stopScan"
+          signature: null
+          behavior: "Stop current scan session."
+          params: []
+          returns: null
+
+    - id: "3.5"
+      name: "Pinpad class"
+      methods:
+        - section: "3.5.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for pinpad."
+          params: []
+          returns: null
+        - section: "3.5.2"
+          name: "open"
+          signature: null
+          behavior: "Open pinpad device."
+          params: []
+          returns: null
+        - section: "3.5.3"
+          name: "close"
+          signature: null
+          behavior: "Close pinpad device."
+          params: []
+          returns: null
+        - section: "3.5.4"
+          name: "inputPin"
+          signature: null
+          behavior: "Start PIN input (online/offline depending on parameters)."
+          params: []
+          returns: null
+
+    - id: "3.6"
+      name: "MagCard class"
+      methods:
+        - section: "3.6.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for mag stripe card reader."
+          params: []
+          returns: null
+        - section: "3.6.2"
+          name: "open"
+          signature: null
+          behavior: "Enable mag card reader."
+          params: []
+          returns: null
+        - section: "3.6.3"
+          name: "close"
+          signature: null
+          behavior: "Disable mag card reader."
+          params: []
+          returns: null
+        - section: "3.6.4"
+          name: "searchCard"
+          signature: null
+          behavior: "Wait/search for mag card swipe; delivers track data via callback."
+          params: []
+          returns: null
+
+    - id: "3.7"
+      name: "ICCard class"
+      methods:
+        - section: "3.7.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for ICC (chip) reader."
+          params: []
+          returns: null
+        - section: "3.7.2"
+          name: "open"
+          signature: null
+          behavior: "Open ICC module."
+          params: []
+          returns: null
+        - section: "3.7.3"
+          name: "close"
+          signature: null
+          behavior: "Close ICC module."
+          params: []
+          returns: null
+
+    - id: "3.8"
+      name: "RFCard class"
+      methods:
+        - section: "3.8.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for contactless/RF reader."
+          params: []
+          returns: null
+        - section: "3.8.2"
+          name: "open"
+          signature: null
+          behavior: "Enable RF module."
+          params: []
+          returns: null
+        - section: "3.8.3"
+          name: "close"
+          signature: null
+          behavior: "Disable RF module."
+          params: []
+          returns: null
+
+    - id: "3.9"
+      name: "EmvHandler class"
+      methods:
+        - section: "3.9.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Get singleton instance for EMV handler."
+          params: []
+          returns: null
+        - section: "3.9.2"
+          name: "emvProcess"
+          signature: null
+          behavior: "Run EMV process/state machine using provided parameters and callbacks."
+          params: []
+          returns: null
+
+    - id: "3.10"
+      name: "DeviceInfo class"
+      methods:
+        - section: "3.10.1"
+          name: "getDeviceModel"
+          signature: null
+          behavior: "Read device model identifier."
+          params: []
+          returns: null
+        - section: "3.10.2"
+          name: "getSerialNo"
+          signature: null
+          behavior: "Read device serial number."
+          params: []
+          returns: null
+
+    - id: "3.11"
+      name: "SystemManager class"
+      methods:
+        - section: "3.11.1"
+          name: "reboot"
+          signature: null
+          behavior: "Request device reboot."
+          params: []
+          returns: null
+        - section: "3.11.2"
+          name: "shutdown"
+          signature: null
+          behavior: "Request device shutdown (if permitted)."
+          params: []
+          returns: null
+
+    - id: "3.12"
+      name: "Beep class"
+      methods:
+        - section: "3.12.1"
+          name: "beep"
+          signature: null
+          behavior: "Trigger device beep with duration/type depending on parameters."
+          params: []
+          returns: null
+
+    - id: "3.13"
+      name: "Buzzer class"
+      methods:
+        - section: "3.13.1"
+          name: "start"
+          signature: null
+          behavior: "Start buzzer."
+          params: []
+          returns: null
+        - section: "3.13.2"
+          name: "stop"
+          signature: null
+          behavior: "Stop buzzer."
+          params: []
+          returns: null
+
+    - id: "3.14"
+      name: "BatteryManager class"
+      methods:
+        - section: "3.14.1"
+          name: "getBatteryLevel"
+          signature: null
+          behavior: "Get current battery level/percentage."
+          params: []
+          returns: null
+
+    - id: "3.15"
+      name: "KeyBoard class"
+      methods:
+        - section: "3.15.1"
+          name: "open"
+          signature: null
+          behavior: "Open on-screen or hardware keyboard control channel (SDK-specific)."
+          params: []
+          returns: null
+        - section: "3.15.2"
+          name: "close"
+          signature: null
+          behavior: "Close keyboard control channel."
+          params: []
+          returns: null
+
+    - id: "3.16"
+      name: "SignaturePad class"
+      methods:
+        - section: "3.16.1"
+          name: "startSign"
+          signature: null
+          behavior: "Start signature capture session on signature pad."
+          params: []
+          returns: null
+        - section: "3.16.2"
+          name: "stopSign"
+          signature: null
+          behavior: "Stop signature capture."
+          params: []
+          returns: null
+
+    - id: "3.17"
+      name: "Camera class"
+      methods:
+        - section: "3.17.1"
+          name: "openCamera"
+          signature: null
+          behavior: "Open camera (front/back depending on parameters) for capture."
+          params: []
+          returns: null
+        - section: "3.17.2"
+          name: "takePicture"
+          signature: null
+          behavior: "Capture image and return file/bytes via callback."
+          params: []
+          returns: null
+
+    - id: "3.18"
+      name: "FingerPrint class"
+      methods:
+        - section: "3.18.1"
+          name: "open"
+          signature: null
+          behavior: "Open fingerprint module."
+          params: []
+          returns: null
+        - section: "3.18.2"
+          name: "close"
+          signature: null
+          behavior: "Close fingerprint module."
+          params: []
+          returns: null
+        - section: "3.18.3"
+          name: "verify"
+          signature: null
+          behavior: "Verify fingerprint template against input."
+          params: []
+          returns: null
+
+    - id: "3.19"
+      name: "Wiegand class"
+      methods:
+        - section: "3.19.1"
+          name: "open"
+          signature: null
+          behavior: "Open Wiegand interface."
+          params: []
+          returns: null
+        - section: "3.19.2"
+          name: "close"
+          signature: null
+          behavior: "Close Wiegand interface."
+          params: []
+          returns: null
+        - section: "3.19.3"
+          name: "send"
+          signature: null
+          behavior: "Send Wiegand data frame."
+          params: []
+          returns: null
+
+    - id: "3.20"
+      name: "SerialPort class"
+      methods:
+        - section: "3.20.1"
+          name: "open"
+          signature: null
+          behavior: "Open serial port with provided configuration."
+          params: []
+          returns: null
+        - section: "3.20.2"
+          name: "close"
+          signature: null
+          behavior: "Close serial port."
+          params: []
+          returns: null
+        - section: "3.20.3"
+          name: "write"
+          signature: null
+          behavior: "Write bytes to serial port."
+          params: []
+          returns: null
+        - section: "3.20.4"
+          name: "read"
+          signature: null
+          behavior: "Read bytes from serial port (blocking/non-blocking per SDK)."
+          params: []
+          returns: null
+
+    - id: "3.21"
+      name: "UsbSerial class"
+      methods:
+        - section: "3.21.1"
+          name: "open"
+          signature: null
+          behavior: "Open USB serial device/channel."
+          params: []
+          returns: null
+        - section: "3.21.2"
+          name: "close"
+          signature: null
+          behavior: "Close USB serial channel."
+          params: []
+          returns: null
+        - section: "3.21.3"
+          name: "write"
+          signature: null
+          behavior: "Write data to USB serial."
+          params: []
+          returns: null
+        - section: "3.21.4"
+          name: "read"
+          signature: null
+          behavior: "Read data from USB serial."
+          params: []
+          returns: null
+
+    - id: "3.22"
+      name: "WifiManager class"
+      methods:
+        - section: "3.22.1"
+          name: "enableWifi"
+          signature: null
+          behavior: "Enable/disable WiFi subsystem."
+          params: []
+          returns: null
+
+    - id: "3.23"
+      name: "BluetoothManager class"
+      methods:
+        - section: "3.23.1"
+          name: "enableBluetooth"
+          signature: null
+          behavior: "Enable/disable Bluetooth subsystem."
+          params: []
+          returns: null
+
+    - id: "3.24"
+      name: "DeviceEngine class"
+      methods:
+        - section: "3.24.1"
+          name: "getInstance"
+          signature: null
+          behavior: "Return DeviceEngine singleton to access device modules (printer/scanner/cards/etc.)."
+          params: []
+          returns: null
+        - section: "3.24.2"
+          name: "init"
+          signature: null
+          behavior: "Initialize device engine context; required before requesting module instances."
+          params: []
+          returns: null
+        - section: "3.24.3"
+          name: "getPrinter"
+          signature: null
+          behavior: "Get Printer module instance from DeviceEngine."
+          params: []
+          returns: null
+        - section: "3.24.4"
+          name: "getScanner"
+          signature: null
+          behavior: "Get Scanner module instance from DeviceEngine."
+          params: []
+          returns: null
