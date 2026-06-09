@@ -7,6 +7,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { resolveSessionPricing } from '../_shared/pricing.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -56,7 +57,7 @@ serve(async (req) => {
     }
 
     // Obtener datos del request
-    const { plate } = await req.json()
+    const { plate, parking_tariff_plan_id } = await req.json()
 
     if (!plate) {
       return new Response(
@@ -65,30 +66,69 @@ serve(async (req) => {
       )
     }
 
-    // 1. Validar que el operador tenga un turno abierto
-    const { data: shift, error: shiftError } = await supabase
-      .from('shifts')
-      .select('*')
+    // 1. Membresía y modo de operación
+    const { data: membership, error: membershipError } = await supabase
+      .from('memberships')
+      .select('org_id, parking_id, operation_mode')
       .eq('user_id', user.id)
-      .eq('status', 'open')
+      .eq('status', 'active')
       .maybeSingle()
 
-    if (shiftError) {
+    if (membershipError || !membership) {
       return new Response(
-        JSON.stringify({ error: 'Error al verificar turno', details: shiftError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'No se encontró membresía activa' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    if (!shift) {
+    const operationMode = membership.operation_mode ?? 'both'
+
+    if (operationMode === 'exit_only') {
       return new Response(
-        JSON.stringify({ error: 'No tienes un turno abierto. Debes abrir un turno antes de crear sesiones.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Tu perfil solo permite registrar salidas. No puedes crear entradas.' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // 2. Obtener parking_id del turno activo
-    const parking_id = shift.parking_id
+    let org_id: string
+    let parking_id: string
+    let shift_id: string | null = null
+
+    if (operationMode === 'entry_only') {
+      if (!membership.parking_id) {
+        return new Response(
+          JSON.stringify({ error: 'No tienes un parking asignado. Contacta al administrador.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      org_id = membership.org_id
+      parking_id = membership.parking_id
+    } else {
+      const { data: shift, error: shiftError } = await supabase
+        .from('shifts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'open')
+        .maybeSingle()
+
+      if (shiftError) {
+        return new Response(
+          JSON.stringify({ error: 'Error al verificar turno', details: shiftError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (!shift) {
+        return new Response(
+          JSON.stringify({ error: 'No tienes un turno abierto. Debes abrir un turno antes de crear sesiones.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      org_id = shift.org_id
+      parking_id = shift.parking_id
+      shift_id = shift.id
+    }
 
     // 3. Normalizar patente
     const { data: normalizedPlate, error: normalizeError } = await supabase
@@ -105,7 +145,7 @@ serve(async (req) => {
     const { data: existingSession, error: existingError } = await supabase
       .from('sessions')
       .select('*')
-      .eq('org_id', shift.org_id)
+      .eq('org_id', org_id)
       .eq('parking_id', parking_id)
       .eq('plate', normalizedPlate)
       .eq('status', 'open')
@@ -132,6 +172,60 @@ serve(async (req) => {
       )
     }
 
+    // 4.55. Validar tarifa múltiple si aplica
+    const { data: parkingConfig, error: parkingConfigError } = await supabase
+      .from('parkings')
+      .select('multiple_tariffs_enabled, max_daily_amount, pricing_mode, segment_amount, segment_minutes')
+      .eq('id', parking_id)
+      .maybeSingle()
+
+    if (parkingConfigError) {
+      return new Response(
+        JSON.stringify({ error: 'Error al verificar configuración del parking', details: parkingConfigError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    let parkingTariffPlanId: string | null = null
+    let tariffPlanRow: {
+      id: string
+      name: string
+      pricing_mode: string
+      price_per_minute: number | null
+      segment_amount: number | null
+      segment_minutes: number | null
+      max_daily_amount: number | null
+      minimum_stay_hours: number | null
+      minimum_amount: number | null
+    } | null = null
+    const multipleEnabled = parkingConfig?.multiple_tariffs_enabled === true
+
+    if (multipleEnabled) {
+      if (!parking_tariff_plan_id) {
+        return new Response(
+          JSON.stringify({ error: 'Debe seleccionar una tarifa para registrar el ingreso' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      const { data: plan, error: planError } = await supabase
+        .from('parking_tariff_plans')
+        .select('id, name, pricing_mode, price_per_minute, segment_amount, segment_minutes, max_daily_amount, minimum_stay_hours, minimum_amount')
+        .eq('id', parking_tariff_plan_id)
+        .eq('parking_id', parking_id)
+        .eq('org_id', org_id)
+        .eq('status', 'active')
+        .maybeSingle()
+
+      if (planError || !plan) {
+        return new Response(
+          JSON.stringify({ error: 'La tarifa seleccionada no es válida para este parking' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      parkingTariffPlanId = plan.id
+      tariffPlanRow = plan
+    }
+
     // 4.5. Verificar capacidad del parking (opcional)
     const { data: occupancyData, error: occupancyError } = await supabase
       .rpc('get_parking_occupancy', { p_parking_id: parking_id })
@@ -156,6 +250,15 @@ serve(async (req) => {
       }
     }
 
+    // 4.6. Verificar patente en convenio (pago liberado)
+    const { data: isAgreementPlate, error: agreementCheckError } = await supabase
+      .rpc('is_plate_in_agreement', { p_org_id: org_id, p_plate: normalizedPlate })
+
+    if (agreementCheckError) {
+      console.warn('create-session: agreement check failed', agreementCheckError.message)
+    }
+    const isAgreement = isAgreementPlate === true
+
     // 5. Generar código de sesión único (8 dígitos = 90M códigos; reintentos si hay colisión)
     const MAX_RETRIES = 5
     let sessionCode = ''
@@ -167,13 +270,15 @@ serve(async (req) => {
       const result = await supabase
         .from('sessions')
         .insert({
-          org_id: shift.org_id,
+          org_id: org_id,
           parking_id: parking_id,
-          shift_id: shift.id,
+          shift_id: shift_id,
           session_code: sessionCode,
           plate: normalizedPlate,
           entry_time: new Date().toISOString(),
           status: 'open',
+          is_agreement: isAgreement,
+          parking_tariff_plan_id: parkingTariffPlanId,
           created_by: user.id
         })
         .select()
@@ -204,7 +309,7 @@ serve(async (req) => {
     await supabase
       .from('audit_logs')
       .insert({
-        org_id: shift.org_id,
+        org_id: org_id,
         user_id: user.id,
         action: 'session.created',
         entity_type: 'session',
@@ -212,15 +317,35 @@ serve(async (req) => {
         metadata: {
           plate: normalizedPlate,
           parking_id: parking_id,
-          shift_id: shift.id,
-          entry_time: session.entry_time
+          shift_id: shift_id,
+          operation_mode: operationMode,
+          entry_time: session.entry_time,
+          is_agreement: isAgreement,
+          parking_tariff_plan_id: parkingTariffPlanId
         }
       })
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        session: session,
+        session: {
+          ...session,
+          ...(tariffPlanRow
+            ? (() => {
+                const pricing = resolveSessionPricing(tariffPlanRow, parkingConfig as any, 0)
+                return {
+                  tariff_plan_name: pricing.tariffPlanName,
+                  price_per_minute: pricing.pricePerMinute,
+                  pricing_mode: pricing.pricingMode,
+                  segment_amount: pricing.segmentAmount,
+                  segment_minutes: pricing.segmentMinutes,
+                  minimum_stay_hours: pricing.minimumStayHours,
+                  minimum_amount: pricing.minimumAmount,
+                }
+              })()
+            : {}),
+        },
+        is_agreement: isAgreement,
         message: 'Sesión creada exitosamente'
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

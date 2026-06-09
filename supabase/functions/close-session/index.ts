@@ -6,6 +6,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { computeParkingAmount, resolveSessionPricing } from '../_shared/pricing.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -119,74 +120,57 @@ serve(async (req) => {
       }
     }
 
-    // Obtener parking (tope máximo y modo de tarifa) una sola vez
+    // Obtener parking y plan de tarifa de la sesión
     const { data: parkingRow } = await supabase
       .from('parkings')
       .select('max_daily_amount, pricing_mode, segment_amount, segment_minutes')
       .eq('id', session.parking_id)
       .single()
-    const maxDailyAmount = parkingRow?.max_daily_amount != null ? parseFloat(String(parkingRow.max_daily_amount)) : null
-    const pricingMode = parkingRow?.pricing_mode ?? 'per_minute'
-    const segmentAmount = parkingRow?.segment_amount != null ? parseFloat(String(parkingRow.segment_amount)) : null
-    const segmentMinutes = parkingRow?.segment_minutes != null ? parseInt(String(parkingRow.segment_minutes), 10) : null
 
-    if (!hasClientAmount) {
-      try {
-        let tariffData: { price_per_minute?: number }[] | null = null
-        const res = await supabase.rpc('get_active_tariff', {
-          p_org_id: shift.org_id,
-          p_parking_id: session.parking_id,
-          p_timestamp: exitTime
-        })
-        tariffData = res.data && res.data.length > 0 ? res.data : null
-        if (!tariffData) {
-          const fallback = await supabase.rpc('get_active_tariff', {
-            p_org_id: shift.org_id,
-            p_parking_id: null,
-            p_timestamp: exitTime
-          })
-          if (fallback.data && fallback.data.length > 0) tariffData = fallback.data
-        }
+    let tariffPlan: Record<string, unknown> | null = null
+    if (session.parking_tariff_plan_id) {
+      const { data: planRow } = await supabase
+        .from('parking_tariff_plans')
+        .select('*')
+        .eq('id', session.parking_tariff_plan_id)
+        .eq('status', 'active')
+        .maybeSingle()
+      tariffPlan = planRow
+    }
 
-        if (tariffData && tariffData.length > 0) {
-          const tariff = tariffData[0]
-          tariffApplied = parseFloat(String(tariff.price_per_minute ?? 0))
-          if (pricingMode === 'per_segment' && segmentAmount != null && segmentMinutes != null && segmentMinutes > 0) {
-            estimatedAmount = Math.ceil(minutesCharged / segmentMinutes) * segmentAmount
-          } else {
-            estimatedAmount = minutesCharged * tariffApplied
-          }
-        }
-
-        if (minutesCharged > 0 && estimatedAmount === 0) {
-          let fallbackQuery = supabase
-            .from('tariffs')
-            .select('price_per_minute')
-            .eq('org_id', shift.org_id)
-            .lte('valid_from', exitTime)
-            .order('valid_from', { ascending: false })
-            .limit(1)
-          if (session.parking_id) {
-            fallbackQuery = fallbackQuery.or(`parking_id.eq.${session.parking_id},parking_id.is.null`)
-          } else {
-            fallbackQuery = fallbackQuery.is('parking_id', null)
-          }
-          const { data: anyTariff } = await fallbackQuery.maybeSingle()
-          if (anyTariff?.price_per_minute != null) {
-            tariffApplied = parseFloat(String(anyTariff.price_per_minute))
-            if (pricingMode === 'per_segment' && segmentAmount != null && segmentMinutes != null && segmentMinutes > 0) {
-              estimatedAmount = Math.ceil(minutesCharged / segmentMinutes) * segmentAmount
-            } else {
-              estimatedAmount = minutesCharged * tariffApplied
-            }
-          }
-        }
-      } catch (error) {
-        console.warn('Error calculando monto estimado:', error)
+    let fallbackPrice = 0
+    if (!tariffPlan) {
+      const res = await supabase.rpc('get_active_tariff', {
+        p_org_id: shift.org_id,
+        p_parking_id: session.parking_id,
+        p_timestamp: exitTime,
+      })
+      if (res.data && res.data.length > 0) {
+        fallbackPrice = parseFloat(String(res.data[0].price_per_minute ?? 0))
       }
     }
 
-    if (maxDailyAmount != null && estimatedAmount > maxDailyAmount) estimatedAmount = maxDailyAmount
+    const pricing = resolveSessionPricing(tariffPlan as any, parkingRow as any, fallbackPrice)
+
+    if (!hasClientAmount) {
+      try {
+        tariffApplied = pricing.pricePerMinute
+        estimatedAmount = computeParkingAmount({
+          minutesCharged,
+          pricingMode: pricing.pricingMode,
+          pricePerMinute: pricing.pricePerMinute,
+          segmentAmount: pricing.segmentAmount,
+          segmentMinutes: pricing.segmentMinutes,
+          maxDailyAmount: pricing.maxDailyAmount,
+          minimumStayHours: pricing.minimumStayHours,
+          minimumAmount: pricing.minimumAmount,
+        })
+      } catch (error) {
+        console.warn('Error calculando monto estimado:', error)
+      }
+    } else if (pricing.maxDailyAmount != null && estimatedAmount > pricing.maxDailyAmount) {
+      estimatedAmount = pricing.maxDailyAmount
+    }
 
     // 5. Crear quote temporal para el pago sin pago
     const quoteId = `no_payment_${session_id}_${Date.now()}`

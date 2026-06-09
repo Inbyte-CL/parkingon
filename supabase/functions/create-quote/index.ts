@@ -5,6 +5,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { computeParkingAmount, resolveSessionPricing } from '../_shared/pricing.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,6 +59,28 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'session_id es requerido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const { data: membership, error: membershipError } = await supabase
+      .from('memberships')
+      .select('operation_mode')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (membershipError || !membership) {
+      return new Response(
+        JSON.stringify({ error: 'No se encontró membresía activa' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const operationMode = membership.operation_mode ?? 'both'
+    if (operationMode === 'entry_only') {
+      return new Response(
+        JSON.stringify({ error: 'Tu perfil solo permite registrar entradas.' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -120,15 +143,78 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true,
           quote: existingQuote,
+          is_agreement: session.is_agreement === true,
           message: 'Ya existe una cotización activa para esta sesión'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // 5b. Obtener tope máximo y modo de tarifa del parking (usar parking_id de sesión o del turno)
+    const isAgreementSession = session.is_agreement === true
+
+    // Patente en convenio: monto cero, sin tarifa
+    if (isAgreementSession) {
+      const entryTime = new Date(session.entry_time)
+      const exitTime = new Date()
+      const secondsParked = Math.floor((exitTime.getTime() - entryTime.getTime()) / 1000)
+      const minutesCharged = Math.ceil(secondsParked / 60)
+      const expiresAt = new Date()
+      expiresAt.setSeconds(expiresAt.getSeconds() + QUOTE_TTL_SECONDS)
+
+      const { data: quote, error: createQuoteError } = await supabase
+        .from('payment_quotes')
+        .insert({
+          org_id: shift.org_id,
+          session_id: session_id,
+          parking_id: session.parking_id,
+          created_by: user.id,
+          exit_time_locked: exitTime.toISOString(),
+          minutes_locked: minutesCharged,
+          tariff_applied: 0,
+          amount_locked: 0,
+          expires_at: expiresAt.toISOString(),
+          status: 'active'
+        })
+        .select()
+        .single()
+
+      if (createQuoteError) {
+        return new Response(
+          JSON.stringify({ error: 'Error al crear cotización', details: createQuoteError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          quote,
+          is_agreement: true,
+          calculation: {
+            plate: session.plate,
+            entry_time: session.entry_time,
+            exit_time: exitTime.toISOString(),
+            seconds_parked: secondsParked,
+            minutes_parked: minutesCharged,
+            tariff_per_minute: 0,
+            amount: 0,
+            expires_at: expiresAt.toISOString(),
+            ttl_seconds: QUOTE_TTL_SECONDS
+          },
+          message: 'Cotización de convenio (pago liberado)'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 5b. Obtener configuración del parking y plan de tarifa de la sesión
     const parkingId = session.parking_id || shift.parking_id
-    let parkingRow: { max_daily_amount?: unknown; pricing_mode?: string; segment_amount?: unknown; segment_minutes?: unknown } | null = null
+    let parkingRow: {
+      max_daily_amount?: unknown
+      pricing_mode?: string
+      segment_amount?: unknown
+      segment_minutes?: unknown
+    } | null = null
     if (parkingId) {
       const res = await supabase
         .from('parkings')
@@ -139,50 +225,92 @@ serve(async (req) => {
       if (res.error) {
         console.warn('create-quote: error fetching parking', res.error.message, 'parkingId=', parkingId)
       }
-      if (!parkingRow) {
-        console.warn('create-quote: no parking row for parkingId=', parkingId, '- using per_minute')
-      }
     }
-    const maxDailyAmount = parkingRow?.max_daily_amount != null ? parseFloat(String(parkingRow.max_daily_amount)) : null
-    const pricingMode = (parkingRow?.pricing_mode === 'per_segment' ? 'per_segment' : 'per_minute') as string
-    const segmentAmount = parkingRow?.segment_amount != null && Number(parkingRow.segment_amount) > 0 ? parseFloat(String(parkingRow.segment_amount)) : null
-    const segmentMinutes = parkingRow?.segment_minutes != null && Number(parkingRow.segment_minutes) > 0 ? parseInt(String(parkingRow.segment_minutes), 10) : null
 
-    // 5c. Obtener tarifa activa solo si es necesaria (modo por minuto)
+    let tariffPlan: Record<string, unknown> | null = null
+    if (session.parking_tariff_plan_id) {
+      const { data: planRow, error: planError } = await supabase
+        .from('parking_tariff_plans')
+        .select('*')
+        .eq('id', session.parking_tariff_plan_id)
+        .eq('status', 'active')
+        .maybeSingle()
+      if (planError) {
+        console.warn('create-quote: error fetching tariff plan', planError.message)
+      }
+      tariffPlan = planRow
+    }
+
     let pricePerMinute = 0
-    if (pricingMode === 'per_minute') {
-      const { data: tariffData, error: tariffError } = await supabase
-        .rpc('get_active_tariff', { 
-          p_org_id: shift.org_id, 
-          p_parking_id: parkingId 
-        })
+    if (!tariffPlan) {
+      const { data: tariffData, error: tariffError } = await supabase.rpc('get_active_tariff', {
+        p_org_id: shift.org_id,
+        p_parking_id: parkingId,
+      })
       if (tariffError || !tariffData || tariffData.length === 0) {
-        return new Response(
-          JSON.stringify({ error: 'No se encontró tarifa activa para este parking' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+        const pricingModeDefault = parkingRow?.pricing_mode === 'per_segment' ? 'per_segment' : 'per_minute'
+        if (pricingModeDefault === 'per_minute') {
+          return new Response(
+            JSON.stringify({ error: 'No se encontró tarifa activa para este parking' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      } else {
+        pricePerMinute = parseFloat(tariffData[0].price_per_minute)
       }
-      pricePerMinute = parseFloat(tariffData[0].price_per_minute)
     }
 
-    // 6. Calcular monto (por minuto o por tramo)
+    const pricing = resolveSessionPricing(
+      tariffPlan as any,
+      parkingRow as any,
+      pricePerMinute
+    )
+
+    // 6. Consultar deuda previa activa de esta patente
+    let debtAmount = 0
+    let debtIds: string[] = []
+    let debtDetails: Array<{ id: string; amount_owed: number; tariff_plan_name: string | null; abandoned_at: string }> = []
+    const { data: debtRows } = await supabase
+      .from('debtor_sessions')
+      .select('id, amount_owed, tariff_plan_name, abandoned_at')
+      .eq('org_id', shift.org_id)
+      .eq('plate', session.plate)
+      .eq('status', 'active')
+    for (const d of (debtRows || [])) {
+      debtAmount += parseFloat(String(d.amount_owed))
+      debtIds.push(d.id)
+      debtDetails.push({
+        id: d.id,
+        amount_owed: parseFloat(String(d.amount_owed)),
+        tariff_plan_name: d.tariff_plan_name,
+        abandoned_at: d.abandoned_at,
+      })
+    }
+
+    // 7. Calcular monto de la sesión actual (por minuto o por tramo, con estadía mínima si aplica)
     const entryTime = new Date(session.entry_time)
     const exitTime = new Date()
     const secondsParked = Math.floor((exitTime.getTime() - entryTime.getTime()) / 1000)
     const minutesCharged = Math.ceil(secondsParked / 60)
-    let amount: number
-    if (pricingMode === 'per_segment' && segmentAmount != null && segmentMinutes != null && segmentMinutes > 0) {
-      amount = Math.ceil(minutesCharged / segmentMinutes) * segmentAmount
-    } else {
-      amount = minutesCharged * pricePerMinute
-    }
-    if (maxDailyAmount != null) amount = Math.min(amount, maxDailyAmount)
+    const sessionAmount = computeParkingAmount({
+      minutesCharged,
+      pricingMode: pricing.pricingMode,
+      pricePerMinute: pricing.pricePerMinute,
+      segmentAmount: pricing.segmentAmount,
+      segmentMinutes: pricing.segmentMinutes,
+      maxDailyAmount: pricing.maxDailyAmount,
+      minimumStayHours: pricing.minimumStayHours,
+      minimumAmount: pricing.minimumAmount,
+    })
+    pricePerMinute = pricing.pricePerMinute
+
+    const totalAmount = sessionAmount + debtAmount
 
     // 7. Calcular expires_at (TTL de 150 segundos)
     const expiresAt = new Date()
     expiresAt.setSeconds(expiresAt.getSeconds() + QUOTE_TTL_SECONDS)
 
-    // 8. Crear la quote
+    // 8. Crear la quote con monto total (sesión + deuda)
     const { data: quote, error: createQuoteError } = await supabase
       .from('payment_quotes')
       .insert({
@@ -193,7 +321,7 @@ serve(async (req) => {
         exit_time_locked: exitTime.toISOString(),
         minutes_locked: minutesCharged,
         tariff_applied: pricePerMinute,
-        amount_locked: amount,
+        amount_locked: totalAmount,
         expires_at: expiresAt.toISOString(),
         status: 'active'
       })
@@ -230,6 +358,11 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         quote: quote,
+        is_agreement: false,
+        has_debt: debtAmount > 0,
+        debt_amount: debtAmount,
+        debt_details: debtDetails,
+        session_amount: sessionAmount,
         calculation: {
           plate: session.plate,
           entry_time: session.entry_time,
@@ -237,11 +370,15 @@ serve(async (req) => {
           seconds_parked: secondsParked,
           minutes_parked: minutesCharged,
           tariff_per_minute: pricePerMinute,
-          amount: amount,
+          session_amount: sessionAmount,
+          debt_amount: debtAmount,
+          amount: totalAmount,
           expires_at: expiresAt.toISOString(),
           ttl_seconds: QUOTE_TTL_SECONDS
         },
-        message: 'Cotización creada exitosamente'
+        message: debtAmount > 0
+          ? `Cotización creada — incluye deuda previa de ${debtAmount}`
+          : 'Cotización creada exitosamente'
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

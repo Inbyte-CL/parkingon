@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react'
 import { useOrganizations } from '@/lib/hooks/useOrganizations'
 import { useUser } from '@/lib/hooks/useUser'
 import { formatCLP } from '@/lib/utils/currency'
+import { authFetch } from '@/lib/api/authFetch'
+import ParkingMultipleTariffsSection, {
+  emptyTariffPlan,
+  type TariffPlanForm,
+} from '@/components/ParkingMultipleTariffsSection'
 
 interface Parking {
   id: string
@@ -16,6 +21,7 @@ interface Parking {
   pricing_mode?: 'per_minute' | 'per_segment' | null
   segment_amount?: number | null
   segment_minutes?: number | null
+  multiple_tariffs_enabled?: boolean
   active_tariff?: {
     id: string
     price_per_minute: number
@@ -56,6 +62,9 @@ export default function EditParkingModal({
   const [error, setError] = useState<string | null>(null)
   const [loadingTariff, setLoadingTariff] = useState(false)
   const [currentTariff, setCurrentTariff] = useState<any>(null)
+  const [multipleTariffsEnabled, setMultipleTariffsEnabled] = useState(false)
+  const [tariffPlans, setTariffPlans] = useState<TariffPlanForm[]>([emptyTariffPlan()])
+  const [loadingTariffPlans, setLoadingTariffPlans] = useState(false)
 
   useEffect(() => {
     if (parking) {
@@ -82,8 +91,40 @@ export default function EditParkingModal({
       if (parking.active_tariff?.id) {
         fetchTariffDetails(parking.active_tariff.id)
       }
+      fetchTariffPlans(parking.id, parking.multiple_tariffs_enabled === true)
     }
   }, [parking])
+
+  const fetchTariffPlans = async (parkingId: string, fallbackEnabled = false) => {
+    try {
+      setLoadingTariffPlans(true)
+      const response = await authFetch(`/api/admin/parkings/${parkingId}/tariff-plans`)
+      const data = await response.json()
+      if (response.ok) {
+        setMultipleTariffsEnabled(data.multipleTariffsEnabled === true)
+        const mapped: TariffPlanForm[] = (data.plans || []).map((p: any) => ({
+          id: p.id,
+          name: p.name || '',
+          pricingMode: p.pricing_mode === 'per_segment' ? 'per_segment' : 'per_minute',
+          pricePerMinute: p.price_per_minute != null ? String(p.price_per_minute) : '',
+          segmentAmount: p.segment_amount != null ? String(p.segment_amount) : '',
+          segmentMinutes: p.segment_minutes != null ? String(p.segment_minutes) : '',
+          maxDailyAmount: p.max_daily_amount != null ? String(p.max_daily_amount) : '',
+          minimumStayHours: p.minimum_stay_hours != null ? String(p.minimum_stay_hours) : '0',
+          minimumAmount: p.minimum_amount != null ? String(p.minimum_amount) : '',
+        }))
+        setTariffPlans(mapped.length > 0 ? mapped : [emptyTariffPlan()])
+      } else {
+        setMultipleTariffsEnabled(fallbackEnabled)
+        setTariffPlans([emptyTariffPlan()])
+      }
+    } catch {
+      setMultipleTariffsEnabled(fallbackEnabled)
+      setTariffPlans([emptyTariffPlan()])
+    } finally {
+      setLoadingTariffPlans(false)
+    }
+  }
 
   const fetchTariffDetails = async (tariffId: string) => {
     try {
@@ -155,8 +196,34 @@ export default function EditParkingModal({
         throw new Error(data.error || 'Error al actualizar parking')
       }
 
-      // 2. Actualizar o crear tarifa si se proporcionó precio (usado cuando modo = por minuto)
-      if (formData.pricePerMinute || formData.pricingMode === 'per_minute') {
+      // Guardar tarifas múltiples
+      const plansResponse = await authFetch(`/api/admin/parkings/${parking.id}/tariff-plans`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          multipleTariffsEnabled,
+          plans: multipleTariffsEnabled
+            ? tariffPlans.map((plan, index) => ({
+                name: plan.name,
+                pricingMode: plan.pricingMode,
+                pricePerMinute: plan.pricingMode === 'per_minute' ? plan.pricePerMinute : null,
+                segmentAmount: plan.pricingMode === 'per_segment' ? plan.segmentAmount : null,
+                segmentMinutes: plan.pricingMode === 'per_segment' ? plan.segmentMinutes : null,
+                maxDailyAmount: plan.maxDailyAmount || null,
+                minimumStayHours: plan.minimumStayHours || '0',
+                minimumAmount: plan.minimumAmount || null,
+                sortOrder: index,
+              }))
+            : [],
+        }),
+      })
+      const plansData = await plansResponse.json()
+      if (!plansResponse.ok) {
+        throw new Error(plansData.error || 'Error al guardar tarifas múltiples')
+      }
+
+      // 2. Actualizar o crear tarifa única si no hay tarifa múltiple
+      if (!multipleTariffsEnabled && (formData.pricePerMinute || formData.pricingMode === 'per_minute')) {
         const price = parseFloat(formData.pricePerMinute || '0')
         if (isNaN(price) || price < 0) {
           throw new Error('El precio por minuto debe ser un número válido mayor o igual a 0')
@@ -438,7 +505,8 @@ export default function EditParkingModal({
             </select>
           </div>
 
-          {/* Sección de Tarifa (solo aplica cuando modo = por minuto) */}
+          {/* Sección de Tarifa única (solo si tarifa múltiple desactivada) */}
+          {!multipleTariffsEnabled && (
           <div className="border-t pt-4 mt-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Tarifa</h3>
             
@@ -505,6 +573,20 @@ export default function EditParkingModal({
               </>
             )}
           </div>
+          )}
+
+          {loadingTariffPlans ? (
+            <div className="text-center py-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
+            </div>
+          ) : (
+            <ParkingMultipleTariffsSection
+              enabled={multipleTariffsEnabled}
+              onEnabledChange={setMultipleTariffsEnabled}
+              plans={tariffPlans}
+              onPlansChange={setTariffPlans}
+            />
+          )}
 
           <div className="flex gap-3 pt-4">
             <button
