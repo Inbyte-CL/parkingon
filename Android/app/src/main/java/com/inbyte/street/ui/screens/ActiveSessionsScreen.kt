@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.inbyte.street.data.model.SessionWithDuration
 import com.inbyte.street.data.model.ParkingOccupancy
 import com.inbyte.street.ui.theme.*
+import com.inbyte.street.utils.clearFocusOnTap
 import com.inbyte.street.utils.formatPlateForDisplay
 import com.inbyte.street.ui.viewmodel.SessionUiState
 import com.inbyte.street.ui.viewmodel.SessionViewModel
@@ -104,6 +105,7 @@ fun ActiveSessionsScreen(
     val occupancy = sessionsData?.second
 
     Scaffold(
+        modifier = Modifier.clearFocusOnTap(),
         containerColor = BackgroundDarkGreen,
         bottomBar = {
             AppBottomNav(
@@ -198,8 +200,7 @@ fun ActiveSessionsScreen(
                                 modifier = Modifier.weight(1f),
                                 singleLine = true,
                                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                    color = Color.White,
-                                    fontSize = 14.sp
+                                    color = Color.White
                                 ),
                                 cursorBrush = SolidColor(PrimaryGreen),
                                 decorationBox = { inner ->
@@ -207,8 +208,7 @@ fun ActiveSessionsScreen(
                                         Text(
                                             "Buscar patente o ticket...",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.White.copy(alpha = 0.4f),
-                                            fontSize = 14.sp
+                                            color = Color.White.copy(alpha = 0.4f)
                                         )
                                     }
                                     inner()
@@ -368,13 +368,23 @@ private fun VehicleCard(
     var currentAmount by remember { mutableStateOf(0.0) }
     var currentDuration by remember { mutableStateOf(session.durationMinutes) }
 
-    LaunchedEffect(session.id, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes) {
+    val effectivePricePerMinute = session.pricePerMinute ?: pricePerMinute
+    val effectiveMaxDailyAmount = session.maxDailyAmount ?: maxDailyAmount
+    val effectivePricingMode = session.pricingMode ?: pricingMode
+    val effectiveSegmentAmount = session.segmentAmount ?: segmentAmount
+    val effectiveSegmentMinutes = session.segmentMinutes ?: segmentMinutes
+    val effectiveMinimumStayHours = session.minimumStayHours
+    val effectiveMinimumAmount = session.minimumAmount
+
+    LaunchedEffect(session.id, effectivePricePerMinute, effectiveMaxDailyAmount, effectivePricingMode, effectiveSegmentAmount, effectiveSegmentMinutes, effectiveMinimumStayHours) {
         while (true) {
             val entryTimeMillis = java.time.ZonedDateTime.parse(session.entryTime).toInstant().toEpochMilli()
             val durationMinutes = ((System.currentTimeMillis() - entryTimeMillis) / (1000 * 60)).toInt()
             currentDuration = durationMinutes
             currentAmount = computeSessionAmount(
-                durationMinutes, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes
+                durationMinutes, effectivePricePerMinute, effectiveMaxDailyAmount,
+                effectivePricingMode, effectiveSegmentAmount, effectiveSegmentMinutes,
+                effectiveMinimumStayHours, effectiveMinimumAmount
             )
             kotlinx.coroutines.delay(10000)
         }
@@ -411,19 +421,30 @@ private fun VehicleCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = Slate800Ring,
-                    border = androidx.compose.foundation.BorderStroke(4.dp, PrimaryGreen)
-                ) {
-                    Text(
-                        formatPlateForDisplay(session.plate),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
-                        letterSpacing = 1.sp
-                    )
+                Column {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = Slate800Ring,
+                        border = androidx.compose.foundation.BorderStroke(4.dp, PrimaryGreen)
+                    ) {
+                        Text(
+                            formatPlateForDisplay(session.plate),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                    session.tariffPlanName?.takeIf { it.isNotBlank() }?.let { tariffName ->
+                        Text(
+                            text = tariffName,
+                            modifier = Modifier.padding(top = 4.dp, start = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.55f),
+                            maxLines = 1
+                        )
+                    }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(

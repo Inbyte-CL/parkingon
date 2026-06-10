@@ -23,7 +23,8 @@ export default function CreateUserModal({
     displayName: '',
     role: 'operador' as 'operador' | 'admin_empresa',
     orgId: defaultOrgId || '',
-    parkingId: ''
+    parkingId: '',
+    operationMode: 'both' as 'both' | 'entry_only' | 'exit_only'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,7 +53,8 @@ export default function CreateUserModal({
           displayName: formData.displayName || null,
           role: formData.role,
           orgId: formData.orgId,
-          parkingId: formData.role === 'operador' ? formData.parkingId : null
+          parkingId: formData.parkingId || null,
+          operationMode: formData.role === 'operador' ? formData.operationMode : 'both'
         })
       })
 
@@ -69,7 +71,8 @@ export default function CreateUserModal({
         displayName: '',
         role: 'operador',
         orgId: defaultOrgId || '',
-        parkingId: ''
+        parkingId: '',
+        operationMode: 'both'
       })
       
       onSuccess()
@@ -144,7 +147,7 @@ export default function CreateUserModal({
               onChange={(e) => setFormData({ 
                 ...formData, 
                 role: e.target.value as 'operador' | 'admin_empresa',
-                parkingId: e.target.value === 'admin_empresa' ? '' : formData.parkingId
+                parkingId: formData.parkingId
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
@@ -176,10 +179,10 @@ export default function CreateUserModal({
             )}
           </div>
 
-          {formData.role === 'operador' && (
+          {(formData.role === 'operador' || formData.role === 'admin_empresa') && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parking asignado *
+                {formData.role === 'operador' ? 'Parking asignado *' : 'Parking administrado'}
               </label>
               <select
                 required={formData.role === 'operador'}
@@ -188,7 +191,9 @@ export default function CreateUserModal({
                 disabled={parkingsLoading || !formData.orgId}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
               >
-                <option value="">Seleccionar parking</option>
+                <option value="">
+                  {formData.role === 'operador' ? 'Seleccionar parking' : 'Todos los parkings de la organizacion'}
+                </option>
                 {parkings.map((parking) => (
                   <option key={parking.id} value={parking.id}>
                     {parking.name}
@@ -198,6 +203,37 @@ export default function CreateUserModal({
               {!formData.orgId && (
                 <p className="text-xs text-gray-500 mt-1">Primero selecciona una organización</p>
               )}
+              {formData.role === 'admin_empresa' && formData.orgId && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Si seleccionas un parking, este administrador solo gestionara turnos asociados a ese parking.
+                </p>
+              )}
+            </div>
+          )}
+
+          {formData.role === 'operador' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Modo en la app móvil *
+              </label>
+              <select
+                required
+                value={formData.operationMode}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    operationMode: e.target.value as 'both' | 'entry_only' | 'exit_only'
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="both">Entradas y salidas (por defecto)</option>
+                <option value="entry_only">Solo entradas (sin turno)</option>
+                <option value="exit_only">Solo salidas / cobros (requiere turno)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Solo entradas: registra vehículos sin abrir turno. Solo salidas: cobra tickets con turno abierto.
+              </p>
             </div>
           )}
 

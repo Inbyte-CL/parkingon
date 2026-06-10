@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useUser } from '@/lib/hooks/useUser'
+import { authFetch } from '@/lib/api/authFetch'
 import CreateUserModal from '@/components/CreateUserModal'
 import EditUserModal from '@/components/EditUserModal'
 import ChangePasswordModal from '@/components/ChangePasswordModal'
@@ -21,6 +22,20 @@ interface UserWithRole {
   organization_name: string | null
   parking_name: string | null
   parking_status: string | null
+  operation_mode?: string | null
+}
+
+function operationModeLabel(mode: string | null | undefined): string | null {
+  switch (mode) {
+    case 'entry_only':
+      return 'Solo entradas'
+    case 'exit_only':
+      return 'Solo salidas'
+    case 'both':
+      return 'Entradas y salidas'
+    default:
+      return null
+  }
 }
 
 export default function UsersPage() {
@@ -31,22 +46,23 @@ export default function UsersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
   const [changingPasswordFor, setChangingPasswordFor] = useState<UserWithRole | null>(null)
-  
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
   const isSuperadmin = userInfo?.role === 'superadmin'
   const isAdminEmpresa = userInfo?.role === 'admin_empresa'
   const canAccess = isSuperadmin || isAdminEmpresa
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!canAccess) return
-    
+
     try {
       setLoading(true)
-      // Si es admin_empresa, filtrar por su orgId automáticamente
+      setError(null)
       const url = isAdminEmpresa && userInfo?.orgId
         ? `/api/admin/users?orgId=${userInfo.orgId}`
         : '/api/admin/users'
-      
-      const response = await fetch(url)
+
+      const response = await authFetch(url)
       
       if (!response.ok) {
         const errorData = await response.json()
@@ -70,13 +86,54 @@ export default function UsersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [canAccess, isAdminEmpresa, userInfo?.orgId])
 
   useEffect(() => {
     if (canAccess) {
       fetchUsers()
     }
-  }, [canAccess, userInfo?.orgId])
+  }, [canAccess, fetchUsers])
+
+  const handleDelete = async (user: UserWithRole) => {
+    if (user.is_superadmin) {
+      alert('No se puede eliminar un superadmin.')
+      return
+    }
+    if (user.user_id === userInfo?.id) {
+      alert('No puedes eliminar tu propia cuenta.')
+      return
+    }
+
+    const label = user.display_name || user.email
+    const message =
+      `¿Eliminar permanentemente a "${label}"?\n\n` +
+      'Se borrará la cuenta de acceso y su membresía. Esta acción no se puede deshacer.\n\n' +
+      'Si el usuario tiene sesiones o pagos registrados, la eliminación será rechazada.'
+
+    if (!confirm(message)) return
+
+    try {
+      setDeletingId(user.user_id)
+      const response = await authFetch(`/api/admin/users/${user.user_id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        alert(`Error: ${errorData.error}`)
+        return
+      }
+
+      fetchUsers()
+    } catch (err: unknown) {
+      alert(`Error: ${err instanceof Error ? err.message : 'Error desconocido'}`)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const canDeleteUser = (user: UserWithRole) =>
+    isSuperadmin && !user.is_superadmin && user.user_id !== userInfo?.id
 
   // Calcular resumen por rol
   const roleSummary = users.reduce((acc, user) => {
@@ -175,7 +232,7 @@ export default function UsersPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                       Acciones
                     </th>
                   </tr>
@@ -204,6 +261,11 @@ export default function UsersPage() {
                         }`}>
                           {user.is_superadmin ? 'Superadmin' : (user.role || 'sin_rol')}
                         </span>
+                        {!user.is_superadmin && user.role === 'operador' && operationModeLabel(user.operation_mode) && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {operationModeLabel(user.operation_mode)}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.organization_name || '-'}
@@ -227,21 +289,35 @@ export default function UsersPage() {
                           {user.membership_status || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex items-center gap-3">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-right">
+                        <div className="inline-flex flex-nowrap items-center justify-end gap-1">
                           <button
+                            type="button"
                             onClick={() => setEditingUser(user)}
-                            className="text-indigo-600 hover:text-indigo-900 font-medium"
+                            className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
                           >
+                            <span className="material-icons text-sm leading-none">edit</span>
                             Editar
                           </button>
-                          <span className="text-gray-300">|</span>
                           <button
+                            type="button"
                             onClick={() => setChangingPasswordFor(user)}
-                            className="text-orange-600 hover:text-orange-900 font-medium"
+                            className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-md border border-orange-200 bg-orange-50 px-2 py-1 text-[11px] font-medium text-orange-800 hover:bg-orange-100"
                           >
-                            Cambiar Contraseña
+                            <span className="material-icons text-sm leading-none">lock</span>
+                            Contraseña
                           </button>
+                          {canDeleteUser(user) && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(user)}
+                              disabled={deletingId === user.user_id}
+                              className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap rounded-md border border-red-200 bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                            >
+                              <span className="material-icons text-sm leading-none">delete</span>
+                              {deletingId === user.user_id ? '…' : 'Eliminar'}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

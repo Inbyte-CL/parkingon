@@ -17,7 +17,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { name, address, status, totalSpaces, orgId, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes } = body
+    const { name, address, status, totalSpaces, orgId, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes, multipleTariffsEnabled } = body
     const parkingId = params.parkingId
 
     if (!parkingId) {
@@ -75,6 +75,9 @@ export async function PUT(
         updateData.segment_amount = null
         updateData.segment_minutes = null
       }
+    }
+    if (multipleTariffsEnabled !== undefined) {
+      updateData.multiple_tariffs_enabled = multipleTariffsEnabled === true
     }
 
     const { data, error } = await supabase

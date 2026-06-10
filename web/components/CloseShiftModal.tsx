@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { formatCLP } from '@/lib/utils/currency'
+import { authFetch } from '@/lib/api/authFetch'
 
 interface Shift {
   id: string
@@ -60,7 +61,7 @@ export default function CloseShiftModal({
         throw new Error('El monto de cierre debe ser un número válido mayor o igual a 0')
       }
 
-      const response = await fetch(`/api/admin/shifts/${shift.id}/close`, {
+      const response = await authFetch(`/api/admin/shifts/${shift.id}/close`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireSuperadmin } from '@/lib/auth/requireSuperadmin'
 
 export async function PUT(
   request: Request,
   { params }: { params: { orgId: string } }
 ) {
   try {
+    const auth = await requireSuperadmin(request)
+    if (auth.error) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -85,6 +89,9 @@ export async function DELETE(
   { params }: { params: { orgId: string } }
 ) {
   try {
+    const auth = await requireSuperadmin(request)
+    if (auth.error) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -111,22 +118,41 @@ export async function DELETE(
       }
     })
 
-    // Desactivar en lugar de eliminar (soft delete)
+    const { data: org, error: fetchError } = await supabase
+      .from('organizations')
+      .select('id, name')
+      .eq('id', orgId)
+      .maybeSingle()
+
+    if (fetchError) {
+      return NextResponse.json(
+        { error: `Error al buscar organización: ${fetchError.message}` },
+        { status: 500 }
+      )
+    }
+
+    if (!org) {
+      return NextResponse.json(
+        { error: 'Organización no encontrada' },
+        { status: 404 }
+      )
+    }
+
     const { error } = await supabase
       .from('organizations')
-      .update({ status: 'inactive' })
+      .delete()
       .eq('id', orgId)
 
     if (error) {
       return NextResponse.json(
-        { error: `Error al desactivar organización: ${error.message}` },
+        { error: `Error al eliminar organización: ${error.message}` },
         { status: 500 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Organización desactivada correctamente'
+      message: `Organización "${org.name}" eliminada correctamente`
     })
   } catch (error: any) {
     console.error('Error:', error)

@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('parkings')
-      .select('id, org_id, name, address, status, total_spaces, max_daily_amount, pricing_mode, segment_amount, segment_minutes, created_at, updated_at, organizations:org_id(name)')
+      .select('id, org_id, name, address, status, total_spaces, max_daily_amount, pricing_mode, segment_amount, segment_minutes, multiple_tariffs_enabled, created_at, updated_at, organizations:org_id(name)')
       .order('name')
 
     if (orgId) {

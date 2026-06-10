@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { authFetch } from '@/lib/api/authFetch'
 
 interface Organization {
   id: string
@@ -25,7 +26,7 @@ export default function EditOrganizationModal({
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    status: 'active' as 'active' | 'inactive'
+    status: 'active' as 'active' | 'inactive',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +36,7 @@ export default function EditOrganizationModal({
       setFormData({
         name: organization.name,
         slug: organization.slug,
-        status: organization.status
+        status: organization.status,
       })
     }
   }, [organization])
@@ -48,10 +49,14 @@ export default function EditOrganizationModal({
     setLoading(true)
 
     try {
-      const response = await fetch(`/api/admin/organizations/${organization.id}`, {
+      const response = await authFetch(`/api/admin/organizations/${organization.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          name: formData.name,
+          slug: formData.slug,
+          status: formData.status,
+        }),
       })
 
       const data = await response.json()

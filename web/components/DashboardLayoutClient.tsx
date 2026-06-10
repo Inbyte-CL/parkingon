@@ -22,10 +22,6 @@ export default function DashboardLayoutClient({
   useEffect(() => {
     const checkSession = async () => {
       try {
-        if (typeof window !== 'undefined') {
-          const storageKey = 'sb-mmqqrfvullrovstcykcj-auth-token'
-          const stored = localStorage.getItem(storageKey)
-        }
         const { data: { session }, error } = await supabase.auth.getSession()
         const { data: { user }, error: userError } = await supabase.auth.getUser()
 
@@ -68,6 +64,8 @@ export default function DashboardLayoutClient({
   const isOrganizations = pathname?.startsWith('/admin/organizations')
   const isTariffs = pathname?.startsWith('/admin/tariffs')
   const isShifts = pathname?.startsWith('/admin/shifts')
+  const isConvenios = pathname?.startsWith('/admin/convenios')
+  const isDeudores = pathname?.startsWith('/admin/deudores')
 
   const navLink = (href: string, label: string, icon: string, active: boolean) => (
     <Link
@@ -96,9 +94,11 @@ export default function DashboardLayoutClient({
             {navLink('/dashboard/history', 'Historial', 'history', isHistory)}
             {(userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa') && navLink('/admin/parkings', 'Parkings', 'local_parking', isParkings)}
             {(userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa') && navLink('/admin/users', 'Usuarios', 'group', isUsers)}
+            {(userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa') && navLink('/admin/convenios', 'Convenios', 'handshake', isConvenios)}
+            {(userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa') && navLink('/admin/deudores', 'Deudores', 'warning', isDeudores)}
             {userInfo?.role === 'superadmin' && navLink('/admin/organizations', 'Organizaciones', 'business', isOrganizations)}
             {userInfo?.role === 'superadmin' && navLink('/admin/tariffs', 'Tarifas', 'receipt', isTariffs)}
-            {userInfo?.role === 'superadmin' && navLink('/admin/shifts', 'Turnos', 'schedule', isShifts)}
+            {(userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa') && navLink('/admin/shifts', 'Turnos', 'schedule', isShifts)}
           </div>
         </nav>
         <div className="p-6 border-t border-white/5">
@@ -146,7 +146,7 @@ export default function DashboardLayoutClient({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-10 overflow-x-hidden">
+        <main className="flex-1 overflow-y-auto overflow-x-auto p-10 min-w-0">
           {children}
         </main>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { authFetch } from '@/lib/api/authFetch'
 
 interface CreateOrganizationModalProps {
   isOpen: boolean
@@ -16,19 +17,18 @@ export default function CreateOrganizationModal({
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    status: 'active' as 'active' | 'inactive'
+    status: 'active' as 'active' | 'inactive',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Generar slug automáticamente desde el nombre
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
-      .replace(/[^a-z0-9]+/g, '-') // Reemplazar espacios y caracteres especiales con guiones
-      .replace(/^-+|-+$/g, '') // Eliminar guiones al inicio y final
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
   }
 
   const handleNameChange = (name: string) => {
@@ -45,10 +45,14 @@ export default function CreateOrganizationModal({
     setLoading(true)
 
     try {
-      const response = await fetch('/api/admin/organizations', {
+      const response = await authFetch('/api/admin/organizations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          name: formData.name,
+          slug: formData.slug,
+          status: formData.status,
+        }),
       })
 
       const data = await response.json()
@@ -57,13 +61,12 @@ export default function CreateOrganizationModal({
         throw new Error(data.error || 'Error al crear organización')
       }
 
-      // Reset form
       setFormData({
         name: '',
         slug: '',
-        status: 'active'
+        status: 'active',
       })
-      
+
       onSuccess()
       onClose()
     } catch (err: any) {

@@ -22,7 +22,8 @@ export function useOrganizations() {
         // Para superadmin, usar API route con service_role
         // Para otros usuarios, usar cliente directo (con RLS)
         if (userInfo?.role === 'superadmin') {
-          const response = await fetch('/api/admin/organizations')
+          const { authFetch } = await import('@/lib/api/authFetch')
+          const response = await authFetch('/api/admin/organizations')
           
           if (!response.ok) {
             const errorData = await response.json()

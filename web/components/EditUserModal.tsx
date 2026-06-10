@@ -12,6 +12,8 @@ interface UserWithRole {
   role: string | null
   org_id: string | null
   parking_id: string | null
+  operation_mode?: string | null
+  allow_free_exit?: boolean | null
   is_superadmin: boolean
 }
 
@@ -35,7 +37,9 @@ export default function EditUserModal({
     displayName: '',
     role: 'operador' as 'operador' | 'admin_empresa',
     orgId: '',
-    parkingId: ''
+    parkingId: '',
+    operationMode: 'both' as 'both' | 'entry_only' | 'exit_only',
+    allowFreeExit: false
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +54,9 @@ export default function EditUserModal({
         displayName: user.display_name || '',
         role: (user.is_superadmin ? 'superadmin' : (user.role || 'operador')) as 'operador' | 'admin_empresa',
         orgId: user.org_id || '',
-        parkingId: user.parking_id || ''
+        parkingId: user.parking_id || '',
+        operationMode: (user.operation_mode || 'both') as 'both' | 'entry_only' | 'exit_only',
+        allowFreeExit: user.allow_free_exit ?? false
       })
     }
   }, [user])
@@ -71,7 +77,9 @@ export default function EditUserModal({
           displayName: formData.displayName || null,
           role: formData.role,
           orgId: formData.orgId,
-          parkingId: formData.role === 'operador' ? formData.parkingId : null
+          parkingId: formData.parkingId || null,
+          operationMode: formData.role === 'operador' ? formData.operationMode : 'both',
+          allowFreeExit: formData.role === 'operador' ? formData.allowFreeExit : false
         })
       })
 
@@ -160,7 +168,7 @@ export default function EditUserModal({
               onChange={(e) => setFormData({ 
                 ...formData, 
                 role: e.target.value as 'operador' | 'admin_empresa',
-                parkingId: e.target.value === 'admin_empresa' ? '' : formData.parkingId
+                parkingId: formData.parkingId
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
@@ -192,10 +200,10 @@ export default function EditUserModal({
             )}
           </div>
 
-          {formData.role === 'operador' && (
+          {(formData.role === 'operador' || formData.role === 'admin_empresa') && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Parking asignado *
+                {formData.role === 'operador' ? 'Parking asignado *' : 'Parking administrado'}
               </label>
               <select
                 required={formData.role === 'operador'}
@@ -204,7 +212,9 @@ export default function EditUserModal({
                 disabled={parkingsLoading || !formData.orgId}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
               >
-                <option value="">Seleccionar parking</option>
+                <option value="">
+                  {formData.role === 'operador' ? 'Seleccionar parking' : 'Todos los parkings de la organizacion'}
+                </option>
                 {parkings.map((parking) => (
                   <option key={parking.id} value={parking.id}>
                     {parking.name}
@@ -214,6 +224,57 @@ export default function EditUserModal({
               {!formData.orgId && (
                 <p className="text-xs text-gray-500 mt-1">Primero selecciona una organización</p>
               )}
+              {formData.role === 'admin_empresa' && formData.orgId && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Si seleccionas un parking, este administrador solo gestionara turnos asociados a ese parking.
+                </p>
+              )}
+            </div>
+          )}
+
+          {formData.role === 'operador' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Modo en la app móvil *
+              </label>
+              <select
+                required
+                value={formData.operationMode}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    operationMode: e.target.value as 'both' | 'entry_only' | 'exit_only'
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="both">Entradas y salidas (por defecto)</option>
+                <option value="entry_only">Solo entradas (sin turno)</option>
+                <option value="exit_only">Solo salidas / cobros (requiere turno)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Solo entradas: registra vehículos sin abrir turno. Solo salidas: cobra tickets con turno abierto.
+              </p>
+            </div>
+          )}
+
+          {formData.role === 'operador' && (
+            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <input
+                type="checkbox"
+                id="allowFreeExit"
+                checked={formData.allowFreeExit}
+                onChange={(e) => setFormData({ ...formData, allowFreeExit: e.target.checked })}
+                className="mt-0.5 h-4 w-4 text-amber-600 border-gray-300 rounded"
+              />
+              <div>
+                <label htmlFor="allowFreeExit" className="block text-sm font-medium text-amber-800 cursor-pointer">
+                  Permitir salida liberada
+                </label>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  El operador podrá cerrar sesiones sin cobro. Aparecerá un botón &quot;Liberado&quot; junto a las opciones de pago. Desactivado por defecto.
+                </p>
+              </div>
             </div>
           )}
 

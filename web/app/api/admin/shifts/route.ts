@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireOrgAdmin } from '@/lib/auth/requireOrgAdmin'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
+    const auth = await requireOrgAdmin(request)
+    if ('error' in auth) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -23,7 +29,7 @@ export async function GET(request: Request) {
       }
     })
 
-    const { data: shifts, error } = await supabase
+    let query = supabase
       .from('shifts')
       .select(`
         id,
@@ -47,6 +53,21 @@ export async function GET(request: Request) {
       .eq('status', status)
       .order('opening_time', { ascending: false })
 
+    if (auth.role === 'admin_empresa') {
+      if (!auth.orgId) {
+        return NextResponse.json(
+          { error: 'Administrador sin organizacion asignada' },
+          { status: 403 }
+        )
+      }
+      query = query.eq('org_id', auth.orgId)
+      if (auth.parkingId) {
+        query = query.eq('parking_id', auth.parkingId)
+      }
+    }
+
+    const { data: shifts, error } = await query
+
     if (error) {
       return NextResponse.json(
         { error: `Error al obtener turnos: ${error.message}` },
@@ -62,6 +83,7 @@ export async function GET(request: Request) {
           .from('memberships')
           .select('display_name')
           .eq('user_id', shift.user_id)
+          .eq('org_id', shift.org_id)
           .eq('status', 'active')
           .maybeSingle()
 

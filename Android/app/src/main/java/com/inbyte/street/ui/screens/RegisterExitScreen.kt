@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.inbyte.street.data.model.SessionWithDuration
 import com.inbyte.street.ui.theme.*
+import com.inbyte.street.utils.clearFocusOnTap
 import com.inbyte.street.ui.viewmodel.SessionUiState
 import com.inbyte.street.ui.viewmodel.SessionViewModel
 import com.inbyte.street.utils.DateUtils
@@ -82,6 +83,7 @@ fun RegisterExitScreen(
     }
 
     Scaffold(
+        modifier = Modifier.clearFocusOnTap(),
         containerColor = BackgroundDarkGreen,
         topBar = {
             TopAppBar(
@@ -229,16 +231,26 @@ fun ExitSessionCard(
 ) {
     val entryDate = DateUtils.formatDate(session.entryTime)
     val entryTime = DateUtils.formatTime(session.entryTime)
+
+    // Usar la tarifa de la sesión si está disponible (tarifa múltiple), si no la del parking
+    val effectivePrice = session.pricePerMinute ?: pricePerMinute
+    val effectiveMax = session.maxDailyAmount ?: maxDailyAmount
+    val effectiveMode = session.pricingMode ?: pricingMode
+    val effectiveSeg = session.segmentAmount ?: segmentAmount
+    val effectiveSegMin = session.segmentMinutes ?: segmentMinutes
+    val effectiveMinStay = session.minimumStayHours
+    val effectiveMinAmount = session.minimumAmount
+
     var currentAmount by remember { mutableStateOf(0.0) }
     var currentDuration by remember { mutableStateOf(session.durationMinutes) }
 
-    LaunchedEffect(session.id, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes) {
+    LaunchedEffect(session.id) {
         while (true) {
             val entryTimeMillis = java.time.ZonedDateTime.parse(session.entryTime).toInstant().toEpochMilli()
             val durationMinutes = ((System.currentTimeMillis() - entryTimeMillis) / (1000 * 60)).toInt()
             currentDuration = durationMinutes
             currentAmount = computeSessionAmount(
-                durationMinutes, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes
+                durationMinutes, effectivePrice, effectiveMax, effectiveMode, effectiveSeg, effectiveSegMin, effectiveMinStay, effectiveMinAmount
             )
             kotlinx.coroutines.delay(10000)
         }
@@ -279,6 +291,13 @@ fun ExitSessionCard(
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
+                    session.tariffPlanName?.takeIf { it.isNotBlank() }?.let { tariffName ->
+                        Text(
+                            text = tariffName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.5f)
+                        )
+                    }
                     Text(
                         "$entryDate · $entryTime",
                         style = MaterialTheme.typography.bodySmall,

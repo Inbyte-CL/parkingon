@@ -19,11 +19,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.inbyte.street.data.model.ParkingTariffPlan
+import com.inbyte.street.data.model.UserInfo
 import com.inbyte.street.data.remote.UserService
 import com.inbyte.street.hardware.VoucherPrinter
 import com.inbyte.street.ui.theme.*
+import com.inbyte.street.utils.buildVoucherHeader
+import com.inbyte.street.utils.clearFocusOnTap
+import com.inbyte.street.ui.viewmodel.HomeViewModel
 import com.inbyte.street.ui.viewmodel.SessionUiState
 import com.inbyte.street.ui.viewmodel.SessionViewModel
 import com.inbyte.street.utils.DateUtils
@@ -31,7 +40,7 @@ import com.inbyte.street.utils.filterPlateInput
 import com.inbyte.street.utils.normalizePlate
 import com.inbyte.street.utils.PlateVisualTransformation
 import com.inbyte.street.utils.formatPlateForDisplay
-import kotlinx.coroutines.CoroutineScope
+import com.inbyte.street.utils.formatTariffPlanDetailsLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,6 +52,7 @@ private val Shape = RoundedCornerShape(12.dp)
 @Composable
 fun CreateSessionScreen(
     viewModel: SessionViewModel,
+    homeViewModel: HomeViewModel? = null,
     onBack: () -> Unit,
     onSessionCreated: () -> Unit
 ) {
@@ -54,14 +64,55 @@ fun CreateSessionScreen(
     var plate by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var createdSession by remember { mutableStateOf<com.inbyte.street.data.model.CreateSessionResponse?>(null) }
+    val cachedUserInfo = homeViewModel?.userInfo?.collectAsState()?.value
+    var userInfo by remember { mutableStateOf<UserInfo?>(cachedUserInfo) }
+    var showTariffPicker by remember { mutableStateOf(false) }
+    var pendingPlate by remember { mutableStateOf("") }
+    var selectedTariffPlan by remember { mutableStateOf<ParkingTariffPlan?>(null) }
+
+    LaunchedEffect(cachedUserInfo) {
+        if (cachedUserInfo != null) userInfo = cachedUserInfo
+    }
+
+    LaunchedEffect(Unit) {
+        if (userInfo == null) {
+            userInfo = runCatching { UserService().getUserInfo().getOrNull() }.getOrNull()
+        }
+        VoucherPrinter.warmUp(context)
+    }
+
+    fun submitEntry(plateValue: String, plan: ParkingTariffPlan?) {
+        selectedTariffPlan = plan
+        scope.launch(Dispatchers.IO) { VoucherPrinter.warmUp(context) }
+        viewModel.createSession(plateValue, plan?.id)
+    }
+
+    fun onRegisterClick() {
+        focusManager.clearFocus()
+        if (plate.isBlank()) return
+        val info = userInfo
+        if (info?.multipleTariffsEnabled == true && info.tariffPlans.isNotEmpty()) {
+            pendingPlate = plate
+            showTariffPicker = true
+        } else {
+            submitEntry(plate, null)
+        }
+    }
 
     LaunchedEffect(uiState) {
         when (val state = uiState) {
+            is SessionUiState.Loading -> {
+                VoucherPrinter.warmUp(context)
+            }
             is SessionUiState.SessionCreated -> {
                 createdSession = state.response
-                showSuccessDialog = true
                 plate = ""
-                CoroutineScope(Dispatchers.IO).launch {
+                val header = buildVoucherHeader(
+                    info = userInfo,
+                    selectedPlan = selectedTariffPlan,
+                    session = state.response.session
+                )
+                scope.launch(Dispatchers.IO) {
                     val prevHandler = Thread.getDefaultUncaughtExceptionHandler()
                     Thread.setDefaultUncaughtExceptionHandler { thread, e ->
                         val isNexgoCloudError = thread == Looper.getMainLooper().thread &&
@@ -75,24 +126,13 @@ fun CreateSessionScreen(
                         }
                         prevHandler?.uncaughtException(thread, e)
                     }
-                    val userInfo = runCatching { UserService().getUserInfo().getOrNull() }.getOrNull()
-                    val header = userInfo?.let {
-                        VoucherPrinter.VoucherHeader(
-                            organizationName = it.organizationName,
-                            parkingName = it.parkingName,
-                            pricePerMinute = it.pricePerMinute,
-                            pricingMode = it.pricingMode,
-                            segmentAmount = it.segmentAmount,
-                            segmentMinutes = it.segmentMinutes,
-                            operatorName = it.displayName
-                        )
-                    }
                     val printed = VoucherPrinter.printEntryVoucher(context, state.response.session, header)
                     withContext(Dispatchers.Main) {
+                        showSuccessDialog = true
                         Toast.makeText(
                             context,
-                            if (printed) "Voucher impreso" else "Impresora no disponible",
-                            Toast.LENGTH_SHORT
+                            if (printed) "Voucher impreso" else (VoucherPrinter.lastPrintError ?: "Impresora no disponible"),
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                     delay(3000)
@@ -101,6 +141,94 @@ fun CreateSessionScreen(
             }
             else -> {}
         }
+    }
+
+    if (showTariffPicker && userInfo != null) {
+        AlertDialog(
+            onDismissRequest = {
+                if (uiState !is SessionUiState.Loading) showTariffPicker = false
+            },
+            containerColor = CardDark,
+            title = {
+                Text(
+                    "Seleccionar tarifa",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "Patente: ${formatPlateForDisplay(normalizePlate(pendingPlate))}",
+                        color = Color.White.copy(alpha = 0.8f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 442.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        userInfo!!.tariffPlans.asReversed().forEach { plan ->
+                            Surface(
+                                onClick = {
+                                    showTariffPicker = false
+                                    submitEntry(pendingPlate, plan)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp),
+                                color = PrimaryGreen,
+                                enabled = uiState !is SessionUiState.Loading
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 13.dp, vertical = 7.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = plan.name.trim(),
+                                        fontSize = 18.sp,
+                                        lineHeight = 21.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = BackgroundDarkGreen,
+                                        textAlign = TextAlign.Center,
+                                        maxLines = 1
+                                    )
+                                    Text(
+                                        text = formatTariffPlanDetailsLine(
+                                            pricePerMinute = plan.pricePerMinute,
+                                            pricingMode = plan.pricingMode,
+                                            segmentAmount = plan.segmentAmount,
+                                            segmentMinutes = plan.segmentMinutes,
+                                            maxDailyAmount = plan.maxDailyAmount,
+                                            minimumStayHours = plan.minimumStayHours,
+                                            minimumAmount = plan.minimumAmount
+                                        ),
+                                        fontSize = 14.sp,
+                                        lineHeight = 17.sp,
+                                        color = BackgroundDarkGreen.copy(alpha = 0.9f),
+                                        textAlign = TextAlign.Center,
+                                        maxLines = 2
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(
+                    onClick = { showTariffPicker = false },
+                    enabled = uiState !is SessionUiState.Loading
+                ) {
+                    Text("Cancelar", color = Color.White.copy(alpha = 0.7f))
+                }
+            }
+        )
     }
 
     if (showSuccessDialog && createdSession != null) {
@@ -114,6 +242,7 @@ fun CreateSessionScreen(
             onNewEntry = {
                 showSuccessDialog = false
                 createdSession = null
+                selectedTariffPlan = null
                 viewModel.resetState()
                 plate = ""
             },
@@ -127,6 +256,7 @@ fun CreateSessionScreen(
     }
 
     Scaffold(
+        modifier = Modifier.clearFocusOnTap(),
         containerColor = BackgroundDarkGreen,
         topBar = {
             TopAppBar(
@@ -208,7 +338,7 @@ fun CreateSessionScreen(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                        if (plate.isNotBlank()) viewModel.createSession(plate)
+                        if (plate.isNotBlank()) onRegisterClick()
                     }
                 ),
                 enabled = uiState !is SessionUiState.Loading,
@@ -248,7 +378,7 @@ fun CreateSessionScreen(
             Button(
                 onClick = {
                     focusManager.clearFocus()
-                    if (plate.isNotBlank()) viewModel.createSession(plate)
+                    onRegisterClick()
                 },
                 modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 shape = Shape,
@@ -282,7 +412,7 @@ fun CreateSessionScreen(
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                if (ok) "Test impreso" else "Falló (ver logcat)",
+                                if (ok) "Test impreso" else (VoucherPrinter.lastPrintError ?: "Falló test impresión"),
                                 Toast.LENGTH_LONG
                             ).show()
                         }

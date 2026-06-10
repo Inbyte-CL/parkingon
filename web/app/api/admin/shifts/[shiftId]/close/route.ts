@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireOrgAdmin } from '@/lib/auth/requireOrgAdmin'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(
   request: Request,
   { params }: { params: { shiftId: string } }
 ) {
   try {
+    const auth = await requireOrgAdmin(request)
+    if ('error' in auth) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -63,6 +69,21 @@ export async function POST(
       )
     }
 
+    if (auth.role === 'admin_empresa') {
+      if (!auth.orgId || shift.org_id !== auth.orgId) {
+        return NextResponse.json(
+          { error: 'No puedes cerrar turnos de otra organizacion' },
+          { status: 403 }
+        )
+      }
+      if (auth.parkingId && shift.parking_id !== auth.parkingId) {
+        return NextResponse.json(
+          { error: 'No puedes cerrar turnos de otro parking' },
+          { status: 403 }
+        )
+      }
+    }
+
     // 2. Calcular cash_sales del turno
     const { data: payments } = await supabase
       .from('payments')
@@ -112,7 +133,8 @@ export async function POST(
         entity_type: 'shift',
         entity_id: shiftId,
         metadata: {
-          closed_by: 'superadmin',
+          closed_by: auth.user.id,
+          closed_by_role: auth.role,
           parking_id: shift.parking_id,
           opening_time: shift.opening_time,
           closing_time: now,

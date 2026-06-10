@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const VALID_OPERATION_MODES = ['both', 'entry_only', 'exit_only'] as const
+
 export async function GET(request: Request) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -42,6 +44,8 @@ export async function GET(request: Request) {
           display_name,
           org_id,
           parking_id,
+          operation_mode,
+          allow_free_exit,
           organizations:org_id (name),
           parkings:parking_id (name, status)
         `)
@@ -89,6 +93,8 @@ export async function GET(request: Request) {
             organization_name: (membership.organizations as any)?.name || null,
             parking_name: (membership.parkings as any)?.name || null,
             parking_status: (membership.parkings as any)?.status || null,
+            operation_mode: membership.operation_mode || 'both',
+            allow_free_exit: (membership as any).allow_free_exit ?? false,
           })
         } catch (err: any) {
           console.warn(`Error procesando usuario ${membership.user_id}:`, err.message)
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { email, password, displayName, role, orgId, parkingId } = body
+    const { email, password, displayName, role, orgId, parkingId, operationMode } = body
 
     // Validaciones
     if (!email || !password || !role || !orgId) {
@@ -149,6 +155,14 @@ export async function POST(request: Request) {
     if (role === 'operador' && !parkingId) {
       return NextResponse.json(
         { error: 'Los operadores deben tener un parking asignado' },
+        { status: 400 }
+      )
+    }
+
+    const resolvedOperationMode = operationMode || 'both'
+    if (role === 'operador' && !(VALID_OPERATION_MODES as readonly string[]).includes(resolvedOperationMode)) {
+      return NextResponse.json(
+        { error: 'Modo de operación inválido' },
         { status: 400 }
       )
     }
@@ -186,6 +200,7 @@ export async function POST(request: Request) {
         role: role,
         parking_id: parkingId || null,
         display_name: displayName || null,
+        operation_mode: role === 'operador' ? resolvedOperationMode : 'both',
         status: 'active'
       })
       .select()

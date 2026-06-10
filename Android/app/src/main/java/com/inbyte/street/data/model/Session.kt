@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateSessionRequest(
-    val plate: String
+    val plate: String,
+    @SerialName("parking_tariff_plan_id")
+    val parkingTariffPlanId: String? = null
 )
 
 @Serializable
@@ -25,7 +27,7 @@ data class Session(
     val id: String,
     
     @SerialName("shift_id")
-    val shiftId: String = "",
+    val shiftId: String? = null,
     
     @SerialName("parking_id")
     val parkingId: String = "",
@@ -49,7 +51,34 @@ data class Session(
     val sessionCode: String? = null,
     
     @SerialName("created_at")
-    val createdAt: String? = null
+    val createdAt: String? = null,
+
+    @SerialName("is_agreement")
+    val isAgreement: Boolean = false,
+
+    @SerialName("parking_tariff_plan_id")
+    val parkingTariffPlanId: String? = null,
+
+    @SerialName("tariff_plan_name")
+    val tariffPlanName: String? = null,
+
+    @SerialName("price_per_minute")
+    val pricePerMinute: Double? = null,
+
+    @SerialName("pricing_mode")
+    val pricingMode: String? = null,
+
+    @SerialName("segment_amount")
+    val segmentAmount: Double? = null,
+
+    @SerialName("segment_minutes")
+    val segmentMinutes: Int? = null,
+
+    @SerialName("minimum_stay_hours")
+    val minimumStayHours: Double? = null,
+
+    @SerialName("minimum_amount")
+    val minimumAmount: Double? = null
 )
 
 @Serializable
@@ -71,7 +100,28 @@ data class ActiveSessionsResponse(
     val segmentAmount: Double? = null,
     
     @SerialName("segment_minutes")
-    val segmentMinutes: Int? = null
+    val segmentMinutes: Int? = null,
+
+    @SerialName("multiple_tariffs_enabled")
+    val multipleTariffsEnabled: Boolean = false,
+
+    @SerialName("tariff_plans")
+    val tariffPlans: List<ParkingTariffPlan> = emptyList()
+)
+
+@Serializable
+data class DebtDetail(
+    @SerialName("id")
+    val id: String,
+
+    @SerialName("amount_owed")
+    val amountOwed: Double,
+
+    @SerialName("tariff_plan_name")
+    val tariffPlanName: String? = null,
+
+    @SerialName("abandoned_at")
+    val abandonedAt: String? = null
 )
 
 @Serializable
@@ -92,7 +142,46 @@ data class SessionWithDuration(
     val durationMinutes: Int,
     
     @SerialName("status")
-    val status: String
+    val status: String,
+
+    @SerialName("is_agreement")
+    val isAgreement: Boolean = false,
+
+    @SerialName("parking_tariff_plan_id")
+    val parkingTariffPlanId: String? = null,
+
+    @SerialName("tariff_plan_name")
+    val tariffPlanName: String? = null,
+
+    @SerialName("price_per_minute")
+    val pricePerMinute: Double? = null,
+
+    @SerialName("max_daily_amount")
+    val maxDailyAmount: Double? = null,
+
+    @SerialName("pricing_mode")
+    val pricingMode: String? = "per_minute",
+
+    @SerialName("segment_amount")
+    val segmentAmount: Double? = null,
+
+    @SerialName("segment_minutes")
+    val segmentMinutes: Int? = null,
+
+    @SerialName("minimum_stay_hours")
+    val minimumStayHours: Double? = null,
+
+    @SerialName("minimum_amount")
+    val minimumAmount: Double? = null,
+
+    @SerialName("has_debt")
+    val hasDebt: Boolean = false,
+
+    @SerialName("debt_amount")
+    val debtAmount: Double = 0.0,
+
+    @SerialName("debt_details")
+    val debtDetails: List<DebtDetail> = emptyList()
 )
 
 @Serializable
@@ -130,6 +219,5 @@ data class CloseSessionResponse(
 
 @Serializable
 data class EmptyRequest(
-    // Objeto vacío para funciones que no requieren parámetros
     val _empty: String? = null
 )

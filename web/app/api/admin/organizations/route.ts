@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireSuperadmin } from '@/lib/auth/requireSuperadmin'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const auth = await requireSuperadmin(request)
+    if (auth.error) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -44,6 +48,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSuperadmin(request)
+    if (auth.error) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -64,7 +71,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validar slug (solo letras, números, guiones)
     if (!/^[a-z0-9-]+$/.test(slug)) {
       return NextResponse.json(
         { error: 'El slug solo puede contener letras minúsculas, números y guiones' },
@@ -84,13 +90,13 @@ export async function POST(request: Request) {
       .insert({
         name,
         slug: slug.toLowerCase(),
-        status: status || 'active'
+        status: status || 'active',
       })
       .select()
       .single()
 
     if (error) {
-      if (error.code === '23505') { // Unique violation
+      if (error.code === '23505') {
         return NextResponse.json(
           { error: 'Ya existe una organización con ese slug' },
           { status: 400 }

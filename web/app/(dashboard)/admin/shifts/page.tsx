@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@/lib/hooks/useUser'
 import { formatCLP } from '@/lib/utils/currency'
+import { authFetch } from '@/lib/api/authFetch'
 import CloseShiftModal from '@/components/CloseShiftModal'
 
 interface Shift {
@@ -27,18 +28,18 @@ interface Shift {
 }
 
 export default function ShiftsPage() {
-  const { userInfo } = useUser()
+  const { userInfo, loading: userLoading } = useUser()
   const [shifts, setShifts] = useState<Shift[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [closingShift, setClosingShift] = useState<Shift | null>(null)
   
-  const isSuperadmin = userInfo?.role === 'superadmin'
+  const canManageShifts = userInfo?.role === 'superadmin' || userInfo?.role === 'admin_empresa'
 
   const fetchShifts = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/shifts?status=open')
+      const response = await authFetch('/api/admin/shifts?status=open')
       
       if (!response.ok) {
         const errorData = await response.json()
@@ -58,13 +59,13 @@ export default function ShiftsPage() {
   }
 
   useEffect(() => {
-    if (isSuperadmin) {
+    if (canManageShifts) {
       fetchShifts()
       // Actualizar cada 30 segundos
       const interval = setInterval(fetchShifts, 30000)
       return () => clearInterval(interval)
     }
-  }, [isSuperadmin])
+  }, [canManageShifts])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('es-ES', {
@@ -85,12 +86,23 @@ export default function ShiftsPage() {
     return `${hours}h ${minutes}m`
   }
 
-  if (!isSuperadmin) {
+  if (userLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Validando permisos...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!canManageShifts) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <h2 className="text-red-800 font-semibold mb-2">Acceso Denegado</h2>
-          <p className="text-red-600">Solo los superadmins pueden acceder a esta página.</p>
+          <p className="text-red-600">Solo administradores pueden acceder a esta pagina.</p>
         </div>
       </div>
     )

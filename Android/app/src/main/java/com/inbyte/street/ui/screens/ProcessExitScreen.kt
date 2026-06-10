@@ -34,6 +34,7 @@ import com.inbyte.street.ui.viewmodel.SessionViewModel
 import com.inbyte.street.utils.CurrencyUtils
 import com.inbyte.street.utils.DateUtils
 import com.inbyte.street.utils.formatPlateForDisplay
+import com.inbyte.street.utils.clearFocusOnTap
 import com.inbyte.street.utils.computeSessionAmount
 import com.inbyte.street.utils.formatTariffLabel
 import kotlinx.coroutines.delay
@@ -69,9 +70,18 @@ fun ProcessExitScreen(
     voucherHeader: VoucherPrinter.VoucherHeader? = null,
     viewModel: SessionViewModel,
     mainActivity: MainActivity?,
+    allowPayments: Boolean = true,
     onBack: () -> Unit,
     onExitProcessed: () -> Unit
 ) {
+    val isAgreementPlate = session.isAgreement
+    val effectivePricePerMinute = session.pricePerMinute ?: pricePerMinute
+    val effectiveMaxDailyAmount = session.maxDailyAmount ?: maxDailyAmount
+    val effectivePricingMode = session.pricingMode ?: pricingMode
+    val effectiveSegmentAmount = session.segmentAmount ?: segmentAmount
+    val effectiveSegmentMinutes = session.segmentMinutes ?: segmentMinutes
+    val effectiveMinimumStayHours = session.minimumStayHours
+    val effectiveMinimumAmount = session.minimumAmount
     val uiState by viewModel.uiState.collectAsState()
     val cardPaymentResultState = if (mainActivity != null) {
         mainActivity.cardPaymentResult.collectAsState(initial = null)
@@ -81,8 +91,22 @@ fun ProcessExitScreen(
     val cardPaymentResult by cardPaymentResultState
 
     val context = androidx.compose.ui.platform.LocalContext.current
-    var currentAmount by remember { mutableStateOf(0.0) }
-    var currentDuration by remember { mutableStateOf(session.durationMinutes) }
+    // Monto y duración congelados al entrar a la pantalla: no cambian hasta salir o pagar.
+    val frozenDuration = remember(session.id) {
+        val entryTimeMillis = java.time.ZonedDateTime.parse(session.entryTime).toInstant().toEpochMilli()
+        ((System.currentTimeMillis() - entryTimeMillis) / (1000 * 60)).toInt()
+    }
+    val frozenAmount = remember(session.id) {
+        if (isAgreementPlate) 0.0
+        else computeSessionAmount(
+            frozenDuration, effectivePricePerMinute, effectiveMaxDailyAmount,
+            effectivePricingMode, effectiveSegmentAmount, effectiveSegmentMinutes,
+            effectiveMinimumStayHours, effectiveMinimumAmount
+        )
+    }
+    val currentAmount = frozenAmount + (if (session.hasDebt) 0.0 else 0.0) // alias legible
+    val currentDuration = frozenDuration
+    // Solo la hora actual sigue corriendo (para mostrar el reloj), no el monto.
     var currentTimeIso by remember { mutableStateOf(nowIso()) }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var closedSessionId by remember { mutableStateOf<String?>(null) }
@@ -93,31 +117,29 @@ fun ProcessExitScreen(
     var cashChangeAmount by remember { mutableStateOf(0.0) }
     // Datos del pago en efectivo pendientes de imprimir (amountPaid, amountReceived, exitTimeIso)
     var pendingCashPrint by remember { mutableStateOf<Triple<Double, Double, String>?>(null) }
+    var pendingAgreementPrint by remember { mutableStateOf<Pair<String, Int>?>(null) }
     var errorDialogMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Pre-crear cotización al cargar la pantalla para que "Pago con tarjeta" lance el intent al instante
+    if (allowPayments && !isAgreementPlate) {
+        LaunchedEffect(session.id) {
+            viewModel.createQuoteInBackground(session.id) { result ->
+                result.onSuccess { preCreatedQuote = it.quote }
+            }
+        }
+    }
+
+    // Solo actualiza el reloj de "hora actual", el monto está congelado.
     LaunchedEffect(session.id) {
-        viewModel.createQuoteInBackground(session.id) { result ->
-            result.onSuccess { preCreatedQuote = it.quote }
-        }
-    }
-
-    LaunchedEffect(session.id, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes) {
         while (true) {
-            val entryTimeMillis = java.time.ZonedDateTime.parse(session.entryTime).toInstant().toEpochMilli()
-            val durationMinutes = ((System.currentTimeMillis() - entryTimeMillis) / (1000 * 60)).toInt()
-            currentDuration = durationMinutes
-            currentAmount = computeSessionAmount(
-                durationMinutes, pricePerMinute, maxDailyAmount, pricingMode, segmentAmount, segmentMinutes
-            )
             currentTimeIso = nowIso()
-            delay(1000)
+            delay(10_000)
         }
     }
 
-    LaunchedEffect(cardPaymentResult) {
+    LaunchedEffect(cardPaymentResult, allowPayments) {
+        if (!allowPayments) return@LaunchedEffect
         val result = cardPaymentResult ?: return@LaunchedEffect
         mainActivity?.clearCardPaymentResult()
         isWaitingCardResult = false
@@ -188,7 +210,37 @@ fun ProcessExitScreen(
                             amountReceived = amountReceived,
                             changeAmount = (amountReceived - amountPaid).coerceAtLeast(0.0)
                         )
-                        VoucherPrinter.printCashPaymentVoucher(context, cashData, voucherHeader)
+                        val printed = VoucherPrinter.printCashPaymentVoucher(context, cashData, voucherHeader)
+                        if (!printed) {
+                            android.widget.Toast.makeText(
+                                context,
+                                VoucherPrinter.lastPrintError ?: "No se pudo imprimir el comprobante",
+                                android.widget.Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                    val agreementPrint = pendingAgreementPrint
+                    if (agreementPrint != null) {
+                        pendingAgreementPrint = null
+                        val (exitTimeIso, durationAtExit) = agreementPrint
+                        val agreementData = VoucherPrinter.CashPaymentData(
+                            plate = session.plate,
+                            sessionCode = session.sessionCode ?: session.id.take(8),
+                            entryTime = session.entryTime,
+                            exitTime = exitTimeIso,
+                            durationMinutes = durationAtExit,
+                            amountPaid = 0.0,
+                            amountReceived = 0.0,
+                            changeAmount = 0.0
+                        )
+                        val printed = VoucherPrinter.printAgreementExitVoucher(context, agreementData, voucherHeader)
+                        if (!printed) {
+                            android.widget.Toast.makeText(
+                                context,
+                                VoucherPrinter.lastPrintError ?: "No se pudo imprimir el comprobante",
+                                android.widget.Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                     showSuccessDialog = true
                 }
@@ -253,12 +305,16 @@ fun ProcessExitScreen(
         )
     }
 
-    if (showCashDialog) {
+    val durationText = if (currentDuration < 60) "${currentDuration}m" else "${currentDuration / 60}h ${currentDuration % 60}m"
+    val totalAmountWithDebt = currentAmount + session.debtAmount
+    val amountStr = CurrencyUtils.formatCLP(totalAmountWithDebt).replace("$", "").trim()
+
+    if (allowPayments && showCashDialog) {
         CashPaymentDialog(
             plate = session.plate,
             entryTime = session.entryTime,
             durationMinutes = currentDuration,
-            amountToPay = currentAmount,
+            amountToPay = totalAmountWithDebt,
             preCreatedQuote = preCreatedQuote,
             isLoading = uiState is SessionUiState.Loading,
             onConfirm = { receivedAmount, quote ->
@@ -275,10 +331,8 @@ fun ProcessExitScreen(
         )
     }
 
-    val durationText = if (currentDuration < 60) "${currentDuration}m" else "${currentDuration / 60}h ${currentDuration % 60}m"
-    val amountStr = CurrencyUtils.formatCLP(currentAmount).replace("$", "").trim()
-
     Scaffold(
+        modifier = Modifier.clearFocusOnTap(),
         containerColor = BackgroundDarkGreen,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -295,13 +349,11 @@ fun ProcessExitScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // ----- Header -----
+            // ----- Header: flecha compacta + título en el ancho restante -----
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 48.dp)
-                    .padding(top = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -319,13 +371,15 @@ fun ProcessExitScreen(
                         )
                     }
                 }
+                Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    "Salida de vehículo",
+                    if (allowPayments) "Salida de vehículo" else "Detalle del vehículo",
+                    modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = Color.White,
+                    maxLines = 1
                 )
-                Spacer(modifier = Modifier.size(40.dp))
             }
 
             // ----- Scroll content -----
@@ -367,6 +421,16 @@ fun ProcessExitScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 color = BackgroundDarkGreen
                             )
+                            session.tariffPlanName?.takeIf { it.isNotBlank() }?.let { tariffName ->
+                                Text(
+                                    text = tariffName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Medium,
+                                    color = BackgroundDarkGreen.copy(alpha = 0.75f),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                             Row(
                                 modifier = Modifier.padding(top = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -417,9 +481,108 @@ fun ProcessExitScreen(
                             Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp), tint = PrimaryGreen)
                         })
                         HorizontalDivider(color = PrimaryGreen.copy(alpha = 0.08f), modifier = Modifier.padding(vertical = 8.dp))
-                        DetailRow("Tarifa aplicada", formatTariffLabel(pricePerMinute, pricingMode, segmentAmount, segmentMinutes))
+                        DetailRow(
+                            "Tarifa",
+                            formatTariffLabel(
+                                effectivePricePerMinute,
+                                effectivePricingMode,
+                                effectiveSegmentAmount,
+                                effectiveSegmentMinutes,
+                                session.tariffPlanName,
+                                effectiveMinimumStayHours
+                            )
+                        )
                         if (maxDailyAmount != null) {
                             DetailRow("Tope máx.", CurrencyUtils.formatCLP(maxDailyAmount))
+                        }
+                    }
+                }
+
+                // ----- Advertencia y desglose de deuda previa -----
+                if (session.hasDebt && session.debtAmount > 0) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = CardShape,
+                        color = Color(0xFFB71C1C).copy(alpha = 0.18f),
+                        border = androidx.compose.foundation.BorderStroke(2.dp, Color(0xFFEF5350))
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = Color(0xFFEF5350),
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "⚠ VEHÍCULO CON DEUDA PREVIA",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFFEF5350),
+                                    letterSpacing = 1.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            // Desglose: sesión actual + deudas
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "Estacionamiento actual",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.8f)
+                                )
+                                Text(
+                                    CurrencyUtils.formatCLP(currentAmount),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            session.debtDetails.forEach { debt ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        "Deuda${if (!debt.tariffPlanName.isNullOrBlank()) " (${debt.tariffPlanName})" else ""}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFFEF9A9A)
+                                    )
+                                    Text(
+                                        CurrencyUtils.formatCLP(debt.amountOwed),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFFEF9A9A)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                            HorizontalDivider(
+                                color = Color(0xFFEF5350).copy(alpha = 0.4f),
+                                modifier = Modifier.padding(vertical = 6.dp)
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "TOTAL A COBRAR",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFFEF5350)
+                                )
+                                Text(
+                                    CurrencyUtils.formatCLP(currentAmount + session.debtAmount),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFFEF5350)
+                                )
+                            }
                         }
                     }
                 }
@@ -432,30 +595,44 @@ fun ProcessExitScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "TOTAL A PAGAR",
+                        when {
+                            isAgreementPlate -> "PATENTE EN CONVENIO"
+                            allowPayments -> "TOTAL A PAGAR"
+                            else -> "MONTO ESTIMADO"
+                        },
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = PrimaryGreen,
                         letterSpacing = 1.5.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                    if (isAgreementPlate) {
                         Text(
-                            "$",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(end = 4.dp, bottom = 4.dp)
-                        )
-                        Text(
-                            amountStr.ifEmpty() { "0" },
-                            style = MaterialTheme.typography.displayLarge,
+                            "PAGO LIBERADO",
+                            style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Black,
-                            color = Color.White
+                            color = Color.White,
+                            textAlign = TextAlign.Center
                         )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.Bottom,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "$",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White.copy(alpha = 0.6f),
+                                modifier = Modifier.padding(end = 4.dp, bottom = 4.dp)
+                            )
+                            Text(
+                                amountStr.ifEmpty { "0" },
+                                style = MaterialTheme.typography.displayLarge,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -472,107 +649,184 @@ fun ProcessExitScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp)
                         .padding(bottom = 16.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                if (uiState is SessionUiState.Loading || showSuccessDialog || showCashDialog) return@OutlinedButton
-                                showCashDialog = true
-                            },
-                            modifier = Modifier.weight(1f).heightIn(min = 72.dp),
-                            shape = CardShape,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = PrimaryGreen,
-                                disabledContentColor = PrimaryGreen.copy(alpha = 0.5f)
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryGreen),
-                            enabled = uiState !is SessionUiState.Loading && !showSuccessDialog && !showCashDialog,
-                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(22.dp), tint = PrimaryGreen)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    "Pago en efectivo",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 2,
-                                    color = PrimaryGreen
-                                )
-                            }
-                        }
+                    if (allowPayments && isAgreementPlate) {
                         Button(
                             onClick = {
-                                if (mainActivity == null) {
-                                    errorDialogMessage = "Error: no se puede abrir el módulo de pago con tarjeta."
-                                    return@Button
-                                }
-                                if (isWaitingCardResult || showSuccessDialog) return@Button
-                                val quote = preCreatedQuote
-                                if (isQuoteFreshEnough(quote)) {
-                                    currentQuote = quote
-                                    val amountInt = (quote?.amountLocked ?: 0.0).toInt().coerceAtLeast(1)
-                                    isWaitingCardResult = true
-                                    mainActivity.launchCardPayment(amountInt)
-                                    return@Button
-                                }
-                                isWaitingCardResult = true
+                                if (uiState is SessionUiState.Loading || showSuccessDialog) return@Button
                                 viewModel.createQuote(session.id) { result ->
                                     result.onSuccess { response ->
-                                        currentQuote = response.quote
-                                        preCreatedQuote = response.quote
-                                        val amountInt = response.quote.amountLocked.toInt().coerceAtLeast(1)
-                                        mainActivity.launchCardPayment(amountInt)
+                                        pendingAgreementPrint = Pair(nowIso(), currentDuration)
+                                        viewModel.processPayment(response.quote.quoteId, "agreement")
                                     }.onFailure { e ->
-                                        isWaitingCardResult = false
-                                        errorDialogMessage = "Error al crear cotización:\n\n${e.message ?: "Error desconocido"}"
+                                        errorDialogMessage =
+                                            "Error al procesar convenio:\n\n${e.message ?: "Error desconocido"}"
                                     }
                                 }
                             },
-                            modifier = Modifier.weight(1f).heightIn(min = 72.dp),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
                             shape = CardShape,
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                            enabled = mainActivity != null && !isWaitingCardResult && !showSuccessDialog,
-                            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
+                            enabled = uiState !is SessionUiState.Loading && !showSuccessDialog,
+                            contentPadding = PaddingValues(vertical = 14.dp, horizontal = 16.dp)
                         ) {
                             Column(
-                                modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                if (isWaitingCardResult && currentQuote != null) {
-                                    CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp, color = BackgroundDarkGreen)
-                                } else {
-                                    Icon(Icons.Default.CreditCard, contentDescription = null, modifier = Modifier.size(22.dp), tint = BackgroundDarkGreen)
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Icon(
+                                    Icons.Default.Handshake,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(26.dp),
+                                    tint = BackgroundDarkGreen
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    if (isWaitingCardResult && currentQuote != null) "Esperando tarjeta..." else "Pago con tarjeta",
-                                    style = MaterialTheme.typography.labelLarge,
+                                    "Patente en convenio",
+                                    style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = BackgroundDarkGreen,
-                                    maxLines = 2
+                                    color = BackgroundDarkGreen
+                                )
+                            }
+                        }
+                        Text(
+                            "Emite el comprobante de salida sin cobro",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.4f),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                    } else if (allowPayments) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    if (uiState is SessionUiState.Loading || showSuccessDialog || showCashDialog) return@OutlinedButton
+                                    showCashDialog = true
+                                },
+                                modifier = Modifier.weight(1f).heightIn(min = 72.dp),
+                                shape = CardShape,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = PrimaryGreen,
+                                    disabledContentColor = PrimaryGreen.copy(alpha = 0.5f)
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryGreen),
+                                enabled = uiState !is SessionUiState.Loading && !showSuccessDialog && !showCashDialog,
+                                contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(Icons.Default.Payments, contentDescription = null, modifier = Modifier.size(22.dp), tint = PrimaryGreen)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        "Pago en efectivo",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 2,
+                                        color = PrimaryGreen
+                                    )
+                                }
+                            }
+                            Button(
+                                onClick = {
+                                    if (mainActivity == null) {
+                                        errorDialogMessage = "Error: no se puede abrir el módulo de pago con tarjeta."
+                                        return@Button
+                                    }
+                                    if (isWaitingCardResult || showSuccessDialog) return@Button
+                                    val quote = preCreatedQuote
+                                    if (isQuoteFreshEnough(quote)) {
+                                        currentQuote = quote
+                                        val amountInt = (quote?.amountLocked ?: 0.0).toInt().coerceAtLeast(1)
+                                        isWaitingCardResult = true
+                                        mainActivity.launchCardPayment(amountInt)
+                                        return@Button
+                                    }
+                                    isWaitingCardResult = true
+                                    viewModel.createQuote(session.id) { result ->
+                                        result.onSuccess { response ->
+                                            currentQuote = response.quote
+                                            preCreatedQuote = response.quote
+                                            val amountInt = response.quote.amountLocked.toInt().coerceAtLeast(1)
+                                            mainActivity.launchCardPayment(amountInt)
+                                        }.onFailure { e ->
+                                            isWaitingCardResult = false
+                                            errorDialogMessage = "Error al crear cotización:\n\n${e.message ?: "Error desconocido"}"
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).heightIn(min = 72.dp),
+                                shape = CardShape,
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                                enabled = mainActivity != null && !isWaitingCardResult && !showSuccessDialog,
+                                contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    if (isWaitingCardResult && currentQuote != null) {
+                                        CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp, color = BackgroundDarkGreen)
+                                    } else {
+                                        Icon(Icons.Default.CreditCard, contentDescription = null, modifier = Modifier.size(22.dp), tint = BackgroundDarkGreen)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        if (isWaitingCardResult && currentQuote != null) "Esperando tarjeta..." else "Pago con tarjeta",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = BackgroundDarkGreen,
+                                        maxLines = 2
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            "Cierre automático de sesión tras el pago",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.4f),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                    } else {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = CardShape,
+                            color = Slate800Ring.copy(alpha = 0.6f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryGreen.copy(alpha = 0.2f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = PrimaryGreen,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    "Tu perfil solo registra entradas. Las salidas y cobros las realiza otro operador.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.85f)
                                 )
                             }
                         }
                     }
-                    Text(
-                        "Cierre automático de sesión tras el pago",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.4f),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
             }
         }

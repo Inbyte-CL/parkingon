@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { requireSuperadmin } from '@/lib/auth/requireSuperadmin'
+
+const VALID_OPERATION_MODES = ['both', 'entry_only', 'exit_only'] as const
 
 export async function PUT(
   request: Request,
@@ -17,7 +20,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { email, displayName, role, orgId, parkingId, status } = body
+    const { email, displayName, role, orgId, parkingId, status, operationMode, allowFreeExit } = body
     const userId = params.userId
 
     if (!userId) {
@@ -58,6 +61,18 @@ export async function PUT(
       updateData.parking_id = parkingId
     }
     if (status !== undefined) updateData.status = status
+    if (operationMode !== undefined) {
+      if (!(VALID_OPERATION_MODES as readonly string[]).includes(operationMode)) {
+        return NextResponse.json(
+          { error: 'Modo de operación inválido' },
+          { status: 400 }
+        )
+      }
+      updateData.operation_mode = operationMode
+    }
+    if (allowFreeExit !== undefined) {
+      updateData.allow_free_exit = Boolean(allowFreeExit)
+    }
 
     // Obtener membership actual
     const { data: currentMembership } = await supabase
@@ -132,11 +147,30 @@ export async function PUT(
   }
 }
 
+async function countByCreator(
+  supabase: SupabaseClient,
+  table: 'sessions' | 'payment_quotes' | 'payments',
+  userId: string
+) {
+  const { count, error } = await supabase
+    .from(table)
+    .select('*', { count: 'exact', head: true })
+    .eq('created_by', userId)
+
+  if (error) {
+    throw new Error(`Error al verificar historial en ${table}: ${error.message}`)
+  }
+  return count ?? 0
+}
+
 export async function DELETE(
   request: Request,
   { params }: { params: { userId: string } }
 ) {
   try {
+    const auth = await requireSuperadmin(request)
+    if (auth.error) return auth.error
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -156,6 +190,13 @@ export async function DELETE(
       )
     }
 
+    if (userId === auth.user.id) {
+      return NextResponse.json(
+        { error: 'No puedes eliminar tu propia cuenta' },
+        { status: 400 }
+      )
+    }
+
     const supabase = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
@@ -163,25 +204,53 @@ export async function DELETE(
       }
     })
 
-    // Desactivar membership en lugar de eliminarlo
-    const { error: membershipError } = await supabase
-      .from('memberships')
-      .update({ status: 'inactive' })
-      .eq('user_id', userId)
+    const { data: targetUser, error: fetchError } = await supabase.auth.admin.getUserById(userId)
 
-    if (membershipError) {
+    if (fetchError || !targetUser?.user) {
       return NextResponse.json(
-        { error: `Error al desactivar membership: ${membershipError.message}` },
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    if ((targetUser.user.user_metadata?.is_superadmin as boolean) === true) {
+      return NextResponse.json(
+        { error: 'No se puede eliminar un superadmin' },
+        { status: 400 }
+      )
+    }
+
+    const [sessionsCount, quotesCount, paymentsCount] = await Promise.all([
+      countByCreator(supabase, 'sessions', userId),
+      countByCreator(supabase, 'payment_quotes', userId),
+      countByCreator(supabase, 'payments', userId),
+    ])
+
+    const totalHistory = sessionsCount + quotesCount + paymentsCount
+    if (totalHistory > 0) {
+      return NextResponse.json(
+        {
+          error:
+            'Este usuario tiene historial operativo (sesiones, cotizaciones o pagos). ' +
+            'Por integridad de datos no se puede eliminar. Edítalo y cambia su estado a inactivo.',
+          history: { sessions: sessionsCount, quotes: quotesCount, payments: paymentsCount },
+        },
+        { status: 409 }
+      )
+    }
+
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
+
+    if (deleteError) {
+      return NextResponse.json(
+        { error: `Error al eliminar usuario: ${deleteError.message}` },
         { status: 500 }
       )
     }
 
-    // Opcional: Eliminar usuario de auth (comentado por seguridad)
-    // await supabase.auth.admin.deleteUser(userId)
-
     return NextResponse.json({
       success: true,
-      message: 'Usuario desactivado correctamente'
+      message: `Usuario "${targetUser.user.email}" eliminado correctamente`,
     })
   } catch (error: any) {
     console.error('Error:', error)
